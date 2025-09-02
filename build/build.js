@@ -39,7 +39,8 @@ var BOAT = (function () {
 var boat1 = new BOAT();
 var boat2 = new BOAT();
 var menu;
-var pump;
+var airstream;
+var symbols;
 var npts = 50;
 var xs = Array(100 + 1);
 var ys = Array(100 + 1);
@@ -96,7 +97,8 @@ function preload() {
     debugOptions = loadImage("debug/options.png");
     debugCredits = loadImage("debug/credits.png");
     debugPlay = loadImage("debug/play.png");
-    pump = loadFont("fonts/airstream.ttf");
+    airstream = loadFont("fonts/airstream.ttf");
+    symbols = loadFont("fonts/symbols.ttf");
     vsetko = create_bitmap(2100, 1900);
     bc = create_bitmap(100, 100);
     wp = create_bitmap(100, 100);
@@ -118,7 +120,7 @@ function setup() {
     createCanvas(1024, 768);
     angleMode(DEGREES);
     setup_boats();
-    textFont(pump);
+    textFont(airstream);
     textSize(50);
     switchScene("options_menu");
 }
@@ -172,8 +174,8 @@ function menuButtons() {
     var playLabel = {
         text: "Play",
         size: 0.9 * 50,
-        x: 209,
-        y: 608,
+        xOffset: 47,
+        yOffset: 8,
     };
     if (textButton(playLabel, 162, 600, 96, 60)) {
         switchScene("play_menu");
@@ -181,8 +183,8 @@ function menuButtons() {
     var optionsLabel = {
         text: "Options",
         size: 0.9 * 35,
-        x: 360,
-        y: 610,
+        xOffset: 48,
+        yOffset: 13,
     };
     if (textButton(optionsLabel, 312, 597, 96, 57)) {
         switchScene("options_menu");
@@ -190,8 +192,8 @@ function menuButtons() {
     var creditsLabel = {
         text: "Credits",
         size: 0.9 * 35,
-        x: 590,
-        y: 609,
+        xOffset: 47,
+        yOffset: 12,
     };
     if (textButton(creditsLabel, 543, 597, 95, 57)) {
         switchScene("credits_menu");
@@ -199,21 +201,24 @@ function menuButtons() {
     var githubLabel = {
         text: "Github",
         size: 0.9 * 35,
-        x: 712,
-        y: 613,
+        xOffset: 48,
+        yOffset: 12,
     };
     if (textButton(githubLabel, 664, 601, 95, 57)) {
         window.open("https://github.com/domiluk/hawaii-p5", '_blank');
     }
     var muteLabel = {
-        text: "Mute",
+        text: "\ueee8",
         size: 0.9 * 25,
-        x: 905,
-        y: 685,
+        xOffset: 25,
+        yOffset: 7,
+        rotate: 15,
+        font: symbols,
     };
     if (textButton(muteLabel, 883, 678, 45, 33)) {
         toggleMute();
     }
+    textFont(airstream);
     fill(0);
     textSize(0.9 * 75);
     text("Hawaii", 512, 100);
@@ -228,8 +233,8 @@ function play_menu() {
     var singleplayerLabel = {
         text: "Singleplayer",
         size: 0.9 * 60,
-        x: 206,
-        y: 357,
+        xOffset: 106,
+        yOffset: -3,
     };
     if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
         game_mode = MODE_SINGLEPLAYER;
@@ -238,8 +243,8 @@ function play_menu() {
     var multiplayerLabel = {
         text: "Multiplayer",
         size: 0.9 * 60,
-        x: 206,
-        y: 397,
+        xOffset: 106,
+        yOffset: -3,
     };
     if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
         game_mode = MODE_MULTIPLAYER;
@@ -249,6 +254,7 @@ function play_menu() {
 function options_menu() {
     image(menu, 0, 0);
     menuButtons();
+    textFont(airstream);
     noStroke();
     textSize(0.9 * 30);
     textAlign(CENTER, TOP);
@@ -258,7 +264,9 @@ function options_menu() {
     text("Controlled by Arrows", 165, 260);
     text("Color:     ", 165, 290);
     fill("#bb0000");
+    stroke(25);
     text("       red", 165, 290);
+    noStroke();
     textAlign(CENTER, TOP);
     fill(255);
     text("Player 2", 165, 330);
@@ -266,30 +274,30 @@ function options_menu() {
     text("Controlled by WASD", 165, 360);
     text("Color:       ", 165, 390);
     fill("#00bb00");
+    stroke(25);
     text("        green", 165, 390);
+    noStroke();
     textAlign(CENTER, TOP);
     fill(255);
     text("Game options", 800, 230);
     var lapsLabel = {
         text: "Laps",
         size: 0.9 * 30,
-        x: 775,
-        y: 270,
     };
-    textLabel(lapsLabel, color(0), RIGHT, TOP);
+    textLabel(lapsLabel, 775, 270, color(0), RIGHT, TOP);
     var leftArrowLabel = {
         text: "‹",
         size: 0.9 * 60,
-        x: 800 + 15,
-        y: 270 - 13,
+        xOffset: 15,
+        yOffset: -13,
     };
     if (textButton(leftArrowLabel, 800, 270, 25, 25)) {
     }
     var rightArrowLabel = {
         text: "›",
         size: 0.9 * 60,
-        x: 855 + 10,
-        y: 270 - 13,
+        xOffset: 10,
+        yOffset: -13,
     };
     if (textButton(rightArrowLabel, 855, 270, 25, 25)) {
     }
@@ -304,16 +312,10 @@ function options_menu() {
     var volumeLabel = {
         text: "Volume",
         size: 0.9 * 30,
-        x: 775,
-        y: 370,
     };
-    textLabel(volumeLabel, color(0), RIGHT, TOP);
-    leftArrowLabel.x = 800 + 15;
-    leftArrowLabel.y = 370 - 13;
+    textLabel(volumeLabel, 775, 370, color(0), RIGHT, TOP);
     if (textButton(leftArrowLabel, 800, 370, 25, 25)) {
     }
-    rightArrowLabel.x = 870 + 10;
-    rightArrowLabel.y = 370 - 13;
     if (textButton(rightArrowLabel, 870, 370, 25, 25)) {
     }
     noStroke();
@@ -326,6 +328,7 @@ function credits_menu() {
     image(menu, 0, 0);
     menuButtons();
     textAlign(CENTER, TOP);
+    textFont(airstream);
     noStroke();
     fill(0);
     textSize(0.9 * 35);
@@ -642,6 +645,29 @@ function keyPressed() {
             break;
     }
 }
+function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
+    var _a, _b, _c;
+    if (fillColor === void 0) { fillColor = color(0); }
+    if (horizAlign === void 0) { horizAlign = CENTER; }
+    if (vertAlign === void 0) { vertAlign = TOP; }
+    noStroke();
+    fill(fillColor);
+    textAlign(horizAlign, vertAlign);
+    textSize(label.size);
+    textFont((_a = label.font) !== null && _a !== void 0 ? _a : airstream);
+    x = x + ((_b = label.xOffset) !== null && _b !== void 0 ? _b : 0);
+    y = y + ((_c = label.yOffset) !== null && _c !== void 0 ? _c : 0);
+    if (label.rotate) {
+        push();
+        translate(x, y);
+        rotate(label.rotate);
+        translate(-x, -y);
+    }
+    text(label.text, x, y);
+    if (label.rotate) {
+        pop();
+    }
+}
 function textButton(label, x, y, w, h, debug) {
     if (debug === void 0) { debug = true; }
     var mouseIsPressedInsideButton = false;
@@ -652,7 +678,7 @@ function textButton(label, x, y, w, h, debug) {
             mouseIsPressedInsideButton = true;
         }
     }
-    textLabel(label, color(fillColor), CENTER, TOP);
+    textLabel(label, x, y, color(fillColor), CENTER, TOP);
     if (debug) {
         stroke(0);
         strokeWeight(1);
@@ -660,15 +686,5 @@ function textButton(label, x, y, w, h, debug) {
         rect(x, y, w, h);
     }
     return mouseIsPressedInsideButton;
-}
-function textLabel(label, fillColor, horizAlign, vertAlign) {
-    if (fillColor === void 0) { fillColor = color(0); }
-    if (horizAlign === void 0) { horizAlign = CENTER; }
-    if (vertAlign === void 0) { vertAlign = TOP; }
-    noStroke();
-    fill(fillColor);
-    textAlign(horizAlign, vertAlign);
-    textSize(label.size);
-    text(label.text, label.x, label.y);
 }
 //# sourceMappingURL=build.js.map

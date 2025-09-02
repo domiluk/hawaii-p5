@@ -69,7 +69,9 @@ const boat2 = new BOAT()
 // let mb: p5.Image // NOTE: not needed, we draw to screen directly (p5 is double bufferred)
 let menu: p5.Image
 // let boat, ms, boatr: p5.Image
-let pump: p5.Font
+
+let airstream: p5.Font
+let symbols: p5.Font
 
 
 let npts = 50
@@ -131,7 +133,9 @@ function preload() {
   debugCredits = loadImage("debug/credits.png")
   debugPlay = loadImage("debug/play.png")
 
-  pump = loadFont("fonts/airstream.ttf")
+  airstream = loadFont("fonts/airstream.ttf")
+  symbols = loadFont("fonts/symbols.ttf")
+
   vsetko = create_bitmap(2100, 1900)
   // game_mode = MODE_MP;
   bc = create_bitmap(100, 100)
@@ -162,7 +166,7 @@ function setup() {
 
   setup_boats()
 
-  textFont(pump)
+  textFont(airstream)
   textSize(50)
   switchScene("options_menu")
 }
@@ -225,8 +229,8 @@ function menuButtons(): void {
   let playLabel: TextLabel = {
     text: "Play",
     size: 0.9 * 50,
-    x: 209,
-    y: 608,
+    xOffset: 47,
+    yOffset: 8,
   }
   if (textButton(playLabel, 162, 600, 96, 60)) {
     switchScene("play_menu")
@@ -235,8 +239,8 @@ function menuButtons(): void {
   let optionsLabel: TextLabel = {
     text: "Options",
     size: 0.9 * 35,
-    x: 360,
-    y: 610,
+    xOffset: 48,
+    yOffset: 13,
   }
   if (textButton(optionsLabel, 312, 597, 96, 57)) {
     switchScene("options_menu")
@@ -245,8 +249,8 @@ function menuButtons(): void {
   let creditsLabel: TextLabel = {
     text: "Credits",
     size: 0.9 * 35,
-    x: 590,
-    y: 609,
+    xOffset: 47,
+    yOffset: 12,
   }
   if (textButton(creditsLabel, 543, 597, 95, 57)) {
     switchScene("credits_menu")
@@ -255,18 +259,20 @@ function menuButtons(): void {
   let githubLabel: TextLabel = {
     text: "Github",
     size: 0.9 * 35,
-    x: 712,
-    y: 613,
+    xOffset: 48,
+    yOffset: 12,
   }
   if (textButton(githubLabel, 664, 601, 95, 57)) {
     window.open("https://github.com/domiluk/hawaii-p5", '_blank')
   }
 
   let muteLabel: TextLabel = {
-    text: "Mute",
+    text: "\ueee8", // "\uf028", 
     size: 0.9 * 25,
-    x: 905,
-    y: 685,
+    xOffset: 25,
+    yOffset: 7,
+    rotate: 15,
+    font: symbols,
   }
   if (textButton(muteLabel, 883, 678, 45, 33)) {
     toggleMute()
@@ -274,6 +280,7 @@ function menuButtons(): void {
 
   // logo
   // TODO: should this be a label?
+  textFont(airstream)
   fill(0)
   textSize(0.9 * 75)
   text("Hawaii", 512, 100)
@@ -291,8 +298,8 @@ function play_menu(): void {
   let singleplayerLabel: TextLabel = {
     text: "Singleplayer",
     size: 0.9 * 60,
-    x: 206,
-    y: 357,
+    xOffset: 106,
+    yOffset: -3,
   }
   if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
     game_mode = MODE_SINGLEPLAYER
@@ -302,8 +309,8 @@ function play_menu(): void {
   let multiplayerLabel: TextLabel = {
     text: "Multiplayer",
     size: 0.9 * 60,
-    x: 206,
-    y: 397,
+    xOffset: 106,
+    yOffset: -3,
   }
   if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
     game_mode = MODE_MULTIPLAYER
@@ -312,30 +319,12 @@ function play_menu(): void {
 }
 
 function options_menu(): void {
-
-  // TODO: this works wrong for now
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-  //   nlaps = 3
-  // if (mouseX > 840 && mouseX < 860 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-  //   nlaps = 5
-  // if (mouseX > 880 && mouseX < 900 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-  //   nlaps = 7
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 90 && mouseY < 110 && mouseIsPressed)
-  //   colb = 0
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 120 && mouseY < 140 && mouseIsPressed)
-  //   colb = 1
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 150 && mouseY < 170 && mouseIsPressed)
-  //   colb = 2
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 190 && mouseY < 210 && mouseIsPressed)
-  //   cols = 0
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 220 && mouseY < 240 && mouseIsPressed)
-  //   cols = 1
-  // if (mouseX > 800 && mouseX < 820 && mouseY > 250 && mouseY < 270 && mouseIsPressed)
-  //   cols = 2
-
   image(menu, 0, 0)
   menuButtons()
 
+  // Left side
+
+  textFont(airstream)
   noStroke()
   textSize(0.9 * 30)
 
@@ -346,7 +335,9 @@ function options_menu(): void {
   text("Controlled by Arrows", 165, 260)
   text("Color:     ", 165, 290)
   fill("#bb0000")
+  stroke(25)
   text("       red", 165, 290)
+  noStroke()
 
   textAlign(CENTER, TOP)
   fill(255)
@@ -355,10 +346,11 @@ function options_menu(): void {
   text("Controlled by WASD", 165, 360)
   text("Color:       ", 165, 390)
   fill("#00bb00")
+  stroke(25)
   text("        green", 165, 390)
+  noStroke()
 
-
-
+  // Right side 
 
   textAlign(CENTER, TOP)
   fill(255)
@@ -367,16 +359,14 @@ function options_menu(): void {
   let lapsLabel: TextLabel = {
     text: "Laps",
     size: 0.9 * 30,
-    x: 775,
-    y: 270,
   }
-  textLabel(lapsLabel, color(0), RIGHT, TOP)
+  textLabel(lapsLabel, 775, 270, color(0), RIGHT, TOP)
 
   let leftArrowLabel: TextLabel = {
     text: "‹",
     size: 0.9 * 60,
-    x: 800 + 15,
-    y: 270 - 13,
+    xOffset: 15,
+    yOffset: -13,
   }
   if (textButton(leftArrowLabel, 800, 270, 25, 25)) {
     // do nothing yet
@@ -385,8 +375,8 @@ function options_menu(): void {
   let rightArrowLabel: TextLabel = {
     text: "›",
     size: 0.9 * 60,
-    x: 855 + 10,
-    y: 270 - 13,
+    xOffset: 10,
+    yOffset: -13,
   }
   if (textButton(rightArrowLabel, 855, 270, 25, 25)) {
     // do nothing yet
@@ -406,19 +396,13 @@ function options_menu(): void {
   let volumeLabel: TextLabel = {
     text: "Volume",
     size: 0.9 * 30,
-    x: 775,
-    y: 370,
   }
-  textLabel(volumeLabel, color(0), RIGHT, TOP)
+  textLabel(volumeLabel, 775, 370, color(0), RIGHT, TOP)
 
-  leftArrowLabel.x = 800 + 15
-  leftArrowLabel.y = 370 - 13
   if (textButton(leftArrowLabel, 800, 370, 25, 25)) {
     // do nothing yet
   }
 
-  rightArrowLabel.x = 870 + 10
-  rightArrowLabel.y = 370 - 13
   if (textButton(rightArrowLabel, 870, 370, 25, 25)) {
     // do nothing yet
   }
@@ -436,6 +420,7 @@ function credits_menu(): void {
   menuButtons()
 
   textAlign(CENTER, TOP)
+  textFont(airstream)
 
   noStroke()
   fill(0)
@@ -887,8 +872,31 @@ function keyPressed() {
 type TextLabel = {
   text: string,
   size: number,
-  x: number,
-  y: number,
+  xOffset?: number,
+  yOffset?: number,
+  rotate?: number,
+  font?: p5.Font,
+}
+
+function textLabel(label: TextLabel, x: number, y: number, fillColor = color(0), horizAlign: p5.HORIZ_ALIGN = CENTER, vertAlign: p5.VERT_ALIGN = TOP) {
+  noStroke()
+  fill(fillColor)
+  textAlign(horizAlign, vertAlign)
+  textSize(label.size)
+  textFont(label.font ?? airstream)
+
+  x = x + (label.xOffset ?? 0)
+  y = y + (label.yOffset ?? 0)
+  if (label.rotate) {
+    push()
+    translate(x, y)
+    rotate(label.rotate)
+    translate(-x, -y)
+  }
+  text(label.text, x, y)
+  if (label.rotate) {
+    pop()
+  }
 }
 
 function textButton(label: TextLabel, x: number, y: number, w: number, h: number, debug = true): boolean {
@@ -902,7 +910,7 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
     }
   }
 
-  textLabel(label, color(fillColor), CENTER, TOP)
+  textLabel(label, x, y, color(fillColor), CENTER, TOP)
 
   if (debug) {
     stroke(0)
@@ -912,12 +920,4 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
   }
 
   return mouseIsPressedInsideButton
-}
-
-function textLabel(label: TextLabel, fillColor = color(0), horizAlign: p5.HORIZ_ALIGN = CENTER, vertAlign: p5.VERT_ALIGN = TOP) {
-  noStroke()
-  fill(fillColor)
-  textAlign(horizAlign, vertAlign)
-  textSize(label.size)
-  text(label.text, label.x, label.y)
 }
