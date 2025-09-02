@@ -335,7 +335,7 @@ function options_menu(): void {
   text("Controlled by Arrows", 165, 260)
   text("Color:     ", 165, 290)
   fill("#bb0000")
-  stroke(25)
+  stroke(200)
   text("       red", 165, 290)
   noStroke()
 
@@ -346,7 +346,7 @@ function options_menu(): void {
   text("Controlled by WASD", 165, 360)
   text("Color:       ", 165, 390)
   fill("#00bb00")
-  stroke(25)
+  stroke(0)
   text("        green", 165, 390)
   noStroke()
 
@@ -356,29 +356,19 @@ function options_menu(): void {
   fill(255)
   text("Game options", 800, 230)
 
+  // LAPS
+
   let lapsLabel: TextLabel = {
     text: "Laps",
     size: 0.9 * 30,
   }
   textLabel(lapsLabel, 775, 270, color(0), RIGHT, TOP)
 
-  let leftArrowLabel: TextLabel = {
-    text: "‹",
-    size: 0.9 * 60,
-    xOffset: 15,
-    yOffset: -13,
-  }
-  if (textButton(leftArrowLabel, 800, 270, 25, 25)) {
+  if (leftChevronButton(800, 270)) {
     // do nothing yet
   }
 
-  let rightArrowLabel: TextLabel = {
-    text: "›",
-    size: 0.9 * 60,
-    xOffset: 10,
-    yOffset: -13,
-  }
-  if (textButton(rightArrowLabel, 855, 270, 25, 25)) {
+  if (rightChevronButton(870, 270)) {
     // do nothing yet
   }
 
@@ -387,11 +377,13 @@ function options_menu(): void {
   fill(0)
   textSize(0.9 * 30)
   textAlign(CENTER, TOP)
-  text("3", 840, 270)
+  text("3", 848, 270)
 
   textAlign(CENTER, TOP)
   fill(255)
   text("Settings", 800, 330)
+
+  // VOLUME
 
   let volumeLabel: TextLabel = {
     text: "Volume",
@@ -399,11 +391,11 @@ function options_menu(): void {
   }
   textLabel(volumeLabel, 775, 370, color(0), RIGHT, TOP)
 
-  if (textButton(leftArrowLabel, 800, 370, 25, 25)) {
+  if (leftChevronButton(800, 370)) {
     // do nothing yet
   }
 
-  if (textButton(rightArrowLabel, 870, 370, 25, 25)) {
+  if (rightChevronButton(870, 370)) {
     // do nothing yet
   }
 
@@ -413,6 +405,52 @@ function options_menu(): void {
   textSize(0.9 * 30)
   textAlign(CENTER, TOP)
   text("100", 848, 370)
+
+  // SHADERS
+
+  let shadersLabel: TextLabel = {
+    text: "Use shaders",
+    size: 0.9 * 30,
+  }
+  textLabel(shadersLabel, 775, 400, color(0), RIGHT, TOP)
+
+  if (leftChevronButton(800, 400)) {
+    // do nothing yet
+  }
+
+  if (rightChevronButton(870, 400)) {
+    // do nothing yet
+  }
+
+  noStroke()
+
+  fill(0)
+  textSize(0.9 * 30)
+  textAlign(CENTER, TOP)
+  text("yes", 848, 400)
+
+  // PARTICLES
+
+  let particlesLabel: TextLabel = {
+    text: "Use particles",
+    size: 0.9 * 30,
+  }
+  textLabel(particlesLabel, 775, 430, color(0), RIGHT, TOP)
+
+  if (leftChevronButton(800, 430)) {
+    // do nothing yet
+  }
+
+  if (rightChevronButton(870, 430)) {
+    // do nothing yet
+  }
+
+  noStroke()
+
+  fill(0)
+  textSize(0.9 * 30)
+  textAlign(CENTER, TOP)
+  text("no", 848, 430)
 }
 
 function credits_menu(): void {
@@ -920,4 +958,26 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
   }
 
   return mouseIsPressedInsideButton
+}
+
+let leftChevronLabel: TextLabel = {
+  text: "‹",
+  size: 0.9 * 60,
+  xOffset: 15,
+  yOffset: -13,
+}
+
+let rightChevronLabel: TextLabel = {
+  text: "›",
+  size: 0.9 * 60,
+  xOffset: 10,
+  yOffset: -13,
+}
+
+function leftChevronButton(x: number, y: number): boolean {
+  return textButton(leftChevronLabel, x, y, 25, 25)
+}
+
+function rightChevronButton(x: number, y: number): boolean {
+  return textButton(rightChevronLabel, x, y, 25, 25)
 }
