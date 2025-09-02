@@ -19,6 +19,7 @@ var panel;
 var dray;
 var spring;
 var main_sample;
+var muted;
 var AI_pos = 0;
 var game_mode;
 var global_sec;
@@ -106,7 +107,7 @@ function preload() {
     boat2.bmp = loadImage("images/lodzelena.bmp");
     ostrov = loadImage("images/ostrov1.bmp");
     alpha_ostrov = loadImage("images/alpha1.bmp");
-    menu = loadImage("images/menu.bmp");
+    menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.bmp");
     soundFormats('wav');
     dray = loadSound("sounds/dray.wav");
@@ -119,7 +120,7 @@ function setup() {
     setup_boats();
     textFont(pump);
     textSize(50);
-    switchScene("main_menu");
+    switchScene("options_menu");
 }
 function draw() {
     background(0);
@@ -164,6 +165,9 @@ function switchScene(newScene, reset) {
     }
     scene = newScene;
 }
+function toggleMute() {
+    muted = !muted;
+}
 function menuButtons() {
     var playLabel = {
         text: "Play",
@@ -201,6 +205,15 @@ function menuButtons() {
     if (textButton(githubLabel, 664, 601, 95, 57)) {
         window.open("https://github.com/domiluk/hawaii-p5", '_blank');
     }
+    var muteLabel = {
+        text: "Mute",
+        size: 0.9 * 25,
+        x: 905,
+        y: 685,
+    };
+    if (textButton(muteLabel, 883, 678, 45, 33)) {
+        toggleMute();
+    }
     fill(0);
     textSize(0.9 * 75);
     text("Hawaii", 512, 100);
@@ -212,13 +225,13 @@ function main_menu() {
 function play_menu() {
     image(menu, 0, 0);
     menuButtons();
-    var carrierLabel = {
-        text: "Carrier",
+    var singleplayerLabel = {
+        text: "Singleplayer",
         size: 0.9 * 60,
         x: 206,
         y: 357,
     };
-    if (textButton(carrierLabel, 100, 360, 210, 40)) {
+    if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
         game_mode = MODE_SINGLEPLAYER;
         switchScene("game");
     }
@@ -234,89 +247,80 @@ function play_menu() {
     }
 }
 function options_menu() {
-    if (mouseX > 800 && mouseX < 820 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-        nlaps = 3;
-    if (mouseX > 840 && mouseX < 860 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-        nlaps = 5;
-    if (mouseX > 880 && mouseX < 900 && mouseY > 60 && mouseY < 80 && mouseIsPressed)
-        nlaps = 7;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 90 && mouseY < 110 && mouseIsPressed)
-        colb = 0;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 120 && mouseY < 140 && mouseIsPressed)
-        colb = 1;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 150 && mouseY < 170 && mouseIsPressed)
-        colb = 2;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 190 && mouseY < 210 && mouseIsPressed)
-        cols = 0;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 220 && mouseY < 240 && mouseIsPressed)
-        cols = 1;
-    if (mouseX > 800 && mouseX < 820 && mouseY > 250 && mouseY < 270 && mouseIsPressed)
-        cols = 2;
     image(menu, 0, 0);
     menuButtons();
+    noStroke();
+    textSize(0.9 * 30);
     textAlign(CENTER, TOP);
+    fill(255);
+    text("Player 1", 165, 230);
+    fill(0);
+    text("Controlled by Arrows", 165, 260);
+    text("Color:     ", 165, 290);
+    fill("#bb0000");
+    text("       red", 165, 290);
+    textAlign(CENTER, TOP);
+    fill(255);
+    text("Player 2", 165, 330);
+    fill(0);
+    text("Controlled by WASD", 165, 360);
+    text("Color:       ", 165, 390);
+    fill("#00bb00");
+    text("        green", 165, 390);
+    textAlign(CENTER, TOP);
+    fill(255);
+    text("Game options", 800, 230);
+    var lapsLabel = {
+        text: "Laps",
+        size: 0.9 * 30,
+        x: 775,
+        y: 270,
+    };
+    textLabel(lapsLabel, color(0), RIGHT, TOP);
+    var leftArrowLabel = {
+        text: "‹",
+        size: 0.9 * 60,
+        x: 800 + 15,
+        y: 270 - 13,
+    };
+    if (textButton(leftArrowLabel, 800, 270, 25, 25)) {
+    }
+    var rightArrowLabel = {
+        text: "›",
+        size: 0.9 * 60,
+        x: 855 + 10,
+        y: 270 - 13,
+    };
+    if (textButton(rightArrowLabel, 855, 270, 25, 25)) {
+    }
     noStroke();
     fill(0);
     textSize(0.9 * 30);
-    text("Number of laps", 700, 60);
-    noFill();
-    stroke(0);
-    strokeWeight(1.5);
-    rect(800, 60, 20, 20);
-    rect(840, 60, 20, 20);
-    rect(880, 60, 20, 20);
-    rect(920, 60, 20, 20);
+    textAlign(CENTER, TOP);
+    text("3", 840, 270);
+    textAlign(CENTER, TOP);
+    fill(255);
+    text("Settings", 800, 330);
+    var volumeLabel = {
+        text: "Volume",
+        size: 0.9 * 30,
+        x: 775,
+        y: 370,
+    };
+    textLabel(volumeLabel, color(0), RIGHT, TOP);
+    leftArrowLabel.x = 800 + 15;
+    leftArrowLabel.y = 370 - 13;
+    if (textButton(leftArrowLabel, 800, 370, 25, 25)) {
+    }
+    rightArrowLabel.x = 870 + 10;
+    rightArrowLabel.y = 370 - 13;
+    if (textButton(rightArrowLabel, 870, 370, 25, 25)) {
+    }
     noStroke();
     fill(0);
-    text("1", 830, 60);
-    text("3", 870, 60);
-    text("5", 910, 60);
-    text("7", 950, 60);
-    noStroke();
-    fill(0);
-    text("Color of Player's boat", 700, 90);
-    text("Color of CPU's boat", 700, 190);
-    noFill();
-    stroke(0);
-    strokeWeight(1.5);
-    rect(800, 90, 20, 20);
-    rect(800, 190, 20, 20);
-    rect(800, 120, 20, 20);
-    rect(800, 220, 20, 20);
-    rect(800, 150, 20, 20);
-    rect(800, 250, 20, 20);
-    textAlign(LEFT);
-    noStroke();
-    fill(0);
-    text("Red", 830, 90);
-    text("Green", 830, 120);
-    text("Blue", 830, 150);
-    text("Red", 830, 190);
-    text("Green", 830, 220);
-    text("Blue", 830, 250);
-    textAlign(CENTER);
-    text("Volume", 700, 300);
-    textAlign(LEFT);
-    if (nlaps == 1)
-        text("X", 800, 60);
-    if (nlaps == 3)
-        text("X", 840, 60);
-    else if (nlaps == 5)
-        text("X", 880, 60);
-    else
-        text("X", 920, 60);
-    if (colb == 0)
-        text("X", 800, 90);
-    else if (colb == 1)
-        text("X", 800, 120);
-    else
-        text("X", 800, 150);
-    if (cols == 0)
-        text("X", 800, 190);
-    else if (cols == 1)
-        text("X", 800, 220);
-    else
-        text("X", 800, 250);
+    textSize(0.9 * 30);
+    textAlign(CENTER, TOP);
+    text("100", 848, 370);
 }
 function credits_menu() {
     image(menu, 0, 0);
@@ -666,6 +670,5 @@ function textLabel(label, fillColor, horizAlign, vertAlign) {
     textAlign(horizAlign, vertAlign);
     textSize(label.size);
     text(label.text, label.x, label.y);
-    fill;
 }
 //# sourceMappingURL=build.js.map
