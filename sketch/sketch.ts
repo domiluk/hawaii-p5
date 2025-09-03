@@ -11,7 +11,7 @@ type SAMPLE = p5.SoundFile
 const MODE_MULTIPLAYER = 0
 const MODE_SINGLEPLAYER = 1
 
-type Scene = "main_menu" | "play_menu" | "options_menu" | "credits_menu" | "game" | "game_over"
+type Scene = "main_menu" | "play_menu" | "options_menu" | "credits_menu" | "leaderboard" | "game" | "game_over"
 let scene: Scene
 
 let camup1 = 0
@@ -168,7 +168,7 @@ function setup() {
 
   textFont(airstream)
   textSize(50)
-  switchScene("options_menu")
+  switchScene("leaderboard")
 }
 
 function draw() {
@@ -188,6 +188,9 @@ function draw() {
       break
     case "credits_menu":
       credits_menu()
+      break
+    case "leaderboard":
+      leaderboard()
       break
     case "game":
       game()
@@ -245,7 +248,7 @@ function menuButtons(): void {
     yOffset: 17,
   }
   if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
-    switchScene("options_menu")
+    switchScene("leaderboard")
   }
 
   let optionsLabel: TextLabel = {
@@ -407,6 +410,36 @@ function credits_menu(): void {
   text("Daniel Lovásko", 206, 437)
   text("Dominik Lukác", 800, 437)
   text("ˇ", 946, 445)
+}
+
+function leaderboard(): void {
+  image(menu, 0, 0)
+  menuButtons()
+
+  textAlign(CENTER, TOP)
+  textFont(airstream)
+
+  // NOTE: only 8 characters per name
+
+  noStroke()
+  fill(0)
+  textSize(0.9 * 50)
+  text("Leaderboard", 512, 190)
+  textSize(0.9 * 35)
+
+  textAlign(LEFT, TOP)
+  text("Name", 370, 250)
+
+  text("OG Boop", 370, 280)
+  text("Dano", 370, 310)
+
+  textAlign(RIGHT, TOP)
+  text("Lap time", 674, 250)
+
+  text("1.", 350, 280)
+  text("16.431 s", 674, 280)
+  text("2.", 350, 310)
+  text("17.555 s", 674, 310)
 }
 
 function game_over(): void {

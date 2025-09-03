@@ -122,7 +122,7 @@ function setup() {
     setup_boats();
     textFont(airstream);
     textSize(50);
-    switchScene("options_menu");
+    switchScene("leaderboard");
 }
 function draw() {
     background(0);
@@ -138,6 +138,9 @@ function draw() {
             break;
         case "credits_menu":
             credits_menu();
+            break;
+        case "leaderboard":
+            leaderboard();
             break;
         case "game":
             game();
@@ -187,7 +190,7 @@ function menuButtons() {
         yOffset: 17,
     };
     if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
-        switchScene("options_menu");
+        switchScene("leaderboard");
     }
     var optionsLabel = {
         text: "Options",
@@ -316,6 +319,27 @@ function credits_menu() {
     text("Daniel Lovásko", 206, 437);
     text("Dominik Lukác", 800, 437);
     text("ˇ", 946, 445);
+}
+function leaderboard() {
+    image(menu, 0, 0);
+    menuButtons();
+    textAlign(CENTER, TOP);
+    textFont(airstream);
+    noStroke();
+    fill(0);
+    textSize(0.9 * 50);
+    text("Leaderboard", 512, 190);
+    textSize(0.9 * 35);
+    textAlign(LEFT, TOP);
+    text("Name", 370, 250);
+    text("OG Boop", 370, 280);
+    text("Dano", 370, 310);
+    textAlign(RIGHT, TOP);
+    text("Lap time", 674, 250);
+    text("1.", 350, 280);
+    text("16.431 s", 674, 280);
+    text("2.", 350, 310);
+    text("17.555 s", 674, 310);
 }
 function game_over() {
     if (keyIsPressed && keyCode == ESCAPE) {
