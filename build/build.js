@@ -173,12 +173,21 @@ function toggleMute() {
 function menuButtons() {
     var playLabel = {
         text: "Play",
-        size: 0.9 * 50,
+        size: 0.9 * 40,
         xOffset: 47,
-        yOffset: 8,
+        yOffset: 12,
     };
     if (textButton(playLabel, 162, 600, 96, 60)) {
         switchScene("play_menu");
+    }
+    var leaderboardLabel = {
+        text: "Leaderboard",
+        size: 0.9 * 25,
+        xOffset: 48,
+        yOffset: 17,
+    };
+    if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
+        switchScene("options_menu");
     }
     var optionsLabel = {
         text: "Options",
@@ -186,26 +195,17 @@ function menuButtons() {
         xOffset: 48,
         yOffset: 13,
     };
-    if (textButton(optionsLabel, 312, 597, 96, 57)) {
+    if (textButton(optionsLabel, 543, 597, 95, 57)) {
         switchScene("options_menu");
     }
     var creditsLabel = {
         text: "Credits",
         size: 0.9 * 35,
-        xOffset: 47,
-        yOffset: 12,
-    };
-    if (textButton(creditsLabel, 543, 597, 95, 57)) {
-        switchScene("credits_menu");
-    }
-    var githubLabel = {
-        text: "Github",
-        size: 0.9 * 35,
         xOffset: 48,
         yOffset: 12,
     };
-    if (textButton(githubLabel, 664, 601, 95, 57)) {
-        window.open("https://github.com/domiluk/hawaii-p5", '_blank');
+    if (textButton(creditsLabel, 664, 601, 95, 57)) {
+        switchScene("credits_menu");
     }
     var muteLabel = {
         text: "\ueee8",
@@ -219,6 +219,7 @@ function menuButtons() {
         toggleMute();
     }
     textFont(airstream);
+    noStroke();
     fill(0);
     textSize(0.9 * 75);
     text("Hawaii", 512, 100);
@@ -254,91 +255,52 @@ function play_menu() {
 function options_menu() {
     image(menu, 0, 0);
     menuButtons();
+    optionsSectionLabel("Player 1", 165, 230);
     textFont(airstream);
-    noStroke();
     textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    fill(255);
-    text("Player 1", 165, 230);
+    noStroke();
     fill(0);
-    text("Controlled by Arrows", 165, 260);
+    text("Controlled by: Arrows", 165, 260);
     text("Color:     ", 165, 290);
     fill("#bb0000");
     stroke(200);
     text("       red", 165, 290);
     noStroke();
-    textAlign(CENTER, TOP);
-    fill(255);
-    text("Player 2", 165, 330);
+    optionsSectionLabel("Player 2", 165, 330);
+    textFont(airstream);
+    textSize(0.9 * 30);
+    noStroke();
     fill(0);
-    text("Controlled by WASD", 165, 360);
+    text("Controlled by: WASD", 165, 360);
     text("Color:       ", 165, 390);
     fill("#00bb00");
     stroke(0);
     text("        green", 165, 390);
     noStroke();
-    textAlign(CENTER, TOP);
-    fill(255);
-    text("Game options", 800, 230);
-    var lapsLabel = {
-        text: "Laps",
-        size: 0.9 * 30,
-    };
-    textLabel(lapsLabel, 775, 270, color(0), RIGHT, TOP);
-    if (leftChevronButton(800, 270)) {
+    optionsSectionLabel("Game options", 800, 230);
+    optionLabel("Laps", 775, 270);
+    var lapsOptions = [1, 3, 5, 7];
+    var lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30);
+    if (lapsChangedToIndex != -1) {
+        nlaps = lapsOptions[lapsChangedToIndex];
     }
-    if (rightChevronButton(870, 270)) {
+    optionsSectionLabel("Settings", 800, 330);
+    optionLabel("Sound volume", 775, 370);
+    var sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    var sfxChangedToIndex = optionSelector(sfxOptions, 10, 800, 370, 45);
+    if (sfxChangedToIndex != -1) {
+        vol = sfxOptions[sfxChangedToIndex];
     }
-    noStroke();
-    fill(0);
-    textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    text("3", 848, 270);
-    textAlign(CENTER, TOP);
-    fill(255);
-    text("Settings", 800, 330);
-    var volumeLabel = {
-        text: "Volume",
-        size: 0.9 * 30,
-    };
-    textLabel(volumeLabel, 775, 370, color(0), RIGHT, TOP);
-    if (leftChevronButton(800, 370)) {
+    optionLabel("Music volume", 775, 400);
+    var musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    var musicChangedToIndex = optionSelector(musicOptions, 10, 800, 400, 45);
+    if (musicChangedToIndex != -1) {
     }
-    if (rightChevronButton(870, 370)) {
+    optionLabel("Graphics", 775, 430);
+    var gfxOptions = ["original", "enhanced"];
+    var gfxChangedToIndex = optionSelector(gfxOptions, 1, 800, 430, 90);
+    if (gfxChangedToIndex != -1) {
     }
-    noStroke();
-    fill(0);
-    textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    text("100", 848, 370);
-    var shadersLabel = {
-        text: "Use shaders",
-        size: 0.9 * 30,
-    };
-    textLabel(shadersLabel, 775, 400, color(0), RIGHT, TOP);
-    if (leftChevronButton(800, 400)) {
-    }
-    if (rightChevronButton(870, 400)) {
-    }
-    noStroke();
-    fill(0);
-    textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    text("yes", 848, 400);
-    var particlesLabel = {
-        text: "Use particles",
-        size: 0.9 * 30,
-    };
-    textLabel(particlesLabel, 775, 430, color(0), RIGHT, TOP);
-    if (leftChevronButton(800, 430)) {
-    }
-    if (rightChevronButton(870, 430)) {
-    }
-    noStroke();
-    fill(0);
-    textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    text("no", 848, 430);
 }
 function credits_menu() {
     image(menu, 0, 0);
@@ -696,7 +658,7 @@ function textButton(label, x, y, w, h, debug) {
     }
     textLabel(label, x, y, color(fillColor), CENTER, TOP);
     if (debug) {
-        stroke(0);
+        stroke(180);
         strokeWeight(1);
         noFill();
         rect(x, y, w, h);
@@ -720,5 +682,34 @@ function leftChevronButton(x, y) {
 }
 function rightChevronButton(x, y) {
     return textButton(rightChevronLabel, x, y, 25, 25);
+}
+function optionSelector(options, pickedIndex, x, y, gapWidth) {
+    var changedTo = -1;
+    if (leftChevronButton(x, y)) {
+        changedTo = (pickedIndex - 1) % options.length;
+    }
+    if (rightChevronButton(x + 25 + gapWidth, y)) {
+        changedTo = (pickedIndex + 1) % options.length;
+    }
+    noStroke();
+    fill(0);
+    textSize(0.9 * 30);
+    textAlign(CENTER, TOP);
+    text(options[pickedIndex], floor(x + 25 + gapWidth / 2), y);
+    return changedTo;
+}
+function optionLabel(text, x, y) {
+    var label = {
+        text: text,
+        size: 0.9 * 30,
+    };
+    textLabel(label, x, y, color(0), RIGHT, TOP);
+}
+function optionsSectionLabel(text, x, y) {
+    var label = {
+        text: text,
+        size: 0.9 * 30,
+    };
+    textLabel(label, x, y, color(255), CENTER, TOP);
 }
 //# sourceMappingURL=build.js.map

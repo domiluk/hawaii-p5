@@ -228,12 +228,24 @@ function toggleMute(): void {
 function menuButtons(): void {
   let playLabel: TextLabel = {
     text: "Play",
-    size: 0.9 * 50,
+    size: 0.9 * 40,
     xOffset: 47,
-    yOffset: 8,
+    yOffset: 12,
   }
   if (textButton(playLabel, 162, 600, 96, 60)) {
     switchScene("play_menu")
+  }
+
+  // TODO: make the button a bit bigger
+  // TODO: in fact lets make the buttons in code entirely (not in graphic)
+  let leaderboardLabel: TextLabel = {
+    text: "Leaderboard",
+    size: 0.9 * 25,
+    xOffset: 48,
+    yOffset: 17,
+  }
+  if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
+    switchScene("options_menu")
   }
 
   let optionsLabel: TextLabel = {
@@ -242,32 +254,22 @@ function menuButtons(): void {
     xOffset: 48,
     yOffset: 13,
   }
-  if (textButton(optionsLabel, 312, 597, 96, 57)) {
+  if (textButton(optionsLabel, 543, 597, 95, 57)) {
     switchScene("options_menu")
   }
 
   let creditsLabel: TextLabel = {
     text: "Credits",
     size: 0.9 * 35,
-    xOffset: 47,
-    yOffset: 12,
-  }
-  if (textButton(creditsLabel, 543, 597, 95, 57)) {
-    switchScene("credits_menu")
-  }
-
-  let githubLabel: TextLabel = {
-    text: "Github",
-    size: 0.9 * 35,
     xOffset: 48,
     yOffset: 12,
   }
-  if (textButton(githubLabel, 664, 601, 95, 57)) {
-    window.open("https://github.com/domiluk/hawaii-p5", '_blank')
+  if (textButton(creditsLabel, 664, 601, 95, 57)) {
+    switchScene("credits_menu")
   }
 
   let muteLabel: TextLabel = {
-    text: "\ueee8", // "\uf028", 
+    text: "\ueee8", // "\uf028", // "\udb81\udf5a", // "\udb81\udf5b", 
     size: 0.9 * 25,
     xOffset: 25,
     yOffset: 7,
@@ -281,6 +283,7 @@ function menuButtons(): void {
   // logo
   // TODO: should this be a label?
   textFont(airstream)
+  noStroke()
   fill(0)
   textSize(0.9 * 75)
   text("Hawaii", 512, 100)
@@ -324,26 +327,26 @@ function options_menu(): void {
 
   // Left side
 
-  textFont(airstream)
-  noStroke()
-  textSize(0.9 * 30)
+  optionsSectionLabel("Player 1", 165, 230)
 
-  textAlign(CENTER, TOP)
-  fill(255)
-  text("Player 1", 165, 230)
+  textFont(airstream)
+  textSize(0.9 * 30)
+  noStroke()
   fill(0)
-  text("Controlled by Arrows", 165, 260)
+  text("Controlled by: Arrows", 165, 260)
   text("Color:     ", 165, 290)
   fill("#bb0000")
   stroke(200)
   text("       red", 165, 290)
   noStroke()
 
-  textAlign(CENTER, TOP)
-  fill(255)
-  text("Player 2", 165, 330)
+  optionsSectionLabel("Player 2", 165, 330)
+
+  textFont(airstream)
+  textSize(0.9 * 30)
+  noStroke()
   fill(0)
-  text("Controlled by WASD", 165, 360)
+  text("Controlled by: WASD", 165, 360)
   text("Color:       ", 165, 390)
   fill("#00bb00")
   stroke(0)
@@ -352,105 +355,39 @@ function options_menu(): void {
 
   // Right side 
 
-  textAlign(CENTER, TOP)
-  fill(255)
-  text("Game options", 800, 230)
+  optionsSectionLabel("Game options", 800, 230)
 
-  // LAPS
-
-  let lapsLabel: TextLabel = {
-    text: "Laps",
-    size: 0.9 * 30,
-  }
-  textLabel(lapsLabel, 775, 270, color(0), RIGHT, TOP)
-
-  if (leftChevronButton(800, 270)) {
-    // do nothing yet
+  optionLabel("Laps", 775, 270)
+  const lapsOptions = [1, 3, 5, 7]
+  const lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30)
+  if (lapsChangedToIndex != -1) {
+    nlaps = lapsOptions[lapsChangedToIndex]
   }
 
-  if (rightChevronButton(870, 270)) {
-    // do nothing yet
+  // TODO: add AI difficulty settings
+
+  optionsSectionLabel("Settings", 800, 330)
+
+  optionLabel("Sound volume", 775, 370)
+  const sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+  const sfxChangedToIndex = optionSelector(sfxOptions, 10, 800, 370, 45)
+  if (sfxChangedToIndex != -1) {
+    vol = sfxOptions[sfxChangedToIndex]
   }
 
-  noStroke()
-
-  fill(0)
-  textSize(0.9 * 30)
-  textAlign(CENTER, TOP)
-  text("3", 848, 270)
-
-  textAlign(CENTER, TOP)
-  fill(255)
-  text("Settings", 800, 330)
-
-  // VOLUME
-
-  let volumeLabel: TextLabel = {
-    text: "Volume",
-    size: 0.9 * 30,
-  }
-  textLabel(volumeLabel, 775, 370, color(0), RIGHT, TOP)
-
-  if (leftChevronButton(800, 370)) {
-    // do nothing yet
+  optionLabel("Music volume", 775, 400)
+  const musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+  const musicChangedToIndex = optionSelector(musicOptions, 10, 800, 400, 45)
+  if (musicChangedToIndex != -1) {
+    // TODO: implement this
   }
 
-  if (rightChevronButton(870, 370)) {
-    // do nothing yet
+  optionLabel("Graphics", 775, 430)
+  const gfxOptions = ["original", "enhanced"]
+  const gfxChangedToIndex = optionSelector(gfxOptions, 1, 800, 430, 90)
+  if (gfxChangedToIndex != -1) {
+    // TODO: implement this
   }
-
-  noStroke()
-
-  fill(0)
-  textSize(0.9 * 30)
-  textAlign(CENTER, TOP)
-  text("100", 848, 370)
-
-  // SHADERS
-
-  let shadersLabel: TextLabel = {
-    text: "Use shaders",
-    size: 0.9 * 30,
-  }
-  textLabel(shadersLabel, 775, 400, color(0), RIGHT, TOP)
-
-  if (leftChevronButton(800, 400)) {
-    // do nothing yet
-  }
-
-  if (rightChevronButton(870, 400)) {
-    // do nothing yet
-  }
-
-  noStroke()
-
-  fill(0)
-  textSize(0.9 * 30)
-  textAlign(CENTER, TOP)
-  text("yes", 848, 400)
-
-  // PARTICLES
-
-  let particlesLabel: TextLabel = {
-    text: "Use particles",
-    size: 0.9 * 30,
-  }
-  textLabel(particlesLabel, 775, 430, color(0), RIGHT, TOP)
-
-  if (leftChevronButton(800, 430)) {
-    // do nothing yet
-  }
-
-  if (rightChevronButton(870, 430)) {
-    // do nothing yet
-  }
-
-  noStroke()
-
-  fill(0)
-  textSize(0.9 * 30)
-  textAlign(CENTER, TOP)
-  text("no", 848, 430)
 }
 
 function credits_menu(): void {
@@ -951,7 +888,7 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
   textLabel(label, x, y, color(fillColor), CENTER, TOP)
 
   if (debug) {
-    stroke(0)
+    stroke(180)
     strokeWeight(1)
     noFill()
     rect(x, y, w, h)
@@ -960,14 +897,14 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
   return mouseIsPressedInsideButton
 }
 
-let leftChevronLabel: TextLabel = {
+const leftChevronLabel: TextLabel = {
   text: "‹",
   size: 0.9 * 60,
   xOffset: 15,
   yOffset: -13,
 }
 
-let rightChevronLabel: TextLabel = {
+const rightChevronLabel: TextLabel = {
   text: "›",
   size: 0.9 * 60,
   xOffset: 10,
@@ -980,4 +917,40 @@ function leftChevronButton(x: number, y: number): boolean {
 
 function rightChevronButton(x: number, y: number): boolean {
   return textButton(rightChevronLabel, x, y, 25, 25)
+}
+
+function optionSelector(options: (string | number)[], pickedIndex: number, x: number, y: number, gapWidth: number): number {
+  let changedTo = -1
+
+  if (leftChevronButton(x, y)) {
+    changedTo = (pickedIndex - 1) % options.length
+  }
+
+  if (rightChevronButton(x + 25 + gapWidth, y)) {
+    changedTo = (pickedIndex + 1) % options.length
+  }
+
+  noStroke()
+  fill(0)
+  textSize(0.9 * 30)
+  textAlign(CENTER, TOP)
+  text(options[pickedIndex], floor(x + 25 + gapWidth / 2), y)
+
+  return changedTo
+}
+
+function optionLabel(text: string, x: number, y: number): void {
+  let label: TextLabel = {
+    text: text,
+    size: 0.9 * 30,
+  }
+  textLabel(label, x, y, color(0), RIGHT, TOP)
+}
+
+function optionsSectionLabel(text: string, x: number, y: number): void {
+  const label: TextLabel = {
+    text: text,
+    size: 0.9 * 30,
+  }
+  textLabel(label, x, y, color(255), CENTER, TOP)
 }
