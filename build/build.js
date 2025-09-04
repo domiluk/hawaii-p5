@@ -3,9 +3,23 @@ var debugMainMenu;
 var debugOptions;
 var debugCredits;
 var debugPlay;
-var MODE_MULTIPLAYER = 0;
-var MODE_SINGLEPLAYER = 1;
-var scene;
+var Mode;
+(function (Mode) {
+    Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
+    Mode[Mode["MULTIPLAYER"] = 1] = "MULTIPLAYER";
+})(Mode || (Mode = {}));
+var game_mode = Mode.SINGLEPLAYER;
+var Scene;
+(function (Scene) {
+    Scene[Scene["MAIN_MENU"] = 0] = "MAIN_MENU";
+    Scene[Scene["PLAY_MENU"] = 1] = "PLAY_MENU";
+    Scene[Scene["OPTIONS_MENU"] = 2] = "OPTIONS_MENU";
+    Scene[Scene["CREDITS_MENU"] = 3] = "CREDITS_MENU";
+    Scene[Scene["LEADERBOARD"] = 4] = "LEADERBOARD";
+    Scene[Scene["GAME"] = 5] = "GAME";
+    Scene[Scene["GAME_OVER"] = 6] = "GAME_OVER";
+})(Scene || (Scene = {}));
+var scene = Scene.MAIN_MENU;
 var camup1 = 0;
 var camup2 = 0;
 var camleft1 = 0;
@@ -21,7 +35,6 @@ var spring;
 var main_sample;
 var muted;
 var AI_pos = 0;
-var game_mode;
 var global_sec;
 var global_min;
 var res = 0;
@@ -122,30 +135,30 @@ function setup() {
     setup_boats();
     textFont(airstream);
     textSize(50);
-    switchScene("leaderboard");
+    switchScene(Scene.GAME);
 }
 function draw() {
     background(0);
     switch (scene) {
-        case "main_menu":
+        case Scene.MAIN_MENU:
             main_menu();
             break;
-        case "play_menu":
+        case Scene.PLAY_MENU:
             play_menu();
             break;
-        case "options_menu":
+        case Scene.OPTIONS_MENU:
             options_menu();
             break;
-        case "credits_menu":
+        case Scene.CREDITS_MENU:
             credits_menu();
             break;
-        case "leaderboard":
+        case Scene.LEADERBOARD:
             leaderboard();
             break;
-        case "game":
+        case Scene.GAME:
             game();
             break;
-        case "game_over":
+        case Scene.GAME_OVER:
             game_over();
             break;
     }
@@ -159,9 +172,9 @@ function draw() {
 }
 function switchScene(newScene, reset) {
     if (reset === void 0) { reset = true; }
-    if (newScene == "main_menu") {
+    if (newScene == Scene.MAIN_MENU) {
     }
-    else if (newScene == "game") {
+    else if (newScene == Scene.GAME) {
         if (reset) {
             setup_boats();
             global_min = 0;
@@ -181,7 +194,7 @@ function menuButtons() {
         yOffset: 12,
     };
     if (textButton(playLabel, 162, 600, 96, 60)) {
-        switchScene("play_menu");
+        switchScene(Scene.PLAY_MENU);
     }
     var leaderboardLabel = {
         text: "Leaderboard",
@@ -190,7 +203,7 @@ function menuButtons() {
         yOffset: 17,
     };
     if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
-        switchScene("leaderboard");
+        switchScene(Scene.LEADERBOARD);
     }
     var optionsLabel = {
         text: "Options",
@@ -199,7 +212,7 @@ function menuButtons() {
         yOffset: 13,
     };
     if (textButton(optionsLabel, 543, 597, 95, 57)) {
-        switchScene("options_menu");
+        switchScene(Scene.OPTIONS_MENU);
     }
     var creditsLabel = {
         text: "Credits",
@@ -208,7 +221,7 @@ function menuButtons() {
         yOffset: 12,
     };
     if (textButton(creditsLabel, 664, 601, 95, 57)) {
-        switchScene("credits_menu");
+        switchScene(Scene.CREDITS_MENU);
     }
     var muteLabel = {
         text: "\ueee8",
@@ -241,8 +254,8 @@ function play_menu() {
         yOffset: -3,
     };
     if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
-        game_mode = MODE_SINGLEPLAYER;
-        switchScene("game");
+        game_mode = Mode.SINGLEPLAYER;
+        switchScene(Scene.GAME);
     }
     var multiplayerLabel = {
         text: "Multiplayer",
@@ -251,8 +264,8 @@ function play_menu() {
         yOffset: -3,
     };
     if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
-        game_mode = MODE_MULTIPLAYER;
-        switchScene("game");
+        game_mode = Mode.MULTIPLAYER;
+        switchScene(Scene.GAME);
     }
 }
 function options_menu() {
@@ -343,7 +356,7 @@ function leaderboard() {
 }
 function game_over() {
     if (keyIsPressed && keyCode == ESCAPE) {
-        switchScene("main_menu");
+        switchScene(Scene.MAIN_MENU);
     }
     background(0);
     textAlign(CENTER, TOP);
@@ -361,10 +374,10 @@ function game_over() {
 }
 function game() {
     if (keyIsPressed && keyCode == ESCAPE) {
-        switchScene("main_menu");
+        switchScene(Scene.MAIN_MENU);
     }
     if (boat1.round == winning_laps || boat2.round == winning_laps) {
-        switchScene("game_over");
+        switchScene(Scene.GAME_OVER);
     }
     bc = wp;
     var rx, ry, gx, gy;
@@ -401,7 +414,7 @@ function game() {
     if (keyIsDown(RIGHT_ARROW)) {
         boat1.rot += boat1.rotate_by;
     }
-    if (game_mode == MODE_MULTIPLAYER) {
+    if (game_mode == Mode.MULTIPLAYER) {
         dl_rotate(wp, bc, boat2.rot);
         for (rx = 0; rx < bc.width; rx++) {
             for (ry = 0; ry < bc.height; ry++) {
@@ -477,14 +490,14 @@ function game() {
             boat2.rot += boat2.rotate_by;
         }
     }
-    if (game_mode == MODE_SINGLEPLAYER) {
+    if (game_mode == Mode.SINGLEPLAYER) {
     }
     if (abs((boat1.x - boat2.x) * (boat1.x - boat2.x)) +
         abs((boat1.y - boat2.y) * (boat1.y - boat2.y)) <=
         90 * 90) {
         spring.play();
     }
-    if (game_mode == MODE_MULTIPLAYER) {
+    if (game_mode == Mode.MULTIPLAYER) {
         camleft1 = boat1.x - 256;
         camup1 = boat1.y - 384;
         if (camleft1 < 0)
@@ -514,7 +527,7 @@ function game() {
         blit(vsetko, mb, camleft2, camup2, 512, 0, 512, 768);
         vline(mb, 512, 0, 768, makecol(rand() % 255, 0, 0));
     }
-    if (game_mode == MODE_SINGLEPLAYER) {
+    if (game_mode == Mode.SINGLEPLAYER) {
         camleft1 = boat1.x - 512;
         camup1 = boat1.y - 384;
         if (camleft1 < 0)
@@ -558,7 +571,7 @@ function game() {
     text("Laps " + boat1.round, 20, 10);
     text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40);
     text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70);
-    if (game_mode == MODE_MULTIPLAYER) {
+    if (game_mode == Mode.MULTIPLAYER) {
         alfont_textprintf_aa(mb, pump, 810, 10, 0, "Laps %d", _super.round);
         alfont_textprintf_aa(mb, pump, 810, 40, 0, "Last lap time %d:%d", _super.last_lap_min, _super.last_lap_sec);
         alfont_textprintf_aa(mb, pump, 810, 70, 0, "Best lap time %d:%d", _super.best_lap_min, _super.best_lap_sec);

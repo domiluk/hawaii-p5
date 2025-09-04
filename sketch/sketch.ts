@@ -8,11 +8,22 @@ let debugPlay: p5.Image
 
 type SAMPLE = p5.SoundFile
 
-const MODE_MULTIPLAYER = 0
-const MODE_SINGLEPLAYER = 1
+enum Mode {
+  SINGLEPLAYER,
+  MULTIPLAYER,
+}
+let game_mode = Mode.SINGLEPLAYER
 
-type Scene = "main_menu" | "play_menu" | "options_menu" | "credits_menu" | "leaderboard" | "game" | "game_over"
-let scene: Scene
+enum Scene {
+  MAIN_MENU,
+  PLAY_MENU,
+  OPTIONS_MENU,
+  CREDITS_MENU,
+  LEADERBOARD,
+  GAME,
+  GAME_OVER
+}
+let scene = Scene.MAIN_MENU
 
 let camup1 = 0
 let camup2 = 0
@@ -33,7 +44,6 @@ let main_sample: SAMPLE
 let muted: boolean
 
 let AI_pos = 0
-let game_mode: number
 let global_sec: number
 let global_min: number
 let res = 0
@@ -168,7 +178,7 @@ function setup() {
 
   textFont(airstream)
   textSize(50)
-  switchScene("leaderboard")
+  switchScene(Scene.GAME)
 }
 
 function draw() {
@@ -177,25 +187,25 @@ function draw() {
   // ??? const speed = something something frameCount;
 
   switch (scene) {
-    case "main_menu":
+    case Scene.MAIN_MENU:
       main_menu()
       break
-    case "play_menu":
+    case Scene.PLAY_MENU:
       play_menu()
       break
-    case "options_menu":
+    case Scene.OPTIONS_MENU:
       options_menu()
       break
-    case "credits_menu":
+    case Scene.CREDITS_MENU:
       credits_menu()
       break
-    case "leaderboard":
+    case Scene.LEADERBOARD:
       leaderboard()
       break
-    case "game":
+    case Scene.GAME:
       game()
       break
-    case "game_over":
+    case Scene.GAME_OVER:
       game_over()
       break
   }
@@ -211,9 +221,9 @@ function draw() {
 }
 
 function switchScene(newScene: Scene, reset = true): void {
-  if (newScene == "main_menu") {
+  if (newScene == Scene.MAIN_MENU) {
     // main_sample.play()
-  } else if (newScene == "game") {
+  } else if (newScene == Scene.GAME) {
     //     install_int(mooove_time, 1000);
     if (reset) {
       setup_boats()
@@ -236,7 +246,7 @@ function menuButtons(): void {
     yOffset: 12,
   }
   if (textButton(playLabel, 162, 600, 96, 60)) {
-    switchScene("play_menu")
+    switchScene(Scene.PLAY_MENU)
   }
 
   // TODO: make the button a bit bigger
@@ -248,7 +258,7 @@ function menuButtons(): void {
     yOffset: 17,
   }
   if (textButton(leaderboardLabel, 312, 597, 96, 57)) {
-    switchScene("leaderboard")
+    switchScene(Scene.LEADERBOARD)
   }
 
   let optionsLabel: TextLabel = {
@@ -258,7 +268,7 @@ function menuButtons(): void {
     yOffset: 13,
   }
   if (textButton(optionsLabel, 543, 597, 95, 57)) {
-    switchScene("options_menu")
+    switchScene(Scene.OPTIONS_MENU)
   }
 
   let creditsLabel: TextLabel = {
@@ -268,7 +278,7 @@ function menuButtons(): void {
     yOffset: 12,
   }
   if (textButton(creditsLabel, 664, 601, 95, 57)) {
-    switchScene("credits_menu")
+    switchScene(Scene.CREDITS_MENU)
   }
 
   let muteLabel: TextLabel = {
@@ -308,8 +318,8 @@ function play_menu(): void {
     yOffset: -3,
   }
   if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
-    game_mode = MODE_SINGLEPLAYER
-    switchScene("game")
+    game_mode = Mode.SINGLEPLAYER
+    switchScene(Scene.GAME)
   }
 
   let multiplayerLabel: TextLabel = {
@@ -319,8 +329,8 @@ function play_menu(): void {
     yOffset: -3,
   }
   if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
-    game_mode = MODE_MULTIPLAYER
-    switchScene("game")
+    game_mode = Mode.MULTIPLAYER
+    switchScene(Scene.GAME)
   }
 }
 
@@ -445,7 +455,7 @@ function leaderboard(): void {
 function game_over(): void {
   // return to menu
   if (keyIsPressed && keyCode == ESCAPE) {
-    switchScene("main_menu")
+    switchScene(Scene.MAIN_MENU)
   }
 
   background(0)
@@ -468,12 +478,12 @@ function game_over(): void {
 function game(): void {
   // return to menu
   if (keyIsPressed && keyCode == ESCAPE) {
-    switchScene("main_menu")
+    switchScene(Scene.MAIN_MENU)
   }
 
   // win conditions
   if (boat1.round == winning_laps || boat2.round == winning_laps) {
-    switchScene("game_over")
+    switchScene(Scene.GAME_OVER)
   }
 
   // rotates wp (white point) into bc (biela ciarka maybe?)
@@ -565,7 +575,7 @@ function game(): void {
   }
 
   // to iste pre druhu lod ak multiplayer
-  if (game_mode == MODE_MULTIPLAYER) {
+  if (game_mode == Mode.MULTIPLAYER) {
     dl_rotate(wp, bc, boat2.rot);
     // int rx, ry, gx, gy;
     for (rx = 0; rx < bc.width; rx++) {
@@ -651,7 +661,7 @@ function game(): void {
   }
 
   // pohni za AIcku ak singleplayer
-  if (game_mode == MODE_SINGLEPLAYER) {
+  if (game_mode == Mode.SINGLEPLAYER) {
     // boat2.x = getAI_x(AI_pos);
     // boat2.y = getAI_y(AI_pos);
     // boat2.rot = getAI_rot(AI_pos);
@@ -677,7 +687,7 @@ function game(): void {
   }
 
   // VYKRESLOVANIE
-  if (game_mode == MODE_MULTIPLAYER) {
+  if (game_mode == Mode.MULTIPLAYER) {
     // lava polka
     camleft1 = boat1.x - 256;
     camup1 = boat1.y - 384;
@@ -714,7 +724,7 @@ function game(): void {
     blit(vsetko, mb, camleft2, camup2, 512, 0, 512, 768);
     vline(mb, 512, 0, 768, makecol(rand() % 255, 0, 0));
   }
-  if (game_mode == MODE_SINGLEPLAYER) {
+  if (game_mode == Mode.SINGLEPLAYER) {
     camleft1 = boat1.x - 512;
     camup1 = boat1.y - 384;
     if (camleft1 < 0)
@@ -773,7 +783,7 @@ function game(): void {
   text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40)
   text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70)
 
-  if (game_mode == MODE_MULTIPLAYER) {
+  if (game_mode == Mode.MULTIPLAYER) {
     alfont_textprintf_aa(mb, pump, 810, 10, 0, "Laps %d", super.round);
     alfont_textprintf_aa(mb, pump, 810, 40, 0, "Last lap time %d:%d",
       super.last_lap_min, super.last_lap_sec);
@@ -855,7 +865,6 @@ function getpixel(img: p5.Image, x: number, y: number): p5.Color {
   const p = img.pixels
   return color(p[i], p[i + 1], p[i + 2], p[i + 3])
 }
-
 
 function keyPressed() {
   switch (key) {
