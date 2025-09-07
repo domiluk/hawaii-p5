@@ -54,8 +54,9 @@ var camup1 = 0;
 var camup2 = 0;
 var camleft1 = 0;
 var camleft2 = 0;
+var leftBuffer;
+var rightBuffer;
 var ostrov;
-var vsetko;
 var alpha_ostrov;
 var bc;
 var wp;
@@ -142,6 +143,8 @@ function preload() {
     debugPlay = loadImage("debug/play.png");
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
+    leftBuffer = createGraphics(512, 768);
+    rightBuffer = createGraphics(512, 768);
     boat1.bmp = loadImage("images/lodcervena.png");
     boat2.bmp = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
@@ -156,10 +159,12 @@ function preload() {
 function setup() {
     createCanvas(1024, 768);
     angleMode(DEGREES);
+    leftBuffer.angleMode(DEGREES);
+    rightBuffer.angleMode(DEGREES);
     setupBoats();
     textFont(airstream);
     textSize(50);
-    switchScene(Scene.GAME);
+    switchScene(Scene.PLAY_MENU);
 }
 function draw() {
     background(0);
@@ -425,9 +430,7 @@ function game() {
             camup1 = ostrov.height - 768;
         if (camleft1 > (ostrov.width - 1024 + 512))
             camleft1 = ostrov.width - 1024 + 512;
-        blit(ostrov, vsetko, 0, 0, 0, 0, 2100, 1900);
-        dl_rotate(boat1.bmp, boat1.bmp_rot, boat1.rot + 90);
-        draw_sprite(vsetko, boat1.bmp_rot, boat1.x, boat1.y);
+        leftBuffer.image(ostrov, -camleft1, -camup1);
         camleft2 = boat2.x - 256;
         camup2 = boat2.y - 384;
         if (camleft2 < 0)
@@ -438,11 +441,21 @@ function game() {
             camup2 = ostrov.height - 768;
         if (camleft2 > (ostrov.width - 1024 + 512))
             camleft2 = ostrov.width - 1024 + 512;
-        dl_rotate(boat2.bmp, boat2.bmp_rot, boat2.rot + 90);
-        draw_sprite(vsetko, boat2.bmp_rot, boat2.x, boat2.y);
-        blit(vsetko, mb, camleft1, camup1, 0, 0, 512, 768);
-        blit(vsetko, mb, camleft2, camup2, 512, 0, 512, 768);
-        vline(mb, 512, 0, 768, makecol(rand() % 255, 0, 0));
+        rightBuffer.image(ostrov, -camleft2, -camup2);
+        leftBuffer.push();
+        leftBuffer.translate(boat1.x - camleft1, boat1.y - camup1);
+        leftBuffer.rotate(boat1.rot + 90);
+        leftBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
+        leftBuffer.pop();
+        leftBuffer.push();
+        leftBuffer.translate(boat2.x - camleft1, boat2.y - camup1);
+        leftBuffer.rotate(boat2.rot + 90);
+        leftBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
+        leftBuffer.pop();
+        image(leftBuffer, 0, 0);
+        image(rightBuffer, 512, 0);
+        stroke(0);
+        line(512, 0, 512, 768);
     }
     if (game_mode == Mode.SINGLEPLAYER) {
         camleft1 = boat1.x - 512;
@@ -499,9 +512,18 @@ function drawTimerPanels() {
     text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20 - 1, 40 - 1);
     text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20 - 1, 70 - 1);
     if (game_mode == Mode.MULTIPLAYER) {
-        alfont_textprintf_aa(mb, pump, 810, 10, 0, "Laps %d", _super.round);
-        alfont_textprintf_aa(mb, pump, 810, 40, 0, "Last lap time %d:%d", _super.last_lap_min, _super.last_lap_sec);
-        alfont_textprintf_aa(mb, pump, 810, 70, 0, "Best lap time %d:%d", _super.best_lap_min, _super.best_lap_sec);
+        fill(0);
+        textAlign(LEFT, TOP);
+        textSize(0.9 * 35);
+        text("Laps " + boat2.round, 810, 10);
+        text("Last lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810, 40);
+        text("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810, 70);
+        fill(255);
+        textAlign(LEFT, TOP);
+        textSize(0.9 * 35);
+        text("Laps " + boat2.round, 810 - 1, 10 - 1);
+        text("Last lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810 - 1, 40 - 1);
+        text("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810 - 1, 70 - 1);
     }
 }
 function mousePressed() {
