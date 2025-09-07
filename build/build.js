@@ -28,6 +28,55 @@ function getpixel(img, x, y) {
     var p = img.pixels;
     return color(p[i], p[i + 1], p[i + 2], p[i + 3]);
 }
+var Boat = (function () {
+    function Boat() {
+    }
+    Boat.prototype.draw = function (g, camleft, camup) {
+        if (!g) {
+            g = window;
+        }
+        g.push();
+        g.translate(this.x - camleft, this.y - camup);
+        g.rotate(this.rot + 90);
+        g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2);
+        g.pop();
+    };
+    Boat.prototype.update = function () {
+        bc = wp;
+        var rx, ry, gx, gy;
+        gx = 0;
+        gy = 0;
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
+            this.vel *= -0.75;
+        }
+        this.x += cos(this.rot) * this.vel;
+        this.y += sin(this.rot) * this.vel;
+        if (keyIsDown(this.controls.up)) {
+            if (this.vel < this.max_speed) {
+                this.vel += this.accel;
+            }
+        }
+        else {
+            if (keyIsDown(this.controls.down)) {
+                if (this.vel > this.slowdown)
+                    this.vel -= this.slowdown;
+                if (this.vel < -this.slowdown)
+                    this.vel += this.slowdown;
+            }
+            if (this.vel > this.slowdown)
+                this.vel -= this.slowdown;
+            if (this.vel < -this.slowdown)
+                this.vel += this.slowdown;
+        }
+        if (keyIsDown(this.controls.left)) {
+            this.rot -= this.rotate_by;
+        }
+        if (keyIsDown(this.controls.right)) {
+            this.rot += this.rotate_by;
+        }
+    };
+    return Boat;
+}());
 var showDebugImage;
 var debugMainMenu;
 var debugOptions;
@@ -75,13 +124,8 @@ var nlaps = 3;
 var colb = 0;
 var cols = 1;
 var winning_laps = 3;
-var BOAT = (function () {
-    function BOAT() {
-    }
-    return BOAT;
-}());
-var boat1 = new BOAT();
-var boat2 = new BOAT();
+var boat1;
+var boat2;
 var menu;
 var airstream;
 var symbols;
@@ -145,6 +189,8 @@ function preload() {
     symbols = loadFont("fonts/symbols.ttf");
     leftBuffer = createGraphics(512, 768);
     rightBuffer = createGraphics(512, 768);
+    boat1 = new Boat();
+    boat2 = new Boat();
     boat1.bmp = loadImage("images/lodcervena.png");
     boat2.bmp = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
@@ -408,18 +454,16 @@ function game() {
     if (boat1.round == winning_laps || boat2.round == winning_laps) {
         switchScene(Scene.GAME_OVER);
     }
-    updateBoat(boat1);
+    boat1.update();
     if (game_mode == Mode.MULTIPLAYER) {
-        updateBoat(boat2);
+        boat2.update();
     }
     if (game_mode == Mode.SINGLEPLAYER) {
     }
-    if (abs((boat1.x - boat2.x) * (boat1.x - boat2.x)) +
-        abs((boat1.y - boat2.y) * (boat1.y - boat2.y)) <=
-        90 * 90) {
+    if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
         spring.play();
     }
-    drawGame();
+    drawGameCameras();
     drawTimerPanels();
 }
 function drawTimerPanels() {
@@ -526,111 +570,29 @@ function keyPressed() {
             break;
     }
 }
-function updateBoat(boat) {
-    bc = wp;
-    var rx, ry, gx, gy;
-    gx = 0;
-    gy = 0;
-    if (red(getpixel(alpha_ostrov, boat.x + gx, boat.y + gy)) == 0) {
-        boat.vel *= -0.75;
-    }
-    boat.x += cos(boat.rot) * boat.vel;
-    boat.y += sin(boat.rot) * boat.vel;
-    if (keyIsDown(boat.controls.up)) {
-        if (boat.vel < boat.max_speed) {
-            boat.vel += boat.accel;
-        }
-    }
-    else {
-        if (keyIsDown(boat.controls.down)) {
-            if (boat.vel > boat.slowdown)
-                boat.vel -= boat.slowdown;
-            if (boat.vel < -boat.slowdown)
-                boat.vel += boat.slowdown;
-        }
-        if (boat.vel > boat.slowdown)
-            boat.vel -= boat.slowdown;
-        if (boat.vel < -boat.slowdown)
-            boat.vel += boat.slowdown;
-    }
-    if (keyIsDown(boat.controls.left)) {
-        boat.rot -= boat.rotate_by;
-    }
-    if (keyIsDown(boat.controls.right)) {
-        boat.rot += boat.rotate_by;
-    }
-}
-function drawGame() {
+function drawGameCameras() {
     if (game_mode == Mode.MULTIPLAYER) {
-        camleft1 = boat1.x - 256;
-        camup1 = boat1.y - 384;
-        if (camleft1 < 0)
-            camleft1 = 0;
-        if (camup1 < 0)
-            camup1 = 0;
-        if (camup1 > (ostrov.height - 768))
-            camup1 = ostrov.height - 768;
-        if (camleft1 > (ostrov.width - 1024 + 512))
-            camleft1 = ostrov.width - 1024 + 512;
+        camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512);
+        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
         leftBuffer.image(ostrov, -camleft1, -camup1);
-        camleft2 = boat2.x - 256;
-        camup2 = boat2.y - 384;
-        if (camleft2 < 0)
-            camleft2 = 0;
-        if (camup2 < 0)
-            camup2 = 0;
-        if (camup2 > (ostrov.height - 768))
-            camup2 = ostrov.height - 768;
-        if (camleft2 > (ostrov.width - 1024 + 512))
-            camleft2 = ostrov.width - 1024 + 512;
+        camleft2 = constrain(boat2.x - 256, 0, ostrov.width - 1024 + 512);
+        camup2 = constrain(boat2.y - 384, 0, ostrov.height - 768);
         rightBuffer.image(ostrov, -camleft2, -camup2);
-        leftBuffer.push();
-        leftBuffer.translate(boat1.x - camleft1, boat1.y - camup1);
-        leftBuffer.rotate(boat1.rot + 90);
-        leftBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
-        leftBuffer.pop();
-        leftBuffer.push();
-        leftBuffer.translate(boat2.x - camleft1, boat2.y - camup1);
-        leftBuffer.rotate(boat2.rot + 90);
-        leftBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
-        leftBuffer.pop();
-        rightBuffer.push();
-        rightBuffer.translate(boat1.x - camleft2, boat1.y - camup2);
-        rightBuffer.rotate(boat1.rot + 90);
-        rightBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
-        rightBuffer.pop();
-        rightBuffer.push();
-        rightBuffer.translate(boat2.x - camleft2, boat2.y - camup2);
-        rightBuffer.rotate(boat2.rot + 90);
-        rightBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
-        rightBuffer.pop();
+        boat1.draw(leftBuffer, camleft1, camup1);
+        boat2.draw(leftBuffer, camleft1, camup1);
+        boat1.draw(rightBuffer, camleft2, camup2);
+        boat2.draw(rightBuffer, camleft2, camup2);
         image(leftBuffer, 0, 0);
         image(rightBuffer, 512, 0);
         stroke(0);
         line(512, 0, 512, 768);
     }
     if (game_mode == Mode.SINGLEPLAYER) {
-        camleft1 = boat1.x - 512;
-        camup1 = boat1.y - 384;
-        if (camleft1 < 0)
-            camleft1 = 0;
-        if (camup1 < 0)
-            camup1 = 0;
-        if (camup1 > (ostrov.height - 768))
-            camup1 = ostrov.height - 768;
-        if (camleft1 > (ostrov.width - 1024))
-            camleft1 = ostrov.width - 1024;
+        camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024);
+        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
         image(ostrov, -camleft1, -camup1);
-        push();
-        translate(boat1.x - camleft1, boat1.y - camup1);
-        rotate(boat1.rot + 90);
-        image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
-        pop();
-        push();
-        translate(boat2.x - camleft1, boat2.y - camup1);
-        rotate(boat2.rot + 90);
-        image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
-        pop();
+        boat1.draw(null, camleft1, camup1);
+        boat2.draw(null, camleft1, camup1);
     }
 }
 function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
