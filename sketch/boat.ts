@@ -3,14 +3,10 @@ class Boat {
     y: number
     vel: number
     rot: number
-    rotate_by: number
-    max_speed: number
-    accel: number
-    slowdown: number
     round: number
-    cp_one: number
-    cp_two: number
-    cp_three: number
+    cp_one: boolean
+    cp_two: boolean
+    cp_three: boolean
     last_lap_sec: number
     best_lap_sec: number
     last_lap_min: number
@@ -54,7 +50,9 @@ class Boat {
 
         // checkni naraz do ostrova
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
-            this.vel *= -0.75;
+            // this.vel *= 0.75
+            // this.vel *= -1
+            this.rot += 180
         }
 
         // // checkni naraz do checkpointov
@@ -89,35 +87,29 @@ class Boat {
         //   play_sample(dray, 255, 128, 1000, NULL);
         // }
 
-        // pohni lodou
-        this.x += cos(this.rot) * this.vel;
-        this.y += sin(this.rot) * this.vel;
 
         // input
         if (keyIsDown(this.controls.up)) {
-            if (this.vel < this.max_speed) {
-                this.vel += this.accel;
-            }
+            this.vel += ACCEL
         } else {
-            if (keyIsDown(this.controls.down)) {
-                if (this.vel > this.slowdown)
-                    this.vel -= this.slowdown;
-                if (this.vel < -this.slowdown)
-                    this.vel += this.slowdown;
-            }
+            this.vel -= SLOWDOWN
+        }
 
-            if (this.vel > this.slowdown)
-                this.vel -= this.slowdown;
-            if (this.vel < -this.slowdown)
-                this.vel += this.slowdown;
+        if (keyIsDown(this.controls.down)) {
+            this.vel -= SLOWDOWN
         }
 
         if (keyIsDown(this.controls.left)) {
-            this.rot -= this.rotate_by;
+            this.rot -= ROTATE_BY
         }
 
         if (keyIsDown(this.controls.right)) {
-            this.rot += this.rotate_by;
+            this.rot += ROTATE_BY
         }
+
+        // pohni lodou
+        this.vel = constrain(this.vel, 0, MAX_SPEED)
+        this.x += cos(this.rot) * this.vel
+        this.y += sin(this.rot) * this.vel
     }
 }

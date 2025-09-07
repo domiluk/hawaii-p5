@@ -4,11 +4,13 @@ let debugOptions: p5.Image
 let debugCredits: p5.Image
 let debugPlay: p5.Image
 
+// TODO: - dt a maxspeed
 // TODO: - spojazdnit timer
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
-// TODO: - dt a maxspeed
 // TODO: - laps a winning laps ????
+// TODO: - dat prec debug rects a images a mouse vypis
+// TODO: - on escape vsetky zvuky (sfx) skoncit prehravat
 
 type SAMPLE = p5.SoundFile
 
@@ -59,6 +61,11 @@ let nlaps = 3
 let colb = 0 // color boat
 let cols = 1 // color super
 let winning_laps = 3
+
+const ROTATE_BY = 1.5
+const MAX_SPEED = 6.5 // 10
+const ACCEL = 0.05
+const SLOWDOWN = 0.08
 
 let boat1: Boat
 let boat2: Boat
@@ -561,18 +568,15 @@ function setupBoats(): void {
   boat1.x = 960;
   boat1.y = 1130;
   boat1.round = 0;
-  boat1.cp_one = 0;
-  boat1.cp_two = 0;
+  boat1.cp_one = false;
+  boat1.cp_two = false;
+  boat1.cp_three = false;
   boat1.vel = 0;
   boat1.rot = -54;
   boat1.last_lap_sec = 0;
   boat1.last_lap_min = 0;
   boat1.best_lap_sec = 99;
   boat1.best_lap_min = 99;
-  boat1.max_speed = 10;
-  boat1.accel = 0.05;
-  boat1.slowdown = 0.08;
-  boat1.rotate_by = 1.5;
   // boat1.speed = 5.0;
   boat1.controls = {
     up: UP_ARROW,
@@ -584,18 +588,15 @@ function setupBoats(): void {
   boat2.x = 1060;
   boat2.y = 1200;
   boat2.round = 0;
-  boat2.cp_one = 0;
-  boat2.cp_two = 0;
+  boat2.cp_one = false;
+  boat2.cp_two = false;
+  boat2.cp_three = false;
   boat2.vel = 0;
   boat2.rot = -54;
   boat2.last_lap_sec = 0;
   boat2.last_lap_min = 0;
   boat2.best_lap_sec = 99;
   boat2.best_lap_min = 99;
-  boat2.max_speed = 10;
-  boat2.accel = 0.05;
-  boat2.slowdown = 0.08;
-  boat2.rotate_by = 1.5;
   boat2.controls = {
     up: 87,
     down: 83,

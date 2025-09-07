@@ -94,7 +94,7 @@ function optionSelector(options: (string | number)[], pickedIndex: number, x: nu
 }
 
 function optionLabel(text: string, x: number, y: number): void {
-    let label: TextLabel = {
+    const label: TextLabel = {
         text: text,
         size: 0.9 * 30,
     }

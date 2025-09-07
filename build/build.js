@@ -47,33 +47,26 @@ var Boat = (function () {
         gx = 0;
         gy = 0;
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
-            this.vel *= -0.75;
+            this.rot += 180;
         }
-        this.x += cos(this.rot) * this.vel;
-        this.y += sin(this.rot) * this.vel;
         if (keyIsDown(this.controls.up)) {
-            if (this.vel < this.max_speed) {
-                this.vel += this.accel;
-            }
+            this.vel += ACCEL;
         }
         else {
-            if (keyIsDown(this.controls.down)) {
-                if (this.vel > this.slowdown)
-                    this.vel -= this.slowdown;
-                if (this.vel < -this.slowdown)
-                    this.vel += this.slowdown;
-            }
-            if (this.vel > this.slowdown)
-                this.vel -= this.slowdown;
-            if (this.vel < -this.slowdown)
-                this.vel += this.slowdown;
+            this.vel -= SLOWDOWN;
+        }
+        if (keyIsDown(this.controls.down)) {
+            this.vel -= SLOWDOWN;
         }
         if (keyIsDown(this.controls.left)) {
-            this.rot -= this.rotate_by;
+            this.rot -= ROTATE_BY;
         }
         if (keyIsDown(this.controls.right)) {
-            this.rot += this.rotate_by;
+            this.rot += ROTATE_BY;
         }
+        this.vel = constrain(this.vel, 0, MAX_SPEED);
+        this.x += cos(this.rot) * this.vel;
+        this.y += sin(this.rot) * this.vel;
     };
     return Boat;
 }());
@@ -124,6 +117,10 @@ var nlaps = 3;
 var colb = 0;
 var cols = 1;
 var winning_laps = 3;
+var ROTATE_BY = 1.5;
+var MAX_SPEED = 6.5;
+var ACCEL = 0.05;
+var SLOWDOWN = 0.08;
 var boat1;
 var boat2;
 var menu;
@@ -511,18 +508,15 @@ function setupBoats() {
     boat1.x = 960;
     boat1.y = 1130;
     boat1.round = 0;
-    boat1.cp_one = 0;
-    boat1.cp_two = 0;
+    boat1.cp_one = false;
+    boat1.cp_two = false;
+    boat1.cp_three = false;
     boat1.vel = 0;
     boat1.rot = -54;
     boat1.last_lap_sec = 0;
     boat1.last_lap_min = 0;
     boat1.best_lap_sec = 99;
     boat1.best_lap_min = 99;
-    boat1.max_speed = 10;
-    boat1.accel = 0.05;
-    boat1.slowdown = 0.08;
-    boat1.rotate_by = 1.5;
     boat1.controls = {
         up: UP_ARROW,
         down: DOWN_ARROW,
@@ -532,18 +526,15 @@ function setupBoats() {
     boat2.x = 1060;
     boat2.y = 1200;
     boat2.round = 0;
-    boat2.cp_one = 0;
-    boat2.cp_two = 0;
+    boat2.cp_one = false;
+    boat2.cp_two = false;
+    boat2.cp_three = false;
     boat2.vel = 0;
     boat2.rot = -54;
     boat2.last_lap_sec = 0;
     boat2.last_lap_min = 0;
     boat2.best_lap_sec = 99;
     boat2.best_lap_min = 99;
-    boat2.max_speed = 10;
-    boat2.accel = 0.05;
-    boat2.slowdown = 0.08;
-    boat2.rotate_by = 1.5;
     boat2.controls = {
         up: 87,
         down: 83,
