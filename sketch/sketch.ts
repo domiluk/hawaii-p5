@@ -4,8 +4,10 @@ let debugOptions: p5.Image
 let debugCredits: p5.Image
 let debugPlay: p5.Image
 
-// TODO: - spojazdnit multiplayer bloky
 // TODO: - spojazdnit timer
+// TODO: - refactor
+// TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
+// TODO: - dt a maxspeed
 
 type SAMPLE = p5.SoundFile
 
@@ -499,11 +501,9 @@ function game(): void {
     switchScene(Scene.GAME_OVER)
   }
 
-  update_boat(boat1)
-
-  // to iste pre druhu lod ak multiplayer
+  updateBoat(boat1)
   if (game_mode == Mode.MULTIPLAYER) {
-    update_boat(boat2)
+    updateBoat(boat2)
   }
 
   // pohni za AIcku ak singleplayer
@@ -532,93 +532,7 @@ function game(): void {
     spring.play()
   }
 
-  // VYKRESLOVANIE
-  if (game_mode == Mode.MULTIPLAYER) {
-    // lava polka
-    camleft1 = boat1.x - 256;
-    camup1 = boat1.y - 384;
-
-    if (camleft1 < 0)
-      camleft1 = 0;
-    if (camup1 < 0)
-      camup1 = 0;
-    if (camup1 > (ostrov.height - 768))
-      camup1 = ostrov.height - 768;
-    if (camleft1 > (ostrov.width - 1024 + 512))
-      camleft1 = ostrov.width - 1024 + 512;
-
-    leftBuffer.image(ostrov, -camleft1, -camup1)
-
-    // prava polka
-    camleft2 = boat2.x - 256;
-    camup2 = boat2.y - 384;
-
-    if (camleft2 < 0)
-      camleft2 = 0;
-    if (camup2 < 0)
-      camup2 = 0;
-    if (camup2 > (ostrov.height - 768))
-      camup2 = ostrov.height - 768;
-    if (camleft2 > (ostrov.width - 1024 + 512))
-      camleft2 = ostrov.width - 1024 + 512;
-
-    rightBuffer.image(ostrov, -camleft2, -camup2)
-
-    leftBuffer.push()
-    leftBuffer.translate(boat1.x - camleft1, boat1.y - camup1)
-    leftBuffer.rotate(boat1.rot + 90)
-    leftBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
-    leftBuffer.pop()
-
-    leftBuffer.push()
-    leftBuffer.translate(boat2.x - camleft1, boat2.y - camup1)
-    leftBuffer.rotate(boat2.rot + 90)
-    leftBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
-    leftBuffer.pop()
-
-    image(leftBuffer, 0, 0)
-    image(rightBuffer, 512, 0)
-    stroke(0)
-    line(512, 0, 512, 768)
-  }
-  if (game_mode == Mode.SINGLEPLAYER) {
-    camleft1 = boat1.x - 512;
-    camup1 = boat1.y - 384;
-    if (camleft1 < 0)
-      camleft1 = 0;
-    if (camup1 < 0)
-      camup1 = 0;
-    if (camup1 > (ostrov.height - 768))
-      camup1 = ostrov.height - 768;
-    if (camleft1 > (ostrov.width - 1024))
-      camleft1 = ostrov.width - 1024;
-
-    image(ostrov, -camleft1, -camup1);
-
-    //dl_rotate(boat1.bmp, boat1.bmp_rot, boat1.rot + 90);
-    push()
-    translate(boat1.x - camleft1, boat1.y - camup1)
-    rotate(boat1.rot + 90)
-    image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
-    pop()
-
-    stroke(0)
-    line(boat1.x - camleft1 - 10, boat1.y - camup1, boat1.x - camleft1 + 10, boat1.y - camup1)
-    line(boat1.x - camleft1, boat1.y - camup1 - 10, boat1.x - camleft1, boat1.y - camup1 + 10)
-
-    //dl_rotate(boat2.bmp, boat2.bmp_rot, boat2.rot);
-    push()
-    translate(boat2.x - camleft1, boat2.y - camup1)
-    rotate(boat2.rot + 90)
-    image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
-    pop()
-
-    stroke(0)
-    line(boat2.x - camleft1 - 10, boat2.y - camup1, boat2.x - camleft1 + 10, boat2.y - camup1)
-    line(boat2.x - camleft1, boat2.y - camup1 - 10, boat2.x - camleft1, boat2.y - camup1 + 10)
-    // image(boat2.bmp, boat2.x - camleft1, boat2.y - camup1);
-  }
-
+  drawGame()
   drawTimerPanels()
 }
 
@@ -745,7 +659,7 @@ function keyPressed() {
   }
 }
 
-function update_boat(boat: BOAT): void {
+function updateBoat(boat: BOAT): void {
   // rotates wp (white point) into bc (biela ciarka maybe?)
   // dl_rotate(wp, bc, boat1.rot)
   bc = wp
@@ -829,5 +743,95 @@ function update_boat(boat: BOAT): void {
 
   if (keyIsDown(boat.controls.right)) {
     boat.rot += boat.rotate_by;
+  }
+}
+
+function drawGame(): void {
+  if (game_mode == Mode.MULTIPLAYER) {
+    // lava polka
+    camleft1 = boat1.x - 256;
+    camup1 = boat1.y - 384;
+
+    if (camleft1 < 0)
+      camleft1 = 0;
+    if (camup1 < 0)
+      camup1 = 0;
+    if (camup1 > (ostrov.height - 768))
+      camup1 = ostrov.height - 768;
+    if (camleft1 > (ostrov.width - 1024 + 512))
+      camleft1 = ostrov.width - 1024 + 512;
+
+    leftBuffer.image(ostrov, -camleft1, -camup1)
+
+    // prava polka
+    camleft2 = boat2.x - 256;
+    camup2 = boat2.y - 384;
+
+    if (camleft2 < 0)
+      camleft2 = 0;
+    if (camup2 < 0)
+      camup2 = 0;
+    if (camup2 > (ostrov.height - 768))
+      camup2 = ostrov.height - 768;
+    if (camleft2 > (ostrov.width - 1024 + 512))
+      camleft2 = ostrov.width - 1024 + 512;
+
+    rightBuffer.image(ostrov, -camleft2, -camup2)
+
+    leftBuffer.push()
+    leftBuffer.translate(boat1.x - camleft1, boat1.y - camup1)
+    leftBuffer.rotate(boat1.rot + 90)
+    leftBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
+    leftBuffer.pop()
+
+    leftBuffer.push()
+    leftBuffer.translate(boat2.x - camleft1, boat2.y - camup1)
+    leftBuffer.rotate(boat2.rot + 90)
+    leftBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
+    leftBuffer.pop()
+
+    rightBuffer.push()
+    rightBuffer.translate(boat1.x - camleft2, boat1.y - camup2)
+    rightBuffer.rotate(boat1.rot + 90)
+    rightBuffer.image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
+    rightBuffer.pop()
+
+    rightBuffer.push()
+    rightBuffer.translate(boat2.x - camleft2, boat2.y - camup2)
+    rightBuffer.rotate(boat2.rot + 90)
+    rightBuffer.image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
+    rightBuffer.pop()
+
+    image(leftBuffer, 0, 0)
+    image(rightBuffer, 512, 0)
+    stroke(0)
+    line(512, 0, 512, 768)
+  }
+
+  if (game_mode == Mode.SINGLEPLAYER) {
+    camleft1 = boat1.x - 512;
+    camup1 = boat1.y - 384;
+    if (camleft1 < 0)
+      camleft1 = 0;
+    if (camup1 < 0)
+      camup1 = 0;
+    if (camup1 > (ostrov.height - 768))
+      camup1 = ostrov.height - 768;
+    if (camleft1 > (ostrov.width - 1024))
+      camleft1 = ostrov.width - 1024;
+
+    image(ostrov, -camleft1, -camup1);
+
+    push()
+    translate(boat1.x - camleft1, boat1.y - camup1)
+    rotate(boat1.rot + 90)
+    image(boat1.bmp, -boat1.bmp.width / 2, -boat1.bmp.height / 2);
+    pop()
+
+    push()
+    translate(boat2.x - camleft1, boat2.y - camup1)
+    rotate(boat2.rot + 90)
+    image(boat2.bmp, -boat2.bmp.width / 2, -boat2.bmp.height / 2);
+    pop()
   }
 }
