@@ -4,7 +4,7 @@ let debugOptions: p5.Image
 let debugCredits: p5.Image
 let debugPlay: p5.Image
 
-
+// TODO: - spojazdnit multiplayer bloky
 
 type SAMPLE = p5.SoundFile
 
@@ -17,8 +17,8 @@ let game_mode = Mode.SINGLEPLAYER
 enum Scene {
   MAIN_MENU,
   PLAY_MENU,
-  OPTIONS_MENU,
-  CREDITS_MENU,
+  OPTIONS,
+  CREDITS,
   LEADERBOARD,
   GAME,
   GAME_OVER
@@ -72,6 +72,12 @@ class BOAT {
   last_lap_min: number
   best_lap_min: number
   bmp: p5.Image
+  controls: {
+    up: number,
+    down: number,
+    left: number,
+    right: number,
+  }
 }
 
 const boat1 = new BOAT()
@@ -146,21 +152,21 @@ function preload() {
   airstream = loadFont("fonts/airstream.ttf")
   symbols = loadFont("fonts/symbols.ttf")
 
-  vsetko = create_bitmap(2100, 1900)
+  // vsetko = create_bitmap(2100, 1900)
   // game_mode = MODE_MP;
-  bc = create_bitmap(100, 100)
-  wp = create_bitmap(100, 100) // NOTE: wp = white point, probably
+  // bc = create_bitmap(100, 100)
+  // wp = create_bitmap(100, 100) // NOTE: wp = white point, probably
 
-  putpixel(wp, 97, 50, color(254, 255, 255))
-  putpixel(wp, 96, 50, color(254, 255, 255))
-  putpixel(bc, 97, 50, color(254, 255, 255))
+  //putpixel(wp, 97, 50, color(254, 255, 255))
+  //putpixel(wp, 96, 50, color(254, 255, 255))
+  //putpixel(bc, 97, 50, color(254, 255, 255))
 
-  boat1.bmp = loadImage("images/lodcervena.bmp")
-  boat2.bmp = loadImage("images/lodzelena.bmp")
+  boat1.bmp = loadImage("images/lodcervena.png")
+  boat2.bmp = loadImage("images/lodzelena.png")
   ostrov = loadImage("images/ostrov1.bmp")
   alpha_ostrov = loadImage("images/alpha1.bmp")
   menu = loadImage("images/menu.png")
-  panel = loadImage("images/panel.bmp")
+  panel = loadImage("images/panel.png")
 
   soundFormats('wav')
   dray = loadSound("sounds/dray.wav")
@@ -174,7 +180,7 @@ function setup() {
 
   angleMode(DEGREES)
 
-  setup_boats()
+  setupBoats()
 
   textFont(airstream)
   textSize(50)
@@ -188,25 +194,25 @@ function draw() {
 
   switch (scene) {
     case Scene.MAIN_MENU:
-      main_menu()
+      mainMenuScreen()
       break
     case Scene.PLAY_MENU:
-      play_menu()
+      playMenuScreen()
       break
-    case Scene.OPTIONS_MENU:
-      options_menu()
+    case Scene.OPTIONS:
+      optionsScreen()
       break
-    case Scene.CREDITS_MENU:
-      credits_menu()
+    case Scene.CREDITS:
+      creditsScreen()
       break
     case Scene.LEADERBOARD:
-      leaderboard()
+      leaderboardScreen()
       break
     case Scene.GAME:
       game()
       break
     case Scene.GAME_OVER:
-      game_over()
+      gameOverScreen()
       break
   }
 
@@ -226,7 +232,7 @@ function switchScene(newScene: Scene, reset = true): void {
   } else if (newScene == Scene.GAME) {
     //     install_int(mooove_time, 1000);
     if (reset) {
-      setup_boats()
+      setupBoats()
       global_min = 0
       global_sec = 0
     }
@@ -268,7 +274,7 @@ function menuButtons(): void {
     yOffset: 13,
   }
   if (textButton(optionsLabel, 543, 597, 95, 57)) {
-    switchScene(Scene.OPTIONS_MENU)
+    switchScene(Scene.OPTIONS)
   }
 
   let creditsLabel: TextLabel = {
@@ -278,7 +284,7 @@ function menuButtons(): void {
     yOffset: 12,
   }
   if (textButton(creditsLabel, 664, 601, 95, 57)) {
-    switchScene(Scene.CREDITS_MENU)
+    switchScene(Scene.CREDITS)
   }
 
   let muteLabel: TextLabel = {
@@ -302,12 +308,12 @@ function menuButtons(): void {
   text("Hawaii", 512, 100)
 }
 
-function main_menu(): void {
+function mainMenuScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 }
 
-function play_menu(): void {
+function playMenuScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 
@@ -334,7 +340,7 @@ function play_menu(): void {
   }
 }
 
-function options_menu(): void {
+function optionsScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 
@@ -403,7 +409,7 @@ function options_menu(): void {
   }
 }
 
-function credits_menu(): void {
+function creditsScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 
@@ -422,7 +428,7 @@ function credits_menu(): void {
   text("ˇ", 946, 445)
 }
 
-function leaderboard(): void {
+function leaderboardScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 
@@ -452,7 +458,7 @@ function leaderboard(): void {
   text("17.555 s", 674, 310)
 }
 
-function game_over(): void {
+function gameOverScreen(): void {
   // return to menu
   if (keyIsPressed && keyCode == ESCAPE) {
     switchScene(Scene.MAIN_MENU)
@@ -486,178 +492,11 @@ function game(): void {
     switchScene(Scene.GAME_OVER)
   }
 
-  // rotates wp (white point) into bc (biela ciarka maybe?)
-  // dl_rotate(wp, bc, boat1.rot)
-  bc = wp
-
-  // gets the white point from bc (inefficient)
-  let rx: number, ry: number, gx: number, gy: number;
-  // for (rx = 0; rx < bc.width; rx++) {
-  //   for (ry = 0; ry < bc.height; ry++) {
-  //     if (getr(getpixel(bc, rx, ry)) == 254) {
-  //       gx = rx;
-  //       gy = ry;
-  //     }
-  //   }
-  // }
-  gx = 0
-  gy = 0
-
-  // // checkni naraz do ostrova
-  alpha_ostrov.loadPixels()
-  let c = getpixel(alpha_ostrov, boat1.x + gx, boat1.y + gy)
-  console.log(red(c))
-  if (red(c) == 0) {
-    boat1.vel *= -0.75;
-  }
-
-  // // checkni naraz do checkpointov
-  // if (getr(getpixel(alpha, boat1.x + gx, boat1.y + gy)) == 64) {
-  //   boat1.cp_one = 1;
-  // }
-  // if (getr(getpixel(alpha, boat1.x + gx, boat1.y + gy)) == 128) {
-  //   boat1.cp_two = 1;
-  // }
-  // if (getr(getpixel(alpha, boat1.x + gx, boat1.y + gy)) == 32) {
-  //   boat1.cp_three = 1;
-  // }
-
-  // // checkni naraz do finishlinu
-  // if (getr(getpixel(alpha, boat1.x + gx, boat1.y + gy)) == 192 &&
-  //   boat1.cp_one == 1 && boat1.cp_two == 1 && boat1.cp_three == 1) {
-  //   boat1.cp_one = 0;
-  //   boat1.cp_two = 0;
-  //   boat1.cp_three = 0;
-  //   boat1.last_lap_sec = global_sec - boat1.last_lap_sec;
-  //   boat1.last_lap_min = global_min - boat1.last_lap_min;
-  //   if (boat1.last_lap_sec < 0) {
-  //     boat1.last_lap_min--;
-  //     boat1.last_lap_sec = 60 - abs(boat1.last_lap_sec);
-  //   }
-  //   if (boat1.last_lap_sec + (boat1.last_lap_min) * 60 <
-  //     boat1.best_lap_sec + (boat1.best_lap_min) * 60) {
-  //     boat1.best_lap_sec = boat1.last_lap_sec;
-  //     boat1.best_lap_min = boat1.last_lap_min;
-  //   }
-  //   boat1.round++;
-  //   play_sample(dray, 255, 128, 1000, NULL);
-  // }
-
-  // pohni lodou
-  boat1.x += cos(boat1.rot) * boat1.vel;
-  boat1.y += sin(boat1.rot) * boat1.vel;
-
-  // input
-  if (keyIsDown(UP_ARROW)) {
-    if (boat1.vel < boat1.max_speed) {
-      boat1.vel += boat1.accel;
-    }
-  } else {
-    if (keyIsDown(DOWN_ARROW)) {
-      if (boat1.vel > boat1.slowdown)
-        boat1.vel -= boat1.slowdown;
-      if (boat1.vel < -boat1.slowdown)
-        boat1.vel += boat1.slowdown;
-    }
-
-    if (boat1.vel > boat1.slowdown)
-      boat1.vel -= boat1.slowdown;
-    if (boat1.vel < -boat1.slowdown)
-      boat1.vel += boat1.slowdown;
-  }
-
-  if (keyIsDown(LEFT_ARROW)) {
-    boat1.rot -= boat1.rotate_by;
-  }
-
-  if (keyIsDown(RIGHT_ARROW)) {
-    boat1.rot += boat1.rotate_by;
-  }
+  update_boat(boat1)
 
   // to iste pre druhu lod ak multiplayer
   if (game_mode == Mode.MULTIPLAYER) {
-    dl_rotate(wp, bc, boat2.rot);
-    // int rx, ry, gx, gy;
-    for (rx = 0; rx < bc.width; rx++) {
-      for (ry = 0; ry < bc.height; ry++) {
-        if (getr(getpixel(bc, rx, ry)) == 254) {
-          gx = rx;
-          gy = ry;
-        }
-      }
-    }
-
-    if (getr(getpixel(alpha_ostrov, boat2.x + gx, boat2.y + gy)) == 0) {
-      boat2.xv *= -0.75;
-      boat2.yv *= -0.75;
-    }
-
-    if (getr(getpixel(alpha_ostrov, boat2.x + gx, boat2.y + gy)) == 64) {
-      boat2.cp_one = 1;
-    }
-    if (getr(getpixel(alpha_ostrov, boat2.x + gx, boat2.y + gy)) == 128) {
-      boat2.cp_two = 1;
-    }
-    if (getr(getpixel(alpha_ostrov, boat2.x + gx, boat2.y + gy)) == 32) {
-      boat2.cp_three = 1;
-    }
-    if (getr(getpixel(alpha_ostrov, boat2.x + gx, boat2.y + gy)) == 192 &&
-      boat2.cp_one == 1 && boat2.cp_two == 1 && boat2.cp_three == 1) {
-      boat2.cp_one = 0;
-      boat2.cp_two = 0;
-      boat2.cp_three = 0;
-      boat2.last_lap_sec = global_sec - boat2.last_lap_sec;
-      boat2.last_lap_min = global_min - boat2.last_lap_min;
-      if (boat2.last_lap_sec < 0) {
-        boat2.last_lap_min--;
-        boat2.last_lap_sec = 60 - abs(boat2.last_lap_sec);
-      }
-      if (boat2.last_lap_sec + (boat2.last_lap_min) * 60 <
-        boat2.best_lap_sec + (boat2.best_lap_min) * 60) {
-        boat2.best_lap_sec = boat2.last_lap_sec;
-        boat2.best_lap_min = boat2.last_lap_min;
-      }
-      boat2.round++;
-    }
-
-    boat2.x += cos(boat2.rot / 360 * 2 * 3.1415926535) * boat2.xv;
-    boat2.y += sin(boat2.rot / 360 * 2 * 3.1415926535) * boat2.yv;
-
-    if (keyIsPressed && key == "w") {
-      if (boat2.xv < boat2.max_speed && boat2.yv < boat2.max_speed) {
-        boat2.xv += boat2.accel;
-        boat2.yv += boat2.accel;
-      }
-    }
-    else {
-      if (keyIsPressed && key == "s") {
-        if (boat2.xv > boat2.slowdown)
-          boat2.xv -= boat2.slowdown;
-        if (boat2.yv > boat2.slowdown)
-          boat2.yv -= boat2.slowdown;
-        if (boat2.xv < -boat2.slowdown)
-          boat2.xv += boat2.slowdown;
-        if (boat2.yv < -boat2.slowdown)
-          boat2.yv += boat2.slowdown;
-      }
-
-      if (boat2.xv > boat2.slowdown)
-        boat2.xv -= boat2.slowdown;
-      if (boat2.yv > boat2.slowdown)
-        boat2.yv -= boat2.slowdown;
-      if (boat2.xv < -boat2.slowdown)
-        boat2.xv += boat2.slowdown;
-      if (boat2.yv < -boat2.slowdown)
-        boat2.yv += boat2.slowdown;
-    }
-
-    if (keyIsPressed && key == "a") {
-      boat2.rot -= boat2.rotate_by;
-    }
-
-    if (keyIsPressed && key == "d") {
-      boat2.rot += boat2.rotate_by;
-    }
+    update_boat(boat2)
   }
 
   // pohni za AIcku ak singleplayer
@@ -761,8 +600,11 @@ function game(): void {
     // image(boat2.bmp, boat2.x - camleft1, boat2.y - camup1);
   }
 
+  drawTimerPanels()
+}
 
-  // KRESLI PANEL casomiery
+// TODO: multiplayer timers
+function drawTimerPanels(): void {
   image(panel, 512 - 100, 0);
 
   textAlign(CENTER, TOP)
@@ -776,12 +618,21 @@ function game(): void {
   textSize(0.9 * 20)
   text("powered by DL games", 512, 70)
 
+  fill(0)
   textAlign(LEFT, TOP)
   textSize(0.9 * 35)
   text("Laps " + boat1.round, 20, 10)
 
   text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40)
   text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70)
+
+  fill(255)
+  textAlign(LEFT, TOP)
+  textSize(0.9 * 35)
+  text("Laps " + boat1.round, 20 - 1, 10 - 1)
+
+  text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20 - 1, 40 - 1)
+  text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20 - 1, 70 - 1)
 
   if (game_mode == Mode.MULTIPLAYER) {
     alfont_textprintf_aa(mb, pump, 810, 10, 0, "Laps %d", super.round);
@@ -793,19 +644,20 @@ function game(): void {
 }
 
 function mousePressed(): void {
-  if (getAudioContext().state !== 'running') {
-    getAudioContext().resume();
-  }
+  // if (getAudioContext().state !== 'running') {
+  //   getAudioContext().resume();
+  // }
+  userStartAudio()
 }
 
-function setup_boats(): void {
-  boat1.x = 996;
-  boat1.y = 1025;
+function setupBoats(): void {
+  boat1.x = 960;
+  boat1.y = 1130;
   boat1.round = 0;
   boat1.cp_one = 0;
   boat1.cp_two = 0;
   boat1.vel = 0;
-  boat1.rot = -50;
+  boat1.rot = -54;
   boat1.last_lap_sec = 0;
   boat1.last_lap_min = 0;
   boat1.best_lap_sec = 99;
@@ -815,14 +667,20 @@ function setup_boats(): void {
   boat1.slowdown = 0.08;
   boat1.rotate_by = 1.5;
   // boat1.speed = 5.0;
+  boat1.controls = {
+    up: UP_ARROW,
+    down: DOWN_ARROW,
+    left: LEFT_ARROW,
+    right: RIGHT_ARROW
+  }
 
-  boat2.x = 1105;
-  boat2.y = 1087;
+  boat2.x = 1060;
+  boat2.y = 1200;
   boat2.round = 0;
   boat2.cp_one = 0;
   boat2.cp_two = 0;
   boat2.vel = 0;
-  boat2.rot = -50;
+  boat2.rot = -54;
   boat2.last_lap_sec = 0;
   boat2.last_lap_min = 0;
   boat2.best_lap_sec = 99;
@@ -831,39 +689,12 @@ function setup_boats(): void {
   boat2.accel = 0.05;
   boat2.slowdown = 0.08;
   boat2.rotate_by = 1.5;
-}
-
-function create_bitmap(w: number, h: number): p5.Image {
-  let img: p5.Image = createImage(w, h)
-  // Load the image's pixels into memory.
-  img.loadPixels()
-  // Set all the image's pixels to black.
-  for (let x = 0; x < img.width; x += 1) {
-    for (let y = 0; y < img.height; y += 1) {
-      img.set(x, y, 0) // TODO: this is slow, consider using the array
-    }
+  boat2.controls = {
+    up: 87,
+    down: 83,
+    left: 65,
+    right: 68
   }
-  // Update the image's pixel values.
-  img.updatePixels()
-  return img
-}
-
-function putpixel(img: p5.Image, x: number, y: number, col: p5.Color): void {
-  x = floor(x)
-  y = floor(y)
-  img.loadPixels()
-  img.set(x, y, col)
-  img.updatePixels()
-}
-
-function getpixel(img: p5.Image, x: number, y: number): p5.Color {
-  x = floor(x)
-  y = floor(y)
-  if (x < 0 || y < 0 || x >= img.width || y >= img.height)
-    return color(0)
-  const i = 4 * (y * img.width + x)
-  const p = img.pixels
-  return color(p[i], p[i + 1], p[i + 2], p[i + 3])
 }
 
 function keyPressed() {
@@ -886,113 +717,89 @@ function keyPressed() {
   }
 }
 
-type TextLabel = {
-  text: string,
-  size: number,
-  xOffset?: number,
-  yOffset?: number,
-  rotate?: number,
-  font?: p5.Font,
-}
+function update_boat(boat: BOAT): void {
+  // rotates wp (white point) into bc (biela ciarka maybe?)
+  // dl_rotate(wp, bc, boat1.rot)
+  bc = wp
 
-function textLabel(label: TextLabel, x: number, y: number, fillColor = color(0), horizAlign: p5.HORIZ_ALIGN = CENTER, vertAlign: p5.VERT_ALIGN = TOP) {
-  noStroke()
-  fill(fillColor)
-  textAlign(horizAlign, vertAlign)
-  textSize(label.size)
-  textFont(label.font ?? airstream)
+  // gets the white point from bc (inefficient)
+  let rx: number, ry: number, gx: number, gy: number;
+  // for (rx = 0; rx < bc.width; rx++) {
+  //   for (ry = 0; ry < bc.height; ry++) {
+  //     if (getr(getpixel(bc, rx, ry)) == 254) {
+  //       gx = rx;
+  //       gy = ry;
+  //     }
+  //   }
+  // }
+  gx = 0
+  gy = 0
 
-  x = x + (label.xOffset ?? 0)
-  y = y + (label.yOffset ?? 0)
-  if (label.rotate) {
-    push()
-    translate(x, y)
-    rotate(label.rotate)
-    translate(-x, -y)
+  // checkni naraz do ostrova
+  if (red(getpixel(alpha_ostrov, boat.x + gx, boat.y + gy)) == 0) {
+    boat.vel *= -0.75;
   }
-  text(label.text, x, y)
-  if (label.rotate) {
-    pop()
-  }
-}
 
-function textButton(label: TextLabel, x: number, y: number, w: number, h: number, debug = true): boolean {
-  let mouseIsPressedInsideButton = false
-  let fillColor = 0
+  // // checkni naraz do checkpointov
+  // if (getr(getpixel(alpha, boat.x + gx, boat.y + gy)) == 64) {
+  //   boat.cp_one = 1;
+  // }
+  // if (getr(getpixel(alpha, boat.x + gx, boat.y + gy)) == 128) {
+  //   boat.cp_two = 1;
+  // }
+  // if (getr(getpixel(alpha, boat.x + gx, boat.y + gy)) == 32) {
+  //   boat.cp_three = 1;
+  // }
 
-  if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
-    fillColor = 255
-    if (mouseIsPressed) {
-      mouseIsPressedInsideButton = true
+  // // checkni naraz do finishlinu
+  // if (getr(getpixel(alpha, boat.x + gx, boat.y + gy)) == 192 &&
+  //   boat.cp_one == 1 && boat.cp_two == 1 && boat.cp_three == 1) {
+  //   boat.cp_one = 0;
+  //   boat.cp_two = 0;
+  //   boat.cp_three = 0;
+  //   boat.last_lap_sec = global_sec - boat.last_lap_sec;
+  //   boat.last_lap_min = global_min - boat.last_lap_min;
+  //   if (boat.last_lap_sec < 0) {
+  //     boat.last_lap_min--;
+  //     boat.last_lap_sec = 60 - abs(boat.last_lap_sec);
+  //   }
+  //   if (boat.last_lap_sec + (boat.last_lap_min) * 60 <
+  //     boat.best_lap_sec + (boat.best_lap_min) * 60) {
+  //     boat.best_lap_sec = boat.last_lap_sec;
+  //     boat.best_lap_min = boat.last_lap_min;
+  //   }
+  //   boat.round++;
+  //   play_sample(dray, 255, 128, 1000, NULL);
+  // }
+
+  // pohni lodou
+  boat.x += cos(boat.rot) * boat.vel;
+  boat.y += sin(boat.rot) * boat.vel;
+
+  // input
+  if (keyIsDown(boat.controls.up)) {
+    if (boat.vel < boat.max_speed) {
+      boat.vel += boat.accel;
     }
+  } else {
+    if (keyIsDown(boat.controls.down)) {
+      if (boat.vel > boat.slowdown)
+        boat.vel -= boat.slowdown;
+      if (boat.vel < -boat.slowdown)
+        boat.vel += boat.slowdown;
+    }
+
+    if (boat.vel > boat.slowdown)
+      boat.vel -= boat.slowdown;
+    if (boat.vel < -boat.slowdown)
+      boat.vel += boat.slowdown;
   }
 
-  textLabel(label, x, y, color(fillColor), CENTER, TOP)
-
-  if (debug) {
-    stroke(180)
-    strokeWeight(1)
-    noFill()
-    rect(x, y, w, h)
+  if (keyIsDown(boat.controls.left)) {
+    boat.rot -= boat.rotate_by;
   }
 
-  return mouseIsPressedInsideButton
-}
-
-const leftChevronLabel: TextLabel = {
-  text: "‹",
-  size: 0.9 * 60,
-  xOffset: 15,
-  yOffset: -13,
-}
-
-const rightChevronLabel: TextLabel = {
-  text: "›",
-  size: 0.9 * 60,
-  xOffset: 10,
-  yOffset: -13,
-}
-
-function leftChevronButton(x: number, y: number): boolean {
-  return textButton(leftChevronLabel, x, y, 25, 25)
-}
-
-function rightChevronButton(x: number, y: number): boolean {
-  return textButton(rightChevronLabel, x, y, 25, 25)
-}
-
-function optionSelector(options: (string | number)[], pickedIndex: number, x: number, y: number, gapWidth: number): number {
-  let changedTo = -1
-
-  if (leftChevronButton(x, y)) {
-    changedTo = (pickedIndex - 1) % options.length
+  if (keyIsDown(boat.controls.right)) {
+    boat.rot += boat.rotate_by;
   }
-
-  if (rightChevronButton(x + 25 + gapWidth, y)) {
-    changedTo = (pickedIndex + 1) % options.length
-  }
-
-  noStroke()
-  fill(0)
-  textSize(0.9 * 30)
-  textAlign(CENTER, TOP)
-  text(options[pickedIndex], floor(x + 25 + gapWidth / 2), y)
-
-  return changedTo
-}
-
-function optionLabel(text: string, x: number, y: number): void {
-  let label: TextLabel = {
-    text: text,
-    size: 0.9 * 30,
-  }
-  textLabel(label, x, y, color(0), RIGHT, TOP)
-}
-
-function optionsSectionLabel(text: string, x: number, y: number): void {
-  const label: TextLabel = {
-    text: text,
-    size: 0.9 * 30,
-  }
-  textLabel(label, x, y, color(255), CENTER, TOP)
 }
