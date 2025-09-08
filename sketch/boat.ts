@@ -26,13 +26,13 @@ class Boat {
         g.push()
         g.translate(this.x - camleft, this.y - camup)
         g.rotate(this.rot + 90)
-        g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2);
+        g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2)
         g.pop()
     }
 
     update(): void {
-        const gx: number = 0;
-        const gy: number = 0;
+        const gx: number = 0
+        const gy: number = 0
 
         // checkni naraz do ostrova
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
@@ -41,37 +41,37 @@ class Boat {
             this.rot += 180
         }
 
-        // // checkni naraz do checkpointov
-        // if (getr(getpixel(alpha, this.x + gx, this.y + gy)) == 64) {
-        //   this.cp_one = 1;
-        // }
-        // if (getr(getpixel(alpha, this.x + gx, this.y + gy)) == 128) {
-        //   this.cp_two = 1;
-        // }
-        // if (getr(getpixel(alpha, this.x + gx, this.y + gy)) == 32) {
-        //   this.cp_three = 1;
-        // }
+        // checkni naraz do checkpointov
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 64) {
+            this.cp_one = true
+        }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 128) {
+            this.cp_two = true
+        }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 32) {
+            this.cp_three = true
+        }
 
-        // // checkni naraz do finishlinu
-        // if (getr(getpixel(alpha, this.x + gx, this.y + gy)) == 192 &&
-        //   this.cp_one == 1 && this.cp_two == 1 && this.cp_three == 1) {
-        //   this.cp_one = 0;
-        //   this.cp_two = 0;
-        //   this.cp_three = 0;
-        //   this.last_lap_sec = global_sec - this.last_lap_sec;
-        //   this.last_lap_min = global_min - this.last_lap_min;
-        //   if (this.last_lap_sec < 0) {
-        //     this.last_lap_min--;
-        //     this.last_lap_sec = 60 - abs(this.last_lap_sec);
-        //   }
-        //   if (this.last_lap_sec + (this.last_lap_min) * 60 <
-        //     this.best_lap_sec + (this.best_lap_min) * 60) {
-        //     this.best_lap_sec = this.last_lap_sec;
-        //     this.best_lap_min = this.last_lap_min;
-        //   }
-        //   this.round++;
-        //   play_sample(dray, 255, 128, 1000, NULL);
-        // }
+        // checkni naraz do finishlinu
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 192 &&
+            this.cp_one && this.cp_two && this.cp_three) {
+            this.cp_one = false
+            this.cp_two = false
+            this.cp_three = false
+            this.last_lap_sec = global_sec - this.last_lap_sec
+            this.last_lap_min = global_min - this.last_lap_min
+            if (this.last_lap_sec < 0) {
+                this.last_lap_min--
+                this.last_lap_sec = 60 - abs(this.last_lap_sec)
+            }
+            if (this.last_lap_sec + (this.last_lap_min) * 60 <
+                this.best_lap_sec + (this.best_lap_min) * 60) {
+                this.best_lap_sec = this.last_lap_sec
+                this.best_lap_min = this.last_lap_min
+            }
+            this.round++
+            dray.play()
+        }
 
 
         // input

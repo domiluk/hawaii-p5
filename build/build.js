@@ -47,6 +47,34 @@ var Boat = (function () {
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
             this.rot += 180;
         }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 64) {
+            this.cp_one = true;
+        }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 128) {
+            this.cp_two = true;
+        }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 32) {
+            this.cp_three = true;
+        }
+        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 192 &&
+            this.cp_one && this.cp_two && this.cp_three) {
+            this.cp_one = false;
+            this.cp_two = false;
+            this.cp_three = false;
+            this.last_lap_sec = global_sec - this.last_lap_sec;
+            this.last_lap_min = global_min - this.last_lap_min;
+            if (this.last_lap_sec < 0) {
+                this.last_lap_min--;
+                this.last_lap_sec = 60 - abs(this.last_lap_sec);
+            }
+            if (this.last_lap_sec + (this.last_lap_min) * 60 <
+                this.best_lap_sec + (this.best_lap_min) * 60) {
+                this.best_lap_sec = this.last_lap_sec;
+                this.best_lap_min = this.last_lap_min;
+            }
+            this.round++;
+            dray.play();
+        }
         if (keyIsDown(this.controls.up)) {
             this.vel += ACCEL * deltaTime / 1000;
         }
@@ -149,7 +177,7 @@ function setup() {
     player2textBox = new TextBox("Name:", 8, 190, 405);
     textFont(airstream);
     textSize(50);
-    switchScene(Scene.OPTIONS);
+    switchScene(Scene.PLAY_MENU);
 }
 function draw() {
     background(0);

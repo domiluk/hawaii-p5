@@ -1,5 +1,7 @@
+// TODO: - kolizie s checkpointami a finishlinom
+
 // TODO: - vylepsit timer
-// TODO: - zapisovat spravne casy kol
+//          - lap timery
 
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
@@ -10,6 +12,9 @@
 // TODO: - spojazdnit leaderboard
 // TODO: - better collision detection
 // TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
+// TODO: - naklonit menu buttony
+//          - make the leaderboard button a bit bigger
+//          - in fact lets make the buttons in code entirely (not in graphic)
 
 type SAMPLE = p5.SoundFile
 
@@ -114,7 +119,7 @@ function setup() {
 
   textFont(airstream)
   textSize(50)
-  switchScene(Scene.OPTIONS)
+  switchScene(Scene.PLAY_MENU)
 }
 
 function draw() {
@@ -184,8 +189,6 @@ function menuButtons(): void {
     switchScene(Scene.PLAY_MENU)
   }
 
-  // TODO: make the button a bit bigger
-  // TODO: in fact lets make the buttons in code entirely (not in graphic)
   const leaderboardLabel: TextLabel = {
     text: "Leaderboard",
     size: 0.9 * 25,
