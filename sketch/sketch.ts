@@ -70,6 +70,9 @@ let menu: p5.Image
 let airstream: p5.Font
 let symbols: p5.Font
 
+let player1textBox: TextBox
+let player2textBox: TextBox
+
 function mooove_time(): void {
   global_sec++;
   if (global_sec == 60) {
@@ -116,10 +119,12 @@ function setup() {
   rightBuffer.angleMode(DEGREES)
 
   resetBoats()
+  player1textBox = new TextBox("Name:", 8, 190, 295)
+  player2textBox = new TextBox("Name:", 8, 190, 405)
 
   textFont(airstream)
   textSize(50)
-  switchScene(Scene.PLAY_MENU)
+  switchScene(Scene.OPTIONS)
 }
 
 function draw() {
@@ -288,30 +293,32 @@ function optionsScreen(): void {
   fill("#bb0000")
   stroke(200)
   strokeWeight(2)
-  text("Player 1", 165, 230)
+  text("Player 1", 190, 230)
   strokeWeight(1)
 
   textFont(airstream)
   textSize(0.9 * 30)
   noStroke()
   fill(0)
-  text("Controlled by: Arrows", 165, 260)
-  text("Name:       Player 1", 165, 290)
+  text("Controlled by Arrows", 190, 260)
+  player1textBox.update()
+  player1textBox.draw()
 
   textSize(0.9 * 30)
   textAlign(CENTER, TOP)
   fill("#00bb00")
   stroke(50)
   strokeWeight(2)
-  text("Player 2", 165, 330)
+  text("Player 2", 190, 340)
   strokeWeight(1)
 
   textFont(airstream)
   textSize(0.9 * 30)
   noStroke()
   fill(0)
-  text("Controlled by: WASD", 165, 360)
-  text("Name:       Player 2", 165, 390)
+  text("Controlled by WASD", 190, 370)
+  player2textBox.update()
+  player2textBox.draw()
 
   // Right side 
 
@@ -518,6 +525,17 @@ function mousePressed(): void {
   //   getAudioContext().resume();
   // }
   userStartAudio()
+  if (scene == Scene.OPTIONS) {
+    player1textBox.mousePressed()
+    player2textBox.mousePressed()
+  }
+}
+
+function mouseMoved(): void {
+  if (scene == Scene.OPTIONS) {
+    player1textBox.mouseMoved()
+    player2textBox.mouseMoved()
+  }
 }
 
 function resetBoats(): void {
@@ -561,7 +579,7 @@ function resetBoats(): void {
   }
 }
 
-function keyPressed() {
+function keyPressed(): void {
   switch (key) {
     case "n":
       showDebugImage = null
@@ -578,6 +596,18 @@ function keyPressed() {
     case "p":
       showDebugImage = debugPlay
       break
+  }
+
+  if (scene == Scene.OPTIONS) {
+    player1textBox.keyPressed()
+    player2textBox.keyPressed()
+  }
+}
+
+function keyTyped(): void {
+  if (scene == Scene.OPTIONS) {
+    player1textBox.keyTyped()
+    player2textBox.keyTyped()
   }
 }
 

@@ -116,6 +116,8 @@ var boat2;
 var menu;
 var airstream;
 var symbols;
+var player1textBox;
+var player2textBox;
 function mooove_time() {
     global_sec++;
     if (global_sec == 60) {
@@ -152,9 +154,11 @@ function setup() {
     leftBuffer.angleMode(DEGREES);
     rightBuffer.angleMode(DEGREES);
     resetBoats();
+    player1textBox = new TextBox("Name:", 8, 190, 295);
+    player2textBox = new TextBox("Name:", 8, 190, 405);
     textFont(airstream);
     textSize(50);
-    switchScene(Scene.PLAY_MENU);
+    switchScene(Scene.OPTIONS);
 }
 function draw() {
     background(0);
@@ -296,27 +300,29 @@ function optionsScreen() {
     fill("#bb0000");
     stroke(200);
     strokeWeight(2);
-    text("Player 1", 165, 230);
+    text("Player 1", 190, 230);
     strokeWeight(1);
     textFont(airstream);
     textSize(0.9 * 30);
     noStroke();
     fill(0);
-    text("Controlled by: Arrows", 165, 260);
-    text("Name:       Player 1", 165, 290);
+    text("Controlled by Arrows", 190, 260);
+    player1textBox.update();
+    player1textBox.draw();
     textSize(0.9 * 30);
     textAlign(CENTER, TOP);
     fill("#00bb00");
     stroke(50);
     strokeWeight(2);
-    text("Player 2", 165, 330);
+    text("Player 2", 190, 340);
     strokeWeight(1);
     textFont(airstream);
     textSize(0.9 * 30);
     noStroke();
     fill(0);
-    text("Controlled by: WASD", 165, 360);
-    text("Name:       Player 2", 165, 390);
+    text("Controlled by WASD", 190, 370);
+    player2textBox.update();
+    player2textBox.draw();
     optionsSectionLabel("Game options", 800, 230);
     optionLabel("Laps", 775, 270);
     var lapsOptions = [1, 3, 5, 7];
@@ -458,6 +464,16 @@ function white_text_with_shadow(str, x, y) {
 }
 function mousePressed() {
     userStartAudio();
+    if (scene == Scene.OPTIONS) {
+        player1textBox.mousePressed();
+        player2textBox.mousePressed();
+    }
+}
+function mouseMoved() {
+    if (scene == Scene.OPTIONS) {
+        player1textBox.mouseMoved();
+        player2textBox.mouseMoved();
+    }
 }
 function resetBoats() {
     boat1.x = 960;
@@ -514,6 +530,16 @@ function keyPressed() {
         case "p":
             showDebugImage = debugPlay;
             break;
+    }
+    if (scene == Scene.OPTIONS) {
+        player1textBox.keyPressed();
+        player2textBox.keyPressed();
+    }
+}
+function keyTyped() {
+    if (scene == Scene.OPTIONS) {
+        player1textBox.keyTyped();
+        player2textBox.keyTyped();
     }
 }
 function drawGameCameras() {
@@ -630,4 +656,85 @@ function optionsSectionLabel(text, x, y) {
     };
     textLabel(label, x, y, color(255), CENTER, TOP);
 }
+var TextBox = (function () {
+    function TextBox(label, maxLen, x, y) {
+        this.input = "WWWWWWWW";
+        this.focused = false;
+        this.highlighted = false;
+        this.cursorVisible = true;
+        this.lastBlinkTime = 0;
+        this.label = label;
+        this.maxLen = maxLen;
+        this.x = x;
+        this.y = y;
+        this.w = 0;
+        this.h = 0.9 * 30;
+    }
+    TextBox.prototype.update = function () {
+        if (this.focused) {
+            var currentTime = millis();
+            if (currentTime - this.lastBlinkTime > 500) {
+                this.cursorVisible = !this.cursorVisible;
+                this.lastBlinkTime = currentTime;
+            }
+            if (this.highlighted) {
+                this.highlighted = false;
+            }
+        }
+    };
+    TextBox.prototype.draw = function () {
+        textSize(0.9 * 30);
+        var width = textWidth(this.label + " " + this.input);
+        this.w = width;
+        stroke(150);
+        noFill();
+        rect(this.x - width / 2, this.y, width, this.h);
+        textAlign(CENTER, TOP);
+        noStroke();
+        fill(this.highlighted || this.focused ? 255 : 0);
+        text(this.label + " " + this.input, this.x, this.y);
+        if (this.focused) {
+            if (this.cursorVisible) {
+                var cursorX = this.x + this.w / 2 + 5;
+                stroke(255);
+                line(cursorX, this.y + 2, cursorX, this.y + this.h - 4);
+            }
+        }
+    };
+    TextBox.prototype.keyTyped = function () {
+        if (!this.focused)
+            return;
+        if (/^[ a-zA-Z0-9]$/.test(key) && this.input.length < this.maxLen) {
+            this.input += key;
+            this.resetBlink();
+        }
+        return false;
+    };
+    TextBox.prototype.keyPressed = function () {
+        if (!this.focused)
+            return;
+        if (keyCode === BACKSPACE && this.input.length > 0) {
+            this.input = this.input.slice(0, -1);
+            this.resetBlink();
+            return false;
+        }
+    };
+    TextBox.prototype.mousePressed = function () {
+        var mouseInside = mouseX >= this.x - this.w / 2 && mouseX < this.x + this.w / 2 &&
+            mouseY >= this.y && mouseY < this.y + this.h;
+        this.focused = mouseInside;
+        if (this.focused)
+            this.resetBlink();
+    };
+    TextBox.prototype.mouseMoved = function () {
+        var mouseInside = mouseX >= this.x - this.w / 2 && mouseX < this.x + this.w / 2 &&
+            mouseY >= this.y && mouseY < this.y + this.h;
+        this.highlighted = mouseInside;
+    };
+    TextBox.prototype.resetBlink = function () {
+        this.cursorVisible = true;
+        this.lastBlinkTime = millis();
+    };
+    return TextBox;
+}());
 //# sourceMappingURL=build.js.map
