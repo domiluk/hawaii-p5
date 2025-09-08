@@ -8,10 +8,8 @@ let debugPlay: p5.Image
 // TODO: - spojazdnit timer
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
-// TODO: - priebezne spustat eslint npx eslint .
-// TODO: - laps a winning laps ????
 // TODO: - dat prec debug rects a images a mouse vypis
-// TODO: - on escape vsetky zvuky (sfx) skoncit prehravat
+// TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - v hre on escape menu
 // TODO: - natrenovat AI
 
