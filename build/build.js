@@ -68,11 +68,6 @@ var Boat = (function () {
     };
     return Boat;
 }());
-var showDebugImage;
-var debugMainMenu;
-var debugOptions;
-var debugCredits;
-var debugPlay;
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
@@ -127,10 +122,6 @@ function mooove_time() {
 }
 var time_interval;
 function preload() {
-    debugMainMenu = loadImage("debug/main.png");
-    debugOptions = loadImage("debug/options.png");
-    debugCredits = loadImage("debug/credits.png");
-    debugPlay = loadImage("debug/play.png");
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
     leftBuffer = createGraphics(512, 768);
@@ -185,8 +176,6 @@ function draw() {
             gameOverScreen();
             break;
     }
-    if (showDebugImage)
-        image(showDebugImage, 0, 0);
     textSize(16);
     textAlign(LEFT, TOP);
     noStroke();
@@ -475,6 +464,43 @@ function mouseMoved() {
         player2textBox.mouseMoved();
     }
 }
+function keyPressed() {
+    if (scene == Scene.OPTIONS) {
+        player1textBox.keyPressed();
+        player2textBox.keyPressed();
+    }
+}
+function keyTyped() {
+    if (scene == Scene.OPTIONS) {
+        player1textBox.keyTyped();
+        player2textBox.keyTyped();
+    }
+}
+function drawGameCameras() {
+    if (game_mode == Mode.MULTIPLAYER) {
+        camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512);
+        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
+        leftBuffer.image(ostrov, -camleft1, -camup1);
+        camleft2 = constrain(boat2.x - 256, 0, ostrov.width - 1024 + 512);
+        camup2 = constrain(boat2.y - 384, 0, ostrov.height - 768);
+        rightBuffer.image(ostrov, -camleft2, -camup2);
+        boat1.draw(leftBuffer, camleft1, camup1);
+        boat2.draw(leftBuffer, camleft1, camup1);
+        boat1.draw(rightBuffer, camleft2, camup2);
+        boat2.draw(rightBuffer, camleft2, camup2);
+        image(leftBuffer, 0, 0);
+        image(rightBuffer, 512, 0);
+        stroke(0);
+        line(512, 0, 512, 768);
+    }
+    if (game_mode == Mode.SINGLEPLAYER) {
+        camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024);
+        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
+        image(ostrov, -camleft1, -camup1);
+        boat1.draw(null, camleft1, camup1);
+        boat2.draw(null, camleft1, camup1);
+    }
+}
 function resetBoats() {
     boat1.x = 960;
     boat1.y = 1130;
@@ -512,60 +538,6 @@ function resetBoats() {
         left: 65,
         right: 68
     };
-}
-function keyPressed() {
-    switch (key) {
-        case "n":
-            showDebugImage = null;
-            break;
-        case "m":
-            showDebugImage = debugMainMenu;
-            break;
-        case "o":
-            showDebugImage = debugOptions;
-            break;
-        case "c":
-            showDebugImage = debugCredits;
-            break;
-        case "p":
-            showDebugImage = debugPlay;
-            break;
-    }
-    if (scene == Scene.OPTIONS) {
-        player1textBox.keyPressed();
-        player2textBox.keyPressed();
-    }
-}
-function keyTyped() {
-    if (scene == Scene.OPTIONS) {
-        player1textBox.keyTyped();
-        player2textBox.keyTyped();
-    }
-}
-function drawGameCameras() {
-    if (game_mode == Mode.MULTIPLAYER) {
-        camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512);
-        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
-        leftBuffer.image(ostrov, -camleft1, -camup1);
-        camleft2 = constrain(boat2.x - 256, 0, ostrov.width - 1024 + 512);
-        camup2 = constrain(boat2.y - 384, 0, ostrov.height - 768);
-        rightBuffer.image(ostrov, -camleft2, -camup2);
-        boat1.draw(leftBuffer, camleft1, camup1);
-        boat2.draw(leftBuffer, camleft1, camup1);
-        boat1.draw(rightBuffer, camleft2, camup2);
-        boat2.draw(rightBuffer, camleft2, camup2);
-        image(leftBuffer, 0, 0);
-        image(rightBuffer, 512, 0);
-        stroke(0);
-        line(512, 0, 512, 768);
-    }
-    if (game_mode == Mode.SINGLEPLAYER) {
-        camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024);
-        camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
-        image(ostrov, -camleft1, -camup1);
-        boat1.draw(null, camleft1, camup1);
-        boat2.draw(null, camleft1, camup1);
-    }
 }
 function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
     var _a, _b, _c;

@@ -1,15 +1,9 @@
-let showDebugImage: p5.Image | null
-let debugMainMenu: p5.Image
-let debugOptions: p5.Image
-let debugCredits: p5.Image
-let debugPlay: p5.Image
-
 // TODO: - vylepsit timer
 // TODO: - zapisovat spravne casy kol
 
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
-// TODO: - dat prec debug rects a images a mouse vypis
+// TODO: - dat prec debug rects a mouse vypis
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - v hre on escape menu
 // TODO: - natrenovat AI
@@ -84,11 +78,6 @@ function mooove_time(): void {
 let time_interval: NodeJS.Timeout;
 
 function preload() {
-  debugMainMenu = loadImage("debug/main.png")
-  debugOptions = loadImage("debug/options.png")
-  debugCredits = loadImage("debug/credits.png")
-  debugPlay = loadImage("debug/play.png")
-
   airstream = loadFont("fonts/airstream.ttf")
   symbols = loadFont("fonts/symbols.ttf")
 
@@ -155,9 +144,6 @@ function draw() {
       gameOverScreen()
       break
   }
-
-  if (showDebugImage)
-    image(showDebugImage, 0, 0)
 
   textSize(16)
   textAlign(LEFT, TOP)
@@ -538,66 +524,7 @@ function mouseMoved(): void {
   }
 }
 
-function resetBoats(): void {
-  boat1.x = 960;
-  boat1.y = 1130;
-  boat1.round = 0;
-  boat1.cp_one = false;
-  boat1.cp_two = false;
-  boat1.cp_three = false;
-  boat1.vel = 0;
-  boat1.rot = -54;
-  boat1.last_lap_sec = 0;
-  boat1.last_lap_min = 0;
-  boat1.best_lap_sec = 99;
-  boat1.best_lap_min = 99;
-  // boat1.speed = 5.0;
-  boat1.controls = {
-    up: UP_ARROW,
-    down: DOWN_ARROW,
-    left: LEFT_ARROW,
-    right: RIGHT_ARROW
-  }
-
-  boat2.x = 1060;
-  boat2.y = 1200;
-  boat2.round = 0;
-  boat2.cp_one = false;
-  boat2.cp_two = false;
-  boat2.cp_three = false;
-  boat2.vel = 0;
-  boat2.rot = -54;
-  boat2.last_lap_sec = 0;
-  boat2.last_lap_min = 0;
-  boat2.best_lap_sec = 99;
-  boat2.best_lap_min = 99;
-  boat2.controls = {
-    up: 87,
-    down: 83,
-    left: 65,
-    right: 68
-  }
-}
-
 function keyPressed(): void {
-  switch (key) {
-    case "n":
-      showDebugImage = null
-      break
-    case "m":
-      showDebugImage = debugMainMenu
-      break
-    case "o":
-      showDebugImage = debugOptions
-      break
-    case "c":
-      showDebugImage = debugCredits
-      break
-    case "p":
-      showDebugImage = debugPlay
-      break
-  }
-
   if (scene == Scene.OPTIONS) {
     player1textBox.keyPressed()
     player2textBox.keyPressed()
@@ -647,3 +574,43 @@ function drawGameCameras(): void {
   }
 }
 
+function resetBoats(): void {
+  boat1.x = 960;
+  boat1.y = 1130;
+  boat1.round = 0;
+  boat1.cp_one = false;
+  boat1.cp_two = false;
+  boat1.cp_three = false;
+  boat1.vel = 0;
+  boat1.rot = -54;
+  boat1.last_lap_sec = 0;
+  boat1.last_lap_min = 0;
+  boat1.best_lap_sec = 99;
+  boat1.best_lap_min = 99;
+  // boat1.speed = 5.0;
+  boat1.controls = {
+    up: UP_ARROW,
+    down: DOWN_ARROW,
+    left: LEFT_ARROW,
+    right: RIGHT_ARROW
+  }
+
+  boat2.x = 1060;
+  boat2.y = 1200;
+  boat2.round = 0;
+  boat2.cp_one = false;
+  boat2.cp_two = false;
+  boat2.cp_three = false;
+  boat2.vel = 0;
+  boat2.rot = -54;
+  boat2.last_lap_sec = 0;
+  boat2.last_lap_min = 0;
+  boat2.best_lap_sec = 99;
+  boat2.best_lap_min = 99;
+  boat2.controls = {
+    up: 87,
+    down: 83,
+    left: 65,
+    right: 68
+  }
+}
