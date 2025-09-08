@@ -418,37 +418,39 @@ function drawTimerPanels() {
     noStroke();
     fill(255);
     textSize(0.9 * 75);
-    text(":", 512, 0);
-    text(global_sec, 555, 0);
     text(global_min, 472, 0);
+    text(":", 512, 0);
+    text(global_sec < 10 ? "0" + global_sec : global_sec, 555, 0);
     textSize(0.9 * 20);
     text("powered by DL games", 512, 70);
-    fill(0);
     textAlign(LEFT, TOP);
     textSize(0.9 * 35);
-    text("Laps " + boat1.round, 20, 10);
-    text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40);
-    text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70);
-    fill(255);
-    textAlign(LEFT, TOP);
-    textSize(0.9 * 35);
-    text("Laps " + boat1.round, 20 - 1, 10 - 1);
-    text("Last lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20 - 1, 40 - 1);
-    text("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20 - 1, 70 - 1);
-    if (game_mode == Mode.MULTIPLAYER) {
-        fill(0);
-        textAlign(LEFT, TOP);
-        textSize(0.9 * 35);
-        text("Laps " + boat2.round, 810, 10);
-        text("Last lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810, 40);
-        text("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810, 70);
-        fill(255);
-        textAlign(LEFT, TOP);
-        textSize(0.9 * 35);
-        text("Laps " + boat2.round, 810 - 1, 10 - 1);
-        text("Last lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810 - 1, 40 - 1);
-        text("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810 - 1, 70 - 1);
+    white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10);
+    white_text_with_shadow("Lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40);
+    if (boat1.best_lap_sec == 99) {
+        white_text_with_shadow("Best lap time --:--", 20, 70);
     }
+    else {
+        white_text_with_shadow("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70);
+    }
+    if (game_mode == Mode.MULTIPLAYER) {
+        textAlign(LEFT, TOP);
+        textSize(0.9 * 35);
+        white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10);
+        white_text_with_shadow("Lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810, 40);
+        if (boat2.best_lap_sec == 99) {
+            white_text_with_shadow("Best lap time --:--", 810, 70);
+        }
+        else {
+            white_text_with_shadow("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810, 70);
+        }
+    }
+}
+function white_text_with_shadow(str, x, y) {
+    fill(0);
+    text(str, x, y);
+    fill(255);
+    text(str, x - 1, y - 1);
 }
 function mousePressed() {
     userStartAudio();
