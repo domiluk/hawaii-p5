@@ -680,7 +680,6 @@ var TextBox = (function () {
             this.input += key;
             this.resetBlink();
         }
-        return false;
     };
     TextBox.prototype.keyPressed = function () {
         if (!this.focused)
@@ -688,7 +687,6 @@ var TextBox = (function () {
         if (keyCode === BACKSPACE && this.input.length > 0) {
             this.input = this.input.slice(0, -1);
             this.resetBlink();
-            return false;
         }
     };
     TextBox.prototype.mousePressed = function () {

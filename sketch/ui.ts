@@ -175,26 +175,21 @@ class TextBox {
         }
     }
 
-    keyTyped() {
+    keyTyped(): void {
         if (!this.focused) return
 
         if (/^[ a-zA-Z0-9]$/.test(key) && this.input.length < this.maxLen) {
             this.input += key
             this.resetBlink()
         }
-
-        // Prevent p5 from adding characters we don't want
-        return false
     }
 
-    keyPressed() {
+    keyPressed(): void {
         if (!this.focused) return
 
         if (keyCode === BACKSPACE && this.input.length > 0) {
             this.input = this.input.slice(0, -1)
             this.resetBlink()
-            // Prevent browser navigating back on backspace
-            return false
         }
     }
 

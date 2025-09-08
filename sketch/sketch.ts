@@ -9,6 +9,7 @@
 // TODO: - natrenovat AI
 // TODO: - spojazdnit leaderboard
 // TODO: - better collision detection
+// TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
 
 type SAMPLE = p5.SoundFile
 
