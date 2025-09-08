@@ -123,6 +123,7 @@ function mooove_time() {
         global_sec = 0;
     }
 }
+var time_interval;
 function preload() {
     debugMainMenu = loadImage("debug/main.png");
     debugOptions = loadImage("debug/options.png");
@@ -193,6 +194,7 @@ function switchScene(newScene, reset) {
     if (newScene == Scene.MAIN_MENU) {
     }
     else if (newScene == Scene.GAME) {
+        time_interval = setInterval(mooove_time, 1000);
         if (reset) {
             resetBoats();
             global_min = 0;
@@ -393,6 +395,7 @@ function gameOverScreen() {
 function game() {
     if (keyIsPressed && keyCode == ESCAPE) {
         switchScene(Scene.MAIN_MENU);
+        clearInterval(time_interval);
     }
     if (boat1.round == nlaps || boat2.round == nlaps) {
         switchScene(Scene.GAME_OVER);

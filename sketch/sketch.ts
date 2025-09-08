@@ -4,8 +4,9 @@ let debugOptions: p5.Image
 let debugCredits: p5.Image
 let debugPlay: p5.Image
 
-// TODO: - dt a maxspeed
 // TODO: - spojazdnit timer
+
+// TODO: - dt a maxspeed
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
 // TODO: - dat prec debug rects a images a mouse vypis
@@ -74,6 +75,8 @@ function mooove_time(): void {
     global_sec = 0;
   }
 }
+
+let time_interval: NodeJS.Timeout;
 
 function preload() {
   debugMainMenu = loadImage("debug/main.png")
@@ -161,6 +164,8 @@ function switchScene(newScene: Scene, reset = true): void {
     // main_sample.play()
   } else if (newScene == Scene.GAME) {
     //     install_int(mooove_time, 1000);
+    // call mooove_time every second
+    time_interval = setInterval(mooove_time, 1000);
     if (reset) {
       resetBoats()
       global_min = 0
@@ -415,6 +420,7 @@ function game(): void {
   // return to menu
   if (keyIsPressed && keyCode == ESCAPE) {
     switchScene(Scene.MAIN_MENU)
+    clearInterval(time_interval)
   }
 
   // win conditions
