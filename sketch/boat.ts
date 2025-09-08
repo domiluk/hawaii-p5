@@ -76,26 +76,26 @@ class Boat {
 
         // input
         if (keyIsDown(this.controls.up)) {
-            this.vel += ACCEL
+            this.vel += ACCEL * deltaTime / 1000
         } else {
-            this.vel -= SLOWDOWN
+            this.vel -= SLOWDOWN * deltaTime / 1000
         }
 
         if (keyIsDown(this.controls.down)) {
-            this.vel -= SLOWDOWN
+            this.vel -= SLOWDOWN * deltaTime / 1000
         }
 
         if (keyIsDown(this.controls.left)) {
-            this.rot -= ROTATE_BY
+            this.rot -= ROTATE_BY * deltaTime / 1000
         }
 
         if (keyIsDown(this.controls.right)) {
-            this.rot += ROTATE_BY
+            this.rot += ROTATE_BY * deltaTime / 1000
         }
 
         // pohni lodou
         this.vel = constrain(this.vel, 0, MAX_SPEED)
-        this.x += cos(this.rot) * this.vel
-        this.y += sin(this.rot) * this.vel
+        this.x += cos(this.rot) * this.vel * deltaTime / 1000
+        this.y += sin(this.rot) * this.vel * deltaTime / 1000
     }
 }

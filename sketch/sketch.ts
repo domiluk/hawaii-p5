@@ -4,15 +4,16 @@ let debugOptions: p5.Image
 let debugCredits: p5.Image
 let debugPlay: p5.Image
 
-// TODO: - spojazdnit timer
+// TODO: - vylepsit timer
+// TODO: - zapisovat spravne casy kol
 
-// TODO: - dt a maxspeed
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
 // TODO: - dat prec debug rects a images a mouse vypis
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - v hre on escape menu
 // TODO: - natrenovat AI
+// TODO: - spojazdnit leaderboard
 
 type SAMPLE = p5.SoundFile
 
@@ -56,10 +57,10 @@ let global_min: number
 let vol = 255
 let nlaps = 3
 
-const ROTATE_BY = 1.5
-const MAX_SPEED = 6.5 // 10
-const ACCEL = 0.05
-const SLOWDOWN = 0.08
+const ROTATE_BY = 1.5 * 60 // px/s
+const MAX_SPEED = 6.5 * 60 // px/s, originally 10
+const ACCEL = 0.05 * 3600 // px/s²
+const SLOWDOWN = 0.08 * 3600 // px/s²
 
 let boat1: Boat
 let boat2: Boat
