@@ -14,6 +14,7 @@ let debugPlay: p5.Image
 // TODO: - v hre on escape menu
 // TODO: - natrenovat AI
 // TODO: - spojazdnit leaderboard
+// TODO: - better collision detection
 
 type SAMPLE = p5.SoundFile
 
@@ -282,31 +283,35 @@ function optionsScreen(): void {
 
   // Left side
 
-  optionsSectionLabel("Player 1", 165, 230)
+  textSize(0.9 * 30)
+  textAlign(CENTER, TOP)
+  fill("#bb0000")
+  stroke(200)
+  strokeWeight(2)
+  text("Player 1", 165, 230)
+  strokeWeight(1)
 
   textFont(airstream)
   textSize(0.9 * 30)
   noStroke()
   fill(0)
   text("Controlled by: Arrows", 165, 260)
-  text("Color:     ", 165, 290)
-  fill("#bb0000")
-  stroke(200)
-  text("       red", 165, 290)
-  noStroke()
+  text("Name:       Player 1", 165, 290)
 
-  optionsSectionLabel("Player 2", 165, 330)
+  textSize(0.9 * 30)
+  textAlign(CENTER, TOP)
+  fill("#00bb00")
+  stroke(50)
+  strokeWeight(2)
+  text("Player 2", 165, 330)
+  strokeWeight(1)
 
   textFont(airstream)
   textSize(0.9 * 30)
   noStroke()
   fill(0)
   text("Controlled by: WASD", 165, 360)
-  text("Color:       ", 165, 390)
-  fill("#00bb00")
-  stroke(0)
-  text("        green", 165, 390)
-  noStroke()
+  text("Name:       Player 2", 165, 390)
 
   // Right side 
 
