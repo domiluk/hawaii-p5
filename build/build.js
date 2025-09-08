@@ -42,10 +42,8 @@ var Boat = (function () {
         g.pop();
     };
     Boat.prototype.update = function () {
-        bc = wp;
-        var rx, ry, gx, gy;
-        gx = 0;
-        gy = 0;
+        var gx = 0;
+        var gy = 0;
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
             this.rot += 180;
         }
@@ -100,23 +98,15 @@ var leftBuffer;
 var rightBuffer;
 var ostrov;
 var alpha_ostrov;
-var bc;
-var wp;
 var panel;
 var dray;
 var spring;
 var main_sample;
 var muted;
-var AI_pos = 0;
 var global_sec;
 var global_min;
-var res = 0;
-var depth = 16;
 var vol = 255;
 var nlaps = 3;
-var colb = 0;
-var cols = 1;
-var winning_laps = 3;
 var ROTATE_BY = 1.5;
 var MAX_SPEED = 6.5;
 var ACCEL = 0.05;
@@ -126,50 +116,6 @@ var boat2;
 var menu;
 var airstream;
 var symbols;
-var npts = 50;
-var xs = Array(100 + 1);
-var ys = Array(100 + 1);
-var xpos = Array(100 * 26);
-var ypos = Array(100 * 26);
-var curspl = 0;
-var curpt = 0;
-var ptbx = 0;
-var ptby = 0;
-var beta;
-var endofgame = 0;
-var xres;
-var yres;
-var lastx = 288;
-var lasty = 30;
-var pp = 0;
-var pots = [
-    [966, 1086, 997, 1011, 1026, 966, 1061, 928],
-    [1061, 928, 1108, 873, 1111, 832, 1100, 773],
-    [1100, 773, 1089, 707, 1072, 661, 1048, 617],
-    [1048, 617, 1028, 553, 1016, 522, 991, 473],
-    [991, 473, 967, 428, 942, 393, 898, 359],
-    [898, 359, 866, 324, 819, 295, 769, 287],
-    [769, 287, 709, 270, 643, 269, 582, 278],
-    [582, 278, 522, 282, 457, 297, 406, 321],
-    [406, 321, 340, 340, 280, 366, 246, 410],
-    [246, 410, 185, 468, 166, 527, 175, 596],
-    [175, 596, 162, 683, 145, 759, 158, 842],
-    [158, 842, 162, 936, 167, 1016, 194, 1115],
-    [194, 1115, 244, 1215, 304, 1265, 417, 1298],
-    [417, 1298, 538, 1321, 611, 1327, 726, 1304],
-    [726, 1304, 833, 1287, 905, 1265, 1013, 1217],
-    [1013, 1217, 1083, 1163, 1160, 1128, 1258, 1100],
-    [1258, 1100, 1342, 1059, 1411, 1053, 1520, 1079],
-    [1520, 1079, 1586, 1097, 1624, 1107, 1678, 1142],
-    [1678, 1142, 1736, 1183, 1750, 1208, 1755, 1269],
-    [1755, 1269, 1798, 1331, 1800, 1382, 1791, 1440],
-    [1791, 1440, 1785, 1551, 1760, 1550, 1712, 1578],
-    [1712, 1578, 1657, 1623, 1620, 1646, 1552, 1670],
-    [1552, 1670, 1479, 1708, 1414, 1707, 1334, 1698],
-    [1334, 1698, 1199, 1689, 1130, 1647, 1093, 1594],
-    [1093, 1594, 1018, 1518, 987, 1446, 977, 1350],
-    [977, 1350, 952, 1236, 936, 1175, 966, 1086]
-];
 function mooove_time() {
     global_sec++;
     if (global_sec == 60) {
@@ -204,7 +150,7 @@ function setup() {
     angleMode(DEGREES);
     leftBuffer.angleMode(DEGREES);
     rightBuffer.angleMode(DEGREES);
-    setupBoats();
+    resetBoats();
     textFont(airstream);
     textSize(50);
     switchScene(Scene.PLAY_MENU);
@@ -248,7 +194,7 @@ function switchScene(newScene, reset) {
     }
     else if (newScene == Scene.GAME) {
         if (reset) {
-            setupBoats();
+            resetBoats();
             global_min = 0;
             global_sec = 0;
         }
@@ -437,7 +383,7 @@ function gameOverScreen() {
     textSize(0.9 * 75);
     text("The winner is...!", 512, 384);
     textSize(0.9 * 80);
-    if (boat1.round == winning_laps) {
+    if (boat1.round == nlaps) {
         text("Player no.1", 512, 434);
     }
     else {
@@ -448,7 +394,7 @@ function game() {
     if (keyIsPressed && keyCode == ESCAPE) {
         switchScene(Scene.MAIN_MENU);
     }
-    if (boat1.round == winning_laps || boat2.round == winning_laps) {
+    if (boat1.round == nlaps || boat2.round == nlaps) {
         switchScene(Scene.GAME_OVER);
     }
     boat1.update();
@@ -504,7 +450,7 @@ function drawTimerPanels() {
 function mousePressed() {
     userStartAudio();
 }
-function setupBoats() {
+function resetBoats() {
     boat1.x = 960;
     boat1.y = 1130;
     boat1.round = 0;

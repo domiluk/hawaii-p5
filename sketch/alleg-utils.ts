@@ -1,5 +1,5 @@
 function create_bitmap(w: number, h: number): p5.Image {
-    let img: p5.Image = createImage(w, h)
+    const img: p5.Image = createImage(w, h)
     // Load the image's pixels into memory.
     img.loadPixels()
     // Set all the image's pixels to black.

@@ -8,9 +8,12 @@ let debugPlay: p5.Image
 // TODO: - spojazdnit timer
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
+// TODO: - priebezne spustat eslint npx eslint .
 // TODO: - laps a winning laps ????
 // TODO: - dat prec debug rects a images a mouse vypis
 // TODO: - on escape vsetky zvuky (sfx) skoncit prehravat
+// TODO: - v hre on escape menu
+// TODO: - natrenovat AI
 
 type SAMPLE = p5.SoundFile
 
@@ -41,8 +44,6 @@ let rightBuffer: p5.Graphics
 
 let ostrov: p5.Image
 let alpha_ostrov: p5.Image
-let bc: p5.Image
-let wp: p5.Image
 let panel: p5.Image
 
 let dray: SAMPLE
@@ -51,16 +52,10 @@ let main_sample: SAMPLE
 
 let muted: boolean
 
-let AI_pos = 0
 let global_sec: number
 let global_min: number
-let res = 0
-let depth = 16
 let vol = 255
 let nlaps = 3
-let colb = 0 // color boat
-let cols = 1 // color super
-let winning_laps = 3
 
 const ROTATE_BY = 1.5
 const MAX_SPEED = 6.5 // 10
@@ -73,52 +68,6 @@ let menu: p5.Image
 
 let airstream: p5.Font
 let symbols: p5.Font
-
-
-let npts = 50
-const xs = Array(100 + 1)
-const ys = Array(100 + 1)
-const xpos = Array(100 * 26)
-const ypos = Array(100 * 26)
-let curspl = 0
-let curpt = 0
-let ptbx = 0
-let ptby = 0
-let beta: number
-let endofgame = 0
-let xres: number
-let yres: number
-let lastx = 288
-let lasty = 30
-let pp = 0
-let pots = [ // Array[26][8]
-  [966, 1086, 997, 1011, 1026, 966, 1061, 928],
-  [1061, 928, 1108, 873, 1111, 832, 1100, 773],
-  [1100, 773, 1089, 707, 1072, 661, 1048, 617],
-  [1048, 617, 1028, 553, 1016, 522, 991, 473],
-  [991, 473, 967, 428, 942, 393, 898, 359],
-  [898, 359, 866, 324, 819, 295, 769, 287],
-  [769, 287, 709, 270, 643, 269, 582, 278],
-  [582, 278, 522, 282, 457, 297, 406, 321],
-  [406, 321, 340, 340, 280, 366, 246, 410],
-  [246, 410, 185, 468, 166, 527, 175, 596],
-  [175, 596, 162, 683, 145, 759, 158, 842],
-  [158, 842, 162, 936, 167, 1016, 194, 1115],
-  [194, 1115, 244, 1215, 304, 1265, 417, 1298],
-  [417, 1298, 538, 1321, 611, 1327, 726, 1304],
-  [726, 1304, 833, 1287, 905, 1265, 1013, 1217],
-  [1013, 1217, 1083, 1163, 1160, 1128, 1258, 1100],
-  [1258, 1100, 1342, 1059, 1411, 1053, 1520, 1079],
-  [1520, 1079, 1586, 1097, 1624, 1107, 1678, 1142],
-  [1678, 1142, 1736, 1183, 1750, 1208, 1755, 1269],
-  [1755, 1269, 1798, 1331, 1800, 1382, 1791, 1440],
-  [1791, 1440, 1785, 1551, 1760, 1550, 1712, 1578],
-  [1712, 1578, 1657, 1623, 1620, 1646, 1552, 1670],
-  [1552, 1670, 1479, 1708, 1414, 1707, 1334, 1698],
-  [1334, 1698, 1199, 1689, 1130, 1647, 1093, 1594],
-  [1093, 1594, 1018, 1518, 987, 1446, 977, 1350],
-  [977, 1350, 952, 1236, 936, 1175, 966, 1086]
-]
 
 function mooove_time(): void {
   global_sec++;
@@ -163,7 +112,7 @@ function setup() {
   leftBuffer.angleMode(DEGREES)
   rightBuffer.angleMode(DEGREES)
 
-  setupBoats()
+  resetBoats()
 
   textFont(airstream)
   textSize(50)
@@ -215,7 +164,7 @@ function switchScene(newScene: Scene, reset = true): void {
   } else if (newScene == Scene.GAME) {
     //     install_int(mooove_time, 1000);
     if (reset) {
-      setupBoats()
+      resetBoats()
       global_min = 0
       global_sec = 0
     }
@@ -228,7 +177,7 @@ function toggleMute(): void {
 }
 
 function menuButtons(): void {
-  let playLabel: TextLabel = {
+  const playLabel: TextLabel = {
     text: "Play",
     size: 0.9 * 40,
     xOffset: 47,
@@ -240,7 +189,7 @@ function menuButtons(): void {
 
   // TODO: make the button a bit bigger
   // TODO: in fact lets make the buttons in code entirely (not in graphic)
-  let leaderboardLabel: TextLabel = {
+  const leaderboardLabel: TextLabel = {
     text: "Leaderboard",
     size: 0.9 * 25,
     xOffset: 48,
@@ -250,7 +199,7 @@ function menuButtons(): void {
     switchScene(Scene.LEADERBOARD)
   }
 
-  let optionsLabel: TextLabel = {
+  const optionsLabel: TextLabel = {
     text: "Options",
     size: 0.9 * 35,
     xOffset: 48,
@@ -260,7 +209,7 @@ function menuButtons(): void {
     switchScene(Scene.OPTIONS)
   }
 
-  let creditsLabel: TextLabel = {
+  const creditsLabel: TextLabel = {
     text: "Credits",
     size: 0.9 * 35,
     xOffset: 48,
@@ -270,7 +219,7 @@ function menuButtons(): void {
     switchScene(Scene.CREDITS)
   }
 
-  let muteLabel: TextLabel = {
+  const muteLabel: TextLabel = {
     text: "\ueee8", // "\uf028", // "\udb81\udf5a", // "\udb81\udf5b", 
     size: 0.9 * 25,
     xOffset: 25,
@@ -300,7 +249,7 @@ function playMenuScreen(): void {
   image(menu, 0, 0)
   menuButtons()
 
-  let singleplayerLabel: TextLabel = {
+  const singleplayerLabel: TextLabel = {
     text: "Singleplayer",
     size: 0.9 * 60,
     xOffset: 106,
@@ -311,7 +260,7 @@ function playMenuScreen(): void {
     switchScene(Scene.GAME)
   }
 
-  let multiplayerLabel: TextLabel = {
+  const multiplayerLabel: TextLabel = {
     text: "Multiplayer",
     size: 0.9 * 60,
     xOffset: 106,
@@ -456,7 +405,7 @@ function gameOverScreen(): void {
   text("The winner is...!", 512, 384)
 
   textSize(0.9 * 80)
-  if (boat1.round == winning_laps) {
+  if (boat1.round == nlaps) {
     text("Player no.1", 512, 434)
   }
   else {
@@ -471,7 +420,7 @@ function game(): void {
   }
 
   // win conditions
-  if (boat1.round == winning_laps || boat2.round == winning_laps) {
+  if (boat1.round == nlaps || boat2.round == nlaps) {
     switchScene(Scene.GAME_OVER)
   }
 
@@ -564,7 +513,7 @@ function mousePressed(): void {
   userStartAudio()
 }
 
-function setupBoats(): void {
+function resetBoats(): void {
   boat1.x = 960;
   boat1.y = 1130;
   boat1.round = 0;

@@ -31,22 +31,8 @@ class Boat {
     }
 
     update(): void {
-        // rotates wp (white point) into bc (biela ciarka maybe?)
-        // dl_rotate(wp, bc, boat1.rot)
-        bc = wp
-
-        // gets the white point from bc (inefficient)
-        let rx: number, ry: number, gx: number, gy: number;
-        // for (rx = 0; rx < bc.width; rx++) {
-        //   for (ry = 0; ry < bc.height; ry++) {
-        //     if (getr(getpixel(bc, rx, ry)) == 254) {
-        //       gx = rx;
-        //       gy = ry;
-        //     }
-        //   }
-        // }
-        gx = 0
-        gy = 0
+        const gx: number = 0;
+        const gy: number = 0;
 
         // checkni naraz do ostrova
         if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
