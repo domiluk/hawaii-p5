@@ -51,8 +51,7 @@ let main_sample: SAMPLE
 
 let muted: boolean
 
-let global_sec: number
-let global_min: number
+let raceTime: number
 let vol = 255
 let nlaps = 3
 
@@ -70,16 +69,6 @@ let symbols: p5.Font
 
 let player1textBox: TextBox
 let player2textBox: TextBox
-
-function mooove_time(): void {
-  global_sec++;
-  if (global_sec == 60) {
-    global_min++;
-    global_sec = 0;
-  }
-}
-
-let time_interval: NodeJS.Timeout;
 
 function preload() {
   airstream = loadFont("fonts/airstream.ttf")
@@ -160,13 +149,9 @@ function switchScene(newScene: Scene, reset = true): void {
   if (newScene == Scene.MAIN_MENU) {
     // main_sample.play()
   } else if (newScene == Scene.GAME) {
-    //     install_int(mooove_time, 1000);
-    // call mooove_time every second
-    time_interval = setInterval(mooove_time, 1000);
     if (reset) {
       resetBoats()
-      global_min = 0
-      global_sec = 0
+      raceTime = 0
     }
   }
   scene = newScene
@@ -421,13 +406,15 @@ function game(): void {
   // return to menu
   if (keyIsPressed && keyCode == ESCAPE) {
     switchScene(Scene.MAIN_MENU)
-    clearInterval(time_interval)
   }
 
   // win conditions
   if (boat1.round == nlaps || boat2.round == nlaps) {
     switchScene(Scene.GAME_OVER)
   }
+
+  // update timer
+  raceTime += deltaTime / 1000
 
   boat1.update()
   if (game_mode == Mode.MULTIPLAYER) {
@@ -469,9 +456,7 @@ function drawTimerPanels(): void {
   noStroke()
   fill(255)
   textSize(0.9 * 75)
-  text(global_min, 472, 0)
-  text(":", 512, 0)
-  text(global_sec < 10 ? "0" + global_sec : global_sec, 555, 0)
+  text(formatAsTime(raceTime, false), 512, 0)
 
   textSize(0.9 * 20)
   text("powered by DL games", 512, 70)
@@ -480,11 +465,11 @@ function drawTimerPanels(): void {
   textSize(0.9 * 35)
   white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10)
 
-  white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time), 20, 40)
+  white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time, true), 20, 40)
   if (boat1.best_lap_time == Infinity) {
     white_text_with_shadow("Best lap time --:--", 20, 70)
   } else {
-    white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time), 20, 70)
+    white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time, true), 20, 70)
   }
 
   if (game_mode == Mode.MULTIPLAYER) {
@@ -492,23 +477,26 @@ function drawTimerPanels(): void {
     textSize(0.9 * 35)
     white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10)
 
-    white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time), 810, 40)
+    white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time, true), 810, 40)
     if (boat2.best_lap_time == Infinity) {
       white_text_with_shadow("Best lap time --:--", 810, 70)
     } else {
-      white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time), 810, 70)
+      white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time, true), 810, 70)
     }
   }
 }
 
-function formatAsTime(seconds: number): string {
+function formatAsTime(seconds: number, includeMillis: boolean): string {
   const min = Math.floor(seconds / 60)
   const sec = Math.floor(seconds % 60)
   const ms = Math.floor((seconds % 1) * 100)
-  if (min == 0) {
-    return nf(sec, 1) + "." + nf(ms, 2)
+  if (includeMillis) {
+    if (min == 0) {
+      return nf(sec, 1) + "." + nf(ms, 2)
+    }
+    return nf(min, 1) + ":" + nf(sec, 2) + "." + nf(ms, 2)
   }
-  return nf(min, 1) + ":" + nf(sec, 2) + "." + nf(ms, 2)
+  return nf(min, 1) + ":" + nf(sec, 2)
 }
 
 function white_text_with_shadow(str: string, x: number, y: number): void {
