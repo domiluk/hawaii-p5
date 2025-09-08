@@ -1,10 +1,8 @@
-// TODO: - kolizie s checkpointami a finishlinom
-
-// TODO: - vylepsit timer
-//          - lap timery
+// TODO: - hlavny timer nech je tiez based on deltatime
 
 // TODO: - refactor
 // TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
+
 // TODO: - dat prec debug rects a mouse vypis
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - v hre on escape menu
@@ -482,11 +480,11 @@ function drawTimerPanels(): void {
   textSize(0.9 * 35)
   white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10)
 
-  white_text_with_shadow("Lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40)
-  if (boat1.best_lap_sec == 99) {
+  white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time), 20, 40)
+  if (boat1.best_lap_time == Infinity) {
     white_text_with_shadow("Best lap time --:--", 20, 70)
   } else {
-    white_text_with_shadow("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70)
+    white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time), 20, 70)
   }
 
   if (game_mode == Mode.MULTIPLAYER) {
@@ -494,13 +492,23 @@ function drawTimerPanels(): void {
     textSize(0.9 * 35)
     white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10)
 
-    white_text_with_shadow("Lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810, 40)
-    if (boat2.best_lap_sec == 99) {
+    white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time), 810, 40)
+    if (boat2.best_lap_time == Infinity) {
       white_text_with_shadow("Best lap time --:--", 810, 70)
     } else {
-      white_text_with_shadow("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810, 70)
+      white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time), 810, 70)
     }
   }
+}
+
+function formatAsTime(seconds: number): string {
+  const min = Math.floor(seconds / 60)
+  const sec = Math.floor(seconds % 60)
+  const ms = Math.floor((seconds % 1) * 100)
+  if (min == 0) {
+    return nf(sec, 1) + "." + nf(ms, 2)
+  }
+  return nf(min, 1) + ":" + nf(sec, 2) + "." + nf(ms, 2)
 }
 
 function white_text_with_shadow(str: string, x: number, y: number): void {
@@ -575,46 +583,5 @@ function drawGameCameras(): void {
 
     boat1.draw(null, camleft1, camup1)
     boat2.draw(null, camleft1, camup1)
-  }
-}
-
-function resetBoats(): void {
-  boat1.x = 960;
-  boat1.y = 1130;
-  boat1.round = 0;
-  boat1.cp_one = false;
-  boat1.cp_two = false;
-  boat1.cp_three = false;
-  boat1.vel = 0;
-  boat1.rot = -54;
-  boat1.last_lap_sec = 0;
-  boat1.last_lap_min = 0;
-  boat1.best_lap_sec = 99;
-  boat1.best_lap_min = 99;
-  // boat1.speed = 5.0;
-  boat1.controls = {
-    up: UP_ARROW,
-    down: DOWN_ARROW,
-    left: LEFT_ARROW,
-    right: RIGHT_ARROW
-  }
-
-  boat2.x = 1060;
-  boat2.y = 1200;
-  boat2.round = 0;
-  boat2.cp_one = false;
-  boat2.cp_two = false;
-  boat2.cp_three = false;
-  boat2.vel = 0;
-  boat2.rot = -54;
-  boat2.last_lap_sec = 0;
-  boat2.last_lap_min = 0;
-  boat2.best_lap_sec = 99;
-  boat2.best_lap_min = 99;
-  boat2.controls = {
-    up: 87,
-    down: 83,
-    left: 65,
-    right: 68
   }
 }

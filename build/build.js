@@ -44,34 +44,29 @@ var Boat = (function () {
     Boat.prototype.update = function () {
         var gx = 0;
         var gy = 0;
-        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 0) {
+        var px = getpixel(alpha_ostrov, this.x + gx, this.y + gy);
+        var redValue = red(px);
+        if (redValue == 0) {
             this.rot += 180;
         }
-        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 64) {
+        if (redValue == 64) {
             this.cp_one = true;
         }
-        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 128) {
+        if (redValue == 128) {
             this.cp_two = true;
         }
-        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 32) {
+        if (redValue == 32) {
             this.cp_three = true;
         }
-        if (red(getpixel(alpha_ostrov, this.x + gx, this.y + gy)) == 192 &&
+        if (red(px) == 192 &&
             this.cp_one && this.cp_two && this.cp_three) {
             this.cp_one = false;
             this.cp_two = false;
             this.cp_three = false;
-            this.last_lap_sec = global_sec - this.last_lap_sec;
-            this.last_lap_min = global_min - this.last_lap_min;
-            if (this.last_lap_sec < 0) {
-                this.last_lap_min--;
-                this.last_lap_sec = 60 - abs(this.last_lap_sec);
+            if (this.lap_time < this.best_lap_time) {
+                this.best_lap_time = this.lap_time;
             }
-            if (this.last_lap_sec + (this.last_lap_min) * 60 <
-                this.best_lap_sec + (this.best_lap_min) * 60) {
-                this.best_lap_sec = this.last_lap_sec;
-                this.best_lap_min = this.last_lap_min;
-            }
+            this.lap_time = 0;
             this.round++;
             dray.play();
         }
@@ -93,9 +88,44 @@ var Boat = (function () {
         this.vel = constrain(this.vel, 0, MAX_SPEED);
         this.x += cos(this.rot) * this.vel * deltaTime / 1000;
         this.y += sin(this.rot) * this.vel * deltaTime / 1000;
+        this.lap_time += deltaTime / 1000;
     };
     return Boat;
 }());
+function resetBoats() {
+    boat1.x = 960;
+    boat1.y = 1130;
+    boat1.round = 0;
+    boat1.cp_one = false;
+    boat1.cp_two = false;
+    boat1.cp_three = false;
+    boat1.vel = 0;
+    boat1.rot = -54;
+    boat1.lap_time = 0;
+    boat1.best_lap_time = Infinity;
+    boat1.controls = {
+        up: UP_ARROW,
+        down: DOWN_ARROW,
+        left: LEFT_ARROW,
+        right: RIGHT_ARROW
+    };
+    boat2.x = 1060;
+    boat2.y = 1200;
+    boat2.round = 0;
+    boat2.cp_one = false;
+    boat2.cp_two = false;
+    boat2.cp_three = false;
+    boat2.vel = 0;
+    boat2.rot = -54;
+    boat2.lap_time = 0;
+    boat2.best_lap_time = Infinity;
+    boat2.controls = {
+        up: 87,
+        down: 83,
+        left: 65,
+        right: 68
+    };
+}
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
@@ -453,25 +483,34 @@ function drawTimerPanels() {
     textAlign(LEFT, TOP);
     textSize(0.9 * 35);
     white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10);
-    white_text_with_shadow("Lap time " + boat1.last_lap_min + ":" + boat1.last_lap_sec, 20, 40);
-    if (boat1.best_lap_sec == 99) {
+    white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time), 20, 40);
+    if (boat1.best_lap_time == Infinity) {
         white_text_with_shadow("Best lap time --:--", 20, 70);
     }
     else {
-        white_text_with_shadow("Best lap time " + boat1.best_lap_min + ":" + boat1.best_lap_sec, 20, 70);
+        white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time), 20, 70);
     }
     if (game_mode == Mode.MULTIPLAYER) {
         textAlign(LEFT, TOP);
         textSize(0.9 * 35);
         white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10);
-        white_text_with_shadow("Lap time " + boat2.last_lap_min + ":" + boat2.last_lap_sec, 810, 40);
-        if (boat2.best_lap_sec == 99) {
+        white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time), 810, 40);
+        if (boat2.best_lap_time == Infinity) {
             white_text_with_shadow("Best lap time --:--", 810, 70);
         }
         else {
-            white_text_with_shadow("Best lap time " + boat2.best_lap_min + ":" + boat2.best_lap_sec, 810, 70);
+            white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time), 810, 70);
         }
     }
+}
+function formatAsTime(seconds) {
+    var min = Math.floor(seconds / 60);
+    var sec = Math.floor(seconds % 60);
+    var ms = Math.floor((seconds % 1) * 100);
+    if (min == 0) {
+        return nf(sec, 1) + "." + nf(ms, 2);
+    }
+    return nf(min, 1) + ":" + nf(sec, 2) + "." + nf(ms, 2);
 }
 function white_text_with_shadow(str, x, y) {
     fill(0);
@@ -528,44 +567,6 @@ function drawGameCameras() {
         boat1.draw(null, camleft1, camup1);
         boat2.draw(null, camleft1, camup1);
     }
-}
-function resetBoats() {
-    boat1.x = 960;
-    boat1.y = 1130;
-    boat1.round = 0;
-    boat1.cp_one = false;
-    boat1.cp_two = false;
-    boat1.cp_three = false;
-    boat1.vel = 0;
-    boat1.rot = -54;
-    boat1.last_lap_sec = 0;
-    boat1.last_lap_min = 0;
-    boat1.best_lap_sec = 99;
-    boat1.best_lap_min = 99;
-    boat1.controls = {
-        up: UP_ARROW,
-        down: DOWN_ARROW,
-        left: LEFT_ARROW,
-        right: RIGHT_ARROW
-    };
-    boat2.x = 1060;
-    boat2.y = 1200;
-    boat2.round = 0;
-    boat2.cp_one = false;
-    boat2.cp_two = false;
-    boat2.cp_three = false;
-    boat2.vel = 0;
-    boat2.rot = -54;
-    boat2.last_lap_sec = 0;
-    boat2.last_lap_min = 0;
-    boat2.best_lap_sec = 99;
-    boat2.best_lap_min = 99;
-    boat2.controls = {
-        up: 87,
-        down: 83,
-        left: 65,
-        right: 68
-    };
 }
 function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
     var _a, _b, _c;
