@@ -4,11 +4,11 @@ class Boat {
     vel: number
     rot: number
     round: number
-    cp_one: boolean
-    cp_two: boolean
-    cp_three: boolean
-    lap_time: number
-    best_lap_time: number
+    checkpoint1: boolean
+    checkpoint2: boolean
+    checkpoint3: boolean
+    lapTime: number
+    bestLapTime: number
     bmp: p5.Image
     controls: {
         up: number,
@@ -32,7 +32,7 @@ class Boat {
         const gx: number = 0
         const gy: number = 0
 
-        const px = getpixel(alpha_ostrov, this.x + gx, this.y + gy)
+        const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
         const redValue = red(px)
 
         // checkni naraz do ostrova
@@ -44,25 +44,24 @@ class Boat {
 
         // checkni naraz do checkpointov
         if (redValue == 64) {
-            this.cp_one = true
+            this.checkpoint1 = true
         }
         if (redValue == 128) {
-            this.cp_two = true
+            this.checkpoint2 = true
         }
         if (redValue == 32) {
-            this.cp_three = true
+            this.checkpoint3 = true
         }
 
         // checkni naraz do finishlinu
-        if (red(px) == 192 &&
-            this.cp_one && this.cp_two && this.cp_three) {
-            this.cp_one = false
-            this.cp_two = false
-            this.cp_three = false
-            if (this.lap_time < this.best_lap_time) {
-                this.best_lap_time = this.lap_time
+        if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
+            this.checkpoint1 = false
+            this.checkpoint2 = false
+            this.checkpoint3 = false
+            if (this.lapTime < this.bestLapTime) {
+                this.bestLapTime = this.lapTime
             }
-            this.lap_time = 0
+            this.lapTime = 0
             this.round++
             dray.play()
         }
@@ -93,7 +92,7 @@ class Boat {
         this.y += sin(this.rot) * this.vel * deltaTime / 1000
 
         // pohni timer
-        this.lap_time += deltaTime / 1000
+        this.lapTime += deltaTime / 1000
     }
 }
 
@@ -101,13 +100,13 @@ function resetBoats(): void {
     boat1.x = 960
     boat1.y = 1130
     boat1.round = 0
-    boat1.cp_one = false
-    boat1.cp_two = false
-    boat1.cp_three = false
+    boat1.checkpoint1 = false
+    boat1.checkpoint2 = false
+    boat1.checkpoint3 = false
     boat1.vel = 0
     boat1.rot = -54
-    boat1.lap_time = 0
-    boat1.best_lap_time = Infinity
+    boat1.lapTime = 0
+    boat1.bestLapTime = Infinity
     // boat1.speed = 5.0
     boat1.controls = {
         up: UP_ARROW,
@@ -119,13 +118,13 @@ function resetBoats(): void {
     boat2.x = 1060
     boat2.y = 1200
     boat2.round = 0
-    boat2.cp_one = false
-    boat2.cp_two = false
-    boat2.cp_three = false
+    boat2.checkpoint1 = false
+    boat2.checkpoint2 = false
+    boat2.checkpoint3 = false
     boat2.vel = 0
     boat2.rot = -54
-    boat2.lap_time = 0
-    boat2.best_lap_time = Infinity
+    boat2.lapTime = 0
+    boat2.bestLapTime = Infinity
     boat2.controls = {
         up: 87,
         down: 83,

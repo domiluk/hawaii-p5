@@ -1,16 +1,3 @@
-function create_bitmap(w, h) {
-    var img = createImage(w, h);
-    img.loadPixels();
-    for (var i = 0; i < w * h * 4; i += 4) {
-        img.pixels[i + 0] = 0;
-        img.pixels[i + 1] = 0;
-        img.pixels[i + 2] = 0;
-        img.pixels[i + 3] = 255;
-    }
-    img.updatePixels();
-    console.log(img);
-    return img;
-}
 function putpixel(img, x, y, col) {
     x = floor(x);
     y = floor(y);
@@ -44,29 +31,28 @@ var Boat = (function () {
     Boat.prototype.update = function () {
         var gx = 0;
         var gy = 0;
-        var px = getpixel(alpha_ostrov, this.x + gx, this.y + gy);
+        var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
         var redValue = red(px);
         if (redValue == 0) {
             this.rot += 180;
         }
         if (redValue == 64) {
-            this.cp_one = true;
+            this.checkpoint1 = true;
         }
         if (redValue == 128) {
-            this.cp_two = true;
+            this.checkpoint2 = true;
         }
         if (redValue == 32) {
-            this.cp_three = true;
+            this.checkpoint3 = true;
         }
-        if (red(px) == 192 &&
-            this.cp_one && this.cp_two && this.cp_three) {
-            this.cp_one = false;
-            this.cp_two = false;
-            this.cp_three = false;
-            if (this.lap_time < this.best_lap_time) {
-                this.best_lap_time = this.lap_time;
+        if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
+            this.checkpoint1 = false;
+            this.checkpoint2 = false;
+            this.checkpoint3 = false;
+            if (this.lapTime < this.bestLapTime) {
+                this.bestLapTime = this.lapTime;
             }
-            this.lap_time = 0;
+            this.lapTime = 0;
             this.round++;
             dray.play();
         }
@@ -88,7 +74,7 @@ var Boat = (function () {
         this.vel = constrain(this.vel, 0, MAX_SPEED);
         this.x += cos(this.rot) * this.vel * deltaTime / 1000;
         this.y += sin(this.rot) * this.vel * deltaTime / 1000;
-        this.lap_time += deltaTime / 1000;
+        this.lapTime += deltaTime / 1000;
     };
     return Boat;
 }());
@@ -96,13 +82,13 @@ function resetBoats() {
     boat1.x = 960;
     boat1.y = 1130;
     boat1.round = 0;
-    boat1.cp_one = false;
-    boat1.cp_two = false;
-    boat1.cp_three = false;
+    boat1.checkpoint1 = false;
+    boat1.checkpoint2 = false;
+    boat1.checkpoint3 = false;
     boat1.vel = 0;
     boat1.rot = -54;
-    boat1.lap_time = 0;
-    boat1.best_lap_time = Infinity;
+    boat1.lapTime = 0;
+    boat1.bestLapTime = Infinity;
     boat1.controls = {
         up: UP_ARROW,
         down: DOWN_ARROW,
@@ -112,13 +98,13 @@ function resetBoats() {
     boat2.x = 1060;
     boat2.y = 1200;
     boat2.round = 0;
-    boat2.cp_one = false;
-    boat2.cp_two = false;
-    boat2.cp_three = false;
+    boat2.checkpoint1 = false;
+    boat2.checkpoint2 = false;
+    boat2.checkpoint3 = false;
     boat2.vel = 0;
     boat2.rot = -54;
-    boat2.lap_time = 0;
-    boat2.best_lap_time = Infinity;
+    boat2.lapTime = 0;
+    boat2.bestLapTime = Infinity;
     boat2.controls = {
         up: 87,
         down: 83,
@@ -131,7 +117,7 @@ var Mode;
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
     Mode[Mode["MULTIPLAYER"] = 1] = "MULTIPLAYER";
 })(Mode || (Mode = {}));
-var game_mode = Mode.SINGLEPLAYER;
+var gameMode = Mode.SINGLEPLAYER;
 var Scene;
 (function (Scene) {
     Scene[Scene["MAIN_MENU"] = 0] = "MAIN_MENU";
@@ -150,15 +136,15 @@ var camleft2 = 0;
 var leftBuffer;
 var rightBuffer;
 var ostrov;
-var alpha_ostrov;
+var alphaOstrov;
 var panel;
 var dray;
 var spring;
-var main_sample;
+var mainSample;
 var muted;
 var raceTime;
 var vol = 255;
-var nlaps = 3;
+var nLaps = 3;
 var ROTATE_BY = 1.5 * 60;
 var MAX_SPEED = 6.5 * 60;
 var ACCEL = 0.05 * 3600;
@@ -180,13 +166,13 @@ function preload() {
     boat1.bmp = loadImage("images/lodcervena.png");
     boat2.bmp = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
-    alpha_ostrov = loadImage("images/alpha1.bmp");
+    alphaOstrov = loadImage("images/alpha1.bmp");
     menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.png");
     soundFormats('wav');
     dray = loadSound("sounds/dray.wav");
     spring = loadSound("sounds/spring.wav");
-    main_sample = loadSound("sounds/main.wav");
+    mainSample = loadSound("sounds/main.wav");
 }
 function setup() {
     createCanvas(1024, 768);
@@ -314,7 +300,7 @@ function playMenuScreen() {
         yOffset: -3,
     };
     if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
-        game_mode = Mode.SINGLEPLAYER;
+        gameMode = Mode.SINGLEPLAYER;
         switchScene(Scene.GAME);
     }
     var multiplayerLabel = {
@@ -324,7 +310,7 @@ function playMenuScreen() {
         yOffset: -3,
     };
     if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
-        game_mode = Mode.MULTIPLAYER;
+        gameMode = Mode.MULTIPLAYER;
         switchScene(Scene.GAME);
     }
 }
@@ -364,7 +350,7 @@ function optionsScreen() {
     var lapsOptions = [1, 3, 5, 7];
     var lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30);
     if (lapsChangedToIndex != -1) {
-        nlaps = lapsOptions[lapsChangedToIndex];
+        nLaps = lapsOptions[lapsChangedToIndex];
     }
     optionsSectionLabel("Settings", 800, 330);
     optionLabel("Sound volume", 775, 370);
@@ -431,7 +417,7 @@ function gameOverScreen() {
     textSize(0.9 * 75);
     text("The winner is...!", 512, 384);
     textSize(0.9 * 80);
-    if (boat1.round == nlaps) {
+    if (boat1.round == nLaps) {
         text("Player no.1", 512, 434);
     }
     else {
@@ -442,15 +428,15 @@ function game() {
     if (keyIsPressed && keyCode == ESCAPE) {
         switchScene(Scene.MAIN_MENU);
     }
-    if (boat1.round == nlaps || boat2.round == nlaps) {
+    if (boat1.round == nLaps || boat2.round == nLaps) {
         switchScene(Scene.GAME_OVER);
     }
     raceTime += deltaTime / 1000;
     boat1.update();
-    if (game_mode == Mode.MULTIPLAYER) {
+    if (gameMode == Mode.MULTIPLAYER) {
         boat2.update();
     }
-    if (game_mode == Mode.SINGLEPLAYER) {
+    if (gameMode == Mode.SINGLEPLAYER) {
     }
     if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
         spring.play();
@@ -469,24 +455,24 @@ function drawTimerPanels() {
     text("powered by DL games", 512, 70);
     textAlign(LEFT, TOP);
     textSize(0.9 * 35);
-    white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10);
-    white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time, true), 20, 40);
-    if (boat1.best_lap_time == Infinity) {
+    white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nLaps, 20, 10);
+    white_text_with_shadow("Lap time " + formatAsTime(boat1.lapTime, true), 20, 40);
+    if (boat1.bestLapTime == Infinity) {
         white_text_with_shadow("Best lap time --:--", 20, 70);
     }
     else {
-        white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time, true), 20, 70);
+        white_text_with_shadow("Best lap time " + formatAsTime(boat1.bestLapTime, true), 20, 70);
     }
-    if (game_mode == Mode.MULTIPLAYER) {
+    if (gameMode == Mode.MULTIPLAYER) {
         textAlign(LEFT, TOP);
         textSize(0.9 * 35);
-        white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10);
-        white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time, true), 810, 40);
-        if (boat2.best_lap_time == Infinity) {
+        white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nLaps, 810, 10);
+        white_text_with_shadow("Lap time " + formatAsTime(boat2.lapTime, true), 810, 40);
+        if (boat2.bestLapTime == Infinity) {
             white_text_with_shadow("Best lap time --:--", 810, 70);
         }
         else {
-            white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time, true), 810, 70);
+            white_text_with_shadow("Best lap time " + formatAsTime(boat2.bestLapTime, true), 810, 70);
         }
     }
 }
@@ -534,7 +520,7 @@ function keyTyped() {
     }
 }
 function drawGameCameras() {
-    if (game_mode == Mode.MULTIPLAYER) {
+    if (gameMode == Mode.MULTIPLAYER) {
         camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512);
         camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
         leftBuffer.image(ostrov, -camleft1, -camup1);
@@ -550,7 +536,7 @@ function drawGameCameras() {
         stroke(0);
         line(512, 0, 512, 768);
     }
-    if (game_mode == Mode.SINGLEPLAYER) {
+    if (gameMode == Mode.SINGLEPLAYER) {
         camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024);
         camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
         image(ostrov, -camleft1, -camup1);
@@ -649,7 +635,7 @@ function optionsSectionLabel(text, x, y) {
 }
 var TextBox = (function () {
     function TextBox(label, maxLen, x, y) {
-        this.input = "WWWWWWWW";
+        this.input = "MMMMMMMM";
         this.focused = false;
         this.highlighted = false;
         this.cursorVisible = true;

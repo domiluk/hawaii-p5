@@ -1,13 +1,14 @@
+// TODO: - v hre on escape menu
+// TODO: - spojazdnit leaderboard
+
 // TODO: - refactor
 // TODO: - debug
 
-// TODO: - dat prec debug rects a mouse vypis
-// TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
-// TODO: - v hre on escape menu
-// TODO: - spojazdnit leaderboard
 // TODO: - better collision detection
 // TODO: - natrenovat AI
+// TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
+// TODO: - dat prec debug rects a mouse vypis
 
 type SAMPLE = p5.SoundFile
 
@@ -15,7 +16,7 @@ enum Mode {
   SINGLEPLAYER,
   MULTIPLAYER,
 }
-let game_mode = Mode.SINGLEPLAYER
+let gameMode = Mode.SINGLEPLAYER
 
 enum Scene {
   MAIN_MENU,
@@ -37,18 +38,18 @@ let leftBuffer: p5.Graphics
 let rightBuffer: p5.Graphics
 
 let ostrov: p5.Image
-let alpha_ostrov: p5.Image
+let alphaOstrov: p5.Image
 let panel: p5.Image
 
 let dray: SAMPLE
 let spring: SAMPLE
-let main_sample: SAMPLE
+let mainSample: SAMPLE
 
 let muted: boolean
 
 let raceTime: number
 let vol = 255
-let nlaps = 3
+let nLaps = 3
 
 const ROTATE_BY = 1.5 * 60 // px/s
 const MAX_SPEED = 6.5 * 60 // px/s, originally 10
@@ -77,14 +78,14 @@ function preload() {
   boat1.bmp = loadImage("images/lodcervena.png")
   boat2.bmp = loadImage("images/lodzelena.png")
   ostrov = loadImage("images/ostrov1.bmp")
-  alpha_ostrov = loadImage("images/alpha1.bmp")
+  alphaOstrov = loadImage("images/alpha1.bmp")
   menu = loadImage("images/menu.png")
   panel = loadImage("images/panel.png")
 
   soundFormats('wav')
   dray = loadSound("sounds/dray.wav")
   spring = loadSound("sounds/spring.wav")
-  main_sample = loadSound("sounds/main.wav")
+  mainSample = loadSound("sounds/main.wav")
 }
 
 function setup() {
@@ -106,8 +107,6 @@ function setup() {
 
 function draw() {
   background(0);
-  // ??? CONSISTENT SPEED REGARDLESS OF FRAMERATE
-  // ??? const speed = something something frameCount;
 
   switch (scene) {
     case Scene.MAIN_MENU:
@@ -234,7 +233,7 @@ function playMenuScreen(): void {
     yOffset: -3,
   }
   if (textButton(singleplayerLabel, 100, 360, 210, 40)) {
-    game_mode = Mode.SINGLEPLAYER
+    gameMode = Mode.SINGLEPLAYER
     switchScene(Scene.GAME)
   }
 
@@ -245,7 +244,7 @@ function playMenuScreen(): void {
     yOffset: -3,
   }
   if (textButton(multiplayerLabel, 100, 400, 210, 42)) {
-    game_mode = Mode.MULTIPLAYER
+    gameMode = Mode.MULTIPLAYER
     switchScene(Scene.GAME)
   }
 }
@@ -296,7 +295,7 @@ function optionsScreen(): void {
   const lapsOptions = [1, 3, 5, 7]
   const lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30)
   if (lapsChangedToIndex != -1) {
-    nlaps = lapsOptions[lapsChangedToIndex]
+    nLaps = lapsOptions[lapsChangedToIndex]
   }
 
   // TODO: add AI difficulty settings
@@ -389,7 +388,7 @@ function gameOverScreen(): void {
   text("The winner is...!", 512, 384)
 
   textSize(0.9 * 80)
-  if (boat1.round == nlaps) {
+  if (boat1.round == nLaps) {
     text("Player no.1", 512, 434)
   }
   else {
@@ -404,7 +403,7 @@ function game(): void {
   }
 
   // win conditions
-  if (boat1.round == nlaps || boat2.round == nlaps) {
+  if (boat1.round == nLaps || boat2.round == nLaps) {
     switchScene(Scene.GAME_OVER)
   }
 
@@ -412,27 +411,13 @@ function game(): void {
   raceTime += deltaTime / 1000
 
   boat1.update()
-  if (game_mode == Mode.MULTIPLAYER) {
+  if (gameMode == Mode.MULTIPLAYER) {
     boat2.update()
   }
 
   // pohni za AIcku ak singleplayer
-  if (game_mode == Mode.SINGLEPLAYER) {
-    // boat2.x = getAI_x(AI_pos);
-    // boat2.y = getAI_y(AI_pos);
-    // boat2.rot = getAI_rot(AI_pos);
-    // if (boat2.xv > 0.2 || boat2.yv > 0.2) {
-    //   boat2.x += boat2.xv;
-    //   boat2.y += boat2.yv;
-    //   if (boat2.xv > boat2.slowdown)
-    //     boat2.xv -= boat2.slowdown;
-    //   if (boat2.yv > boat2.slowdown)
-    //     boat2.yv -= boat2.slowdown;
-    //   if (boat2.xv < -boat2.slowdown)
-    //     boat2.xv += boat2.slowdown;
-    //   if (boat2.yv < -boat2.slowdown)
-    //     boat2.yv += boat2.slowdown;
-    // }
+  if (gameMode == Mode.SINGLEPLAYER) {
+    // TODO: implement this
   }
 
   // naraz do lode
@@ -458,25 +443,25 @@ function drawTimerPanels(): void {
 
   textAlign(LEFT, TOP)
   textSize(0.9 * 35)
-  white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nlaps, 20, 10)
+  white_text_with_shadow("Lap " + (boat1.round + 1) + " of " + nLaps, 20, 10)
 
-  white_text_with_shadow("Lap time " + formatAsTime(boat1.lap_time, true), 20, 40)
-  if (boat1.best_lap_time == Infinity) {
+  white_text_with_shadow("Lap time " + formatAsTime(boat1.lapTime, true), 20, 40)
+  if (boat1.bestLapTime == Infinity) {
     white_text_with_shadow("Best lap time --:--", 20, 70)
   } else {
-    white_text_with_shadow("Best lap time " + formatAsTime(boat1.best_lap_time, true), 20, 70)
+    white_text_with_shadow("Best lap time " + formatAsTime(boat1.bestLapTime, true), 20, 70)
   }
 
-  if (game_mode == Mode.MULTIPLAYER) {
+  if (gameMode == Mode.MULTIPLAYER) {
     textAlign(LEFT, TOP)
     textSize(0.9 * 35)
-    white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nlaps, 810, 10)
+    white_text_with_shadow("Lap " + (boat2.round + 1) + " of " + nLaps, 810, 10)
 
-    white_text_with_shadow("Lap time " + formatAsTime(boat2.lap_time, true), 810, 40)
-    if (boat2.best_lap_time == Infinity) {
+    white_text_with_shadow("Lap time " + formatAsTime(boat2.lapTime, true), 810, 40)
+    if (boat2.bestLapTime == Infinity) {
       white_text_with_shadow("Best lap time --:--", 810, 70)
     } else {
-      white_text_with_shadow("Best lap time " + formatAsTime(boat2.best_lap_time, true), 810, 70)
+      white_text_with_shadow("Best lap time " + formatAsTime(boat2.bestLapTime, true), 810, 70)
     }
   }
 }
@@ -534,7 +519,7 @@ function keyTyped(): void {
 }
 
 function drawGameCameras(): void {
-  if (game_mode == Mode.MULTIPLAYER) {
+  if (gameMode == Mode.MULTIPLAYER) {
     // lava polka
     camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512)
     camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768)
@@ -558,7 +543,7 @@ function drawGameCameras(): void {
     line(512, 0, 512, 768)
   }
 
-  if (game_mode == Mode.SINGLEPLAYER) {
+  if (gameMode == Mode.SINGLEPLAYER) {
     camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024)
     camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768)
 

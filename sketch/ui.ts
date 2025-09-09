@@ -109,13 +109,9 @@ function optionsSectionLabel(text: string, x: number, y: number): void {
     textLabel(label, x, y, color(255), CENTER, TOP)
 }
 
-
-
-
-
 class TextBox {
     label: string
-    input: string = "WWWWWWWW"
+    input: string = "MMMMMMMM"
     maxLen: number
     focused: boolean = false
     highlighted: boolean = false

@@ -1,22 +1,3 @@
-function create_bitmap(w: number, h: number): p5.Image {
-    const img: p5.Image = createImage(w, h)
-    // Load the image's pixels into memory.
-    img.loadPixels()
-    // Set all the image's pixels to black.
-    for (let i = 0; i < w * h * 4; i += 4) {
-        img.pixels[i + 0] = 0
-        img.pixels[i + 1] = 0
-        img.pixels[i + 2] = 0
-        img.pixels[i + 3] = 255
-    }
-    // Update the image's pixel values.
-    img.updatePixels()
-
-    console.log(img)
-
-    return img
-}
-
 function putpixel(img: p5.Image, x: number, y: number, col: p5.Color): void {
     x = floor(x)
     y = floor(y)
