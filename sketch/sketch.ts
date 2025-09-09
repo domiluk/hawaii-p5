@@ -1,18 +1,13 @@
-// TODO: - hlavny timer nech je tiez based on deltatime
-
 // TODO: - refactor
-// TODO: - debug (napr vzdy hybajuce sa lodicky nikdy nezastavia)
+// TODO: - debug
 
 // TODO: - dat prec debug rects a mouse vypis
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - v hre on escape menu
-// TODO: - natrenovat AI
 // TODO: - spojazdnit leaderboard
 // TODO: - better collision detection
+// TODO: - natrenovat AI
 // TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
-// TODO: - naklonit menu buttony
-//          - make the leaderboard button a bit bigger
-//          - in fact lets make the buttons in code entirely (not in graphic)
 
 type SAMPLE = p5.SoundFile
 
