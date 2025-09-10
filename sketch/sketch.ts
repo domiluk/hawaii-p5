@@ -614,6 +614,10 @@ function mouseMoved(): void {
 }
 
 function keyPressed(): void {
+  if (key == "m") {
+    toggleMute()
+  }
+
   if (scene == Scene.OPTIONS) {
     player1textBox.keyPressed()
     player2textBox.keyPressed()
