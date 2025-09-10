@@ -28,6 +28,8 @@ enum Scene {
 }
 let scene = Scene.MAIN_MENU
 
+let isPaused = false
+
 let camup1 = 0
 let camup2 = 0
 let camleft1 = 0
@@ -403,43 +405,85 @@ function gameOverScreen(): void {
   }
 }
 
-function game(): void {
-  // return to menu
-  if (keyIsPressed && keyCode == ESCAPE) {
-    switchScene(Scene.MAIN_MENU)
-  }
+function drawPauseMenu(): void {
+  // Semi-transparent overlay
+  fill(0, 0, 0, 127)
+  rect(0, 0, width, height)
 
-  // win conditions
-  if (boat1.round == nLaps || boat2.round == nLaps) {
-    switchScene(Scene.GAME_OVER)
+  // Menu text
+  textAlign(CENTER, CENTER)
+  textFont(airstream)
+  fill(255)
+  textSize(50)
+  text("PAUSED", width / 2, height / 2 - 80)
 
-    if (boat1.round == nLaps) {
-      saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime)
-    } else {
-      saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime)
+  // Menu options
+  textSize(30)
+  const resumeY = height / 2 - 20
+  const mainMenuY = height / 2 + 20
+
+  if (mouseY >= resumeY - 15 && mouseY <= resumeY + 15 &&
+    mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100) {
+    fill("#ff0000")
+    if (mouseIsPressed) {
+      isPaused = false
     }
+  } else {
+    fill(255)
   }
+  text("Resume", width / 2, resumeY)
 
-  // update timer
-  raceTime += deltaTime / 1000
-
-  boat1.update()
-  if (gameMode == Mode.MULTIPLAYER) {
-    boat2.update()
+  if (mouseY >= mainMenuY - 15 && mouseY <= mainMenuY + 15 &&
+    mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100) {
+    fill("#ff0000")
+    if (mouseIsPressed) {
+      isPaused = false
+      switchScene(Scene.MAIN_MENU)
+    }
+  } else {
+    fill(255)
   }
+  text("Main Menu", width / 2, mainMenuY)
+}
 
-  // pohni za AIcku ak singleplayer
-  if (gameMode == Mode.SINGLEPLAYER) {
-    // TODO: implement this
-  }
+function game(): void {
+  if (!isPaused) {
+    // win conditions
+    if (boat1.round == nLaps || boat2.round == nLaps) {
+      switchScene(Scene.GAME_OVER)
 
-  // naraz do lode
-  if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
-    spring.play()
+      if (boat1.round == nLaps) {
+        saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime)
+      } else {
+        saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime)
+      }
+    }
+
+    // update timer
+    raceTime += deltaTime / 1000
+
+    boat1.update()
+    if (gameMode == Mode.MULTIPLAYER) {
+      boat2.update()
+    }
+
+    // pohni za AIcku ak singleplayer
+    if (gameMode == Mode.SINGLEPLAYER) {
+      // TODO: implement this
+    }
+
+    // naraz do lode
+    if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
+      spring.play()
+    }
   }
 
   drawGameCameras()
   drawTimerPanels()
+
+  if (isPaused) {
+    drawPauseMenu()
+  }
 }
 
 function drawTimerPanels(): void {
@@ -521,6 +565,12 @@ function keyPressed(): void {
   if (scene == Scene.OPTIONS) {
     player1textBox.keyPressed()
     player2textBox.keyPressed()
+  }
+
+  if (scene == Scene.GAME) {
+    if (keyCode == ESCAPE) {
+      isPaused = !isPaused
+    }
   }
 }
 

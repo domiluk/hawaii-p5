@@ -144,6 +144,7 @@ var Scene;
     Scene[Scene["GAME_OVER"] = 6] = "GAME_OVER";
 })(Scene || (Scene = {}));
 var scene = Scene.MAIN_MENU;
+var isPaused = false;
 var camup1 = 0;
 var camup2 = 0;
 var camleft1 = 0;
@@ -448,31 +449,68 @@ function gameOverScreen() {
         text("Player no.2", 512, 434);
     }
 }
+function drawPauseMenu() {
+    fill(0, 0, 0, 127);
+    rect(0, 0, width, height);
+    textAlign(CENTER, CENTER);
+    textFont(airstream);
+    fill(255);
+    textSize(50);
+    text("PAUSED", width / 2, height / 2 - 80);
+    textSize(30);
+    var resumeY = height / 2 - 20;
+    var mainMenuY = height / 2 + 20;
+    if (mouseY >= resumeY - 15 && mouseY <= resumeY + 15 &&
+        mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100) {
+        fill("#ff0000");
+        if (mouseIsPressed) {
+            isPaused = false;
+        }
+    }
+    else {
+        fill(255);
+    }
+    text("Resume", width / 2, resumeY);
+    if (mouseY >= mainMenuY - 15 && mouseY <= mainMenuY + 15 &&
+        mouseX >= width / 2 - 100 && mouseX <= width / 2 + 100) {
+        fill("#ff0000");
+        if (mouseIsPressed) {
+            isPaused = false;
+            switchScene(Scene.MAIN_MENU);
+        }
+    }
+    else {
+        fill(255);
+    }
+    text("Main Menu", width / 2, mainMenuY);
+}
 function game() {
-    if (keyIsPressed && keyCode == ESCAPE) {
-        switchScene(Scene.MAIN_MENU);
-    }
-    if (boat1.round == nLaps || boat2.round == nLaps) {
-        switchScene(Scene.GAME_OVER);
-        if (boat1.round == nLaps) {
-            saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime);
+    if (!isPaused) {
+        if (boat1.round == nLaps || boat2.round == nLaps) {
+            switchScene(Scene.GAME_OVER);
+            if (boat1.round == nLaps) {
+                saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime);
+            }
+            else {
+                saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime);
+            }
         }
-        else {
-            saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime);
+        raceTime += deltaTime / 1000;
+        boat1.update();
+        if (gameMode == Mode.MULTIPLAYER) {
+            boat2.update();
         }
-    }
-    raceTime += deltaTime / 1000;
-    boat1.update();
-    if (gameMode == Mode.MULTIPLAYER) {
-        boat2.update();
-    }
-    if (gameMode == Mode.SINGLEPLAYER) {
-    }
-    if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
-        spring.play();
+        if (gameMode == Mode.SINGLEPLAYER) {
+        }
+        if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
+            spring.play();
+        }
     }
     drawGameCameras();
     drawTimerPanels();
+    if (isPaused) {
+        drawPauseMenu();
+    }
 }
 function drawTimerPanels() {
     image(panel, 512 - 100, 0);
@@ -541,6 +579,11 @@ function keyPressed() {
     if (scene == Scene.OPTIONS) {
         player1textBox.keyPressed();
         player2textBox.keyPressed();
+    }
+    if (scene == Scene.GAME) {
+        if (keyCode == ESCAPE) {
+            isPaused = !isPaused;
+        }
     }
 }
 function keyTyped() {
