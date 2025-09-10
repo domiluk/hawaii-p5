@@ -32,6 +32,23 @@ class Boat {
         const gx: number = 0
         const gy: number = 0
 
+        // checkni naraz mimo mapy
+        if (this.x < 0 || this.x >= ostrov.width) {
+            const vx = -0.75 * cos(this.rot) * this.vel
+            const vy = sin(this.rot) * this.vel
+            this.vel = sqrt(vx * vx + vy * vy)
+            this.rot = atan2(vy, vx)
+            this.x = constrain(this.x, 0, ostrov.width - 1)
+        }
+
+        if (this.y < 0 || this.y >= ostrov.height) {
+            const vx = cos(this.rot) * this.vel
+            const vy = -0.75 * sin(this.rot) * this.vel
+            this.vel = sqrt(vx * vx + vy * vy)
+            this.rot = atan2(vy, vx)
+            this.y = constrain(this.y, 0, ostrov.height - 1)
+        }
+
         const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
         const redValue = red(px)
 
@@ -43,18 +60,18 @@ class Boat {
         }
 
         // checkni naraz do checkpointov
-        if (redValue == 64) {
+        else if (redValue == 64) {
             this.checkpoint1 = true
         }
-        if (redValue == 128) {
+        else if (redValue == 128) {
             this.checkpoint2 = true
         }
-        if (redValue == 32) {
+        else if (redValue == 32) {
             this.checkpoint3 = true
         }
 
         // checkni naraz do finishlinu
-        if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
+        else if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
             this.checkpoint1 = false
             this.checkpoint2 = false
             this.checkpoint3 = false

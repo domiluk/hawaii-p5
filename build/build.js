@@ -31,21 +31,35 @@ var Boat = (function () {
     Boat.prototype.update = function () {
         var gx = 0;
         var gy = 0;
+        if (this.x < 0 || this.x >= ostrov.width) {
+            var vx = -0.75 * cos(this.rot) * this.vel;
+            var vy = sin(this.rot) * this.vel;
+            this.vel = sqrt(vx * vx + vy * vy);
+            this.rot = atan2(vy, vx);
+            this.x = constrain(this.x, 0, ostrov.width - 1);
+        }
+        if (this.y < 0 || this.y >= ostrov.height) {
+            var vx = cos(this.rot) * this.vel;
+            var vy = -0.75 * sin(this.rot) * this.vel;
+            this.vel = sqrt(vx * vx + vy * vy);
+            this.rot = atan2(vy, vx);
+            this.y = constrain(this.y, 0, ostrov.height - 1);
+        }
         var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
         var redValue = red(px);
         if (redValue == 0) {
             this.rot += 180;
         }
-        if (redValue == 64) {
+        else if (redValue == 64) {
             this.checkpoint1 = true;
         }
-        if (redValue == 128) {
+        else if (redValue == 128) {
             this.checkpoint2 = true;
         }
-        if (redValue == 32) {
+        else if (redValue == 32) {
             this.checkpoint3 = true;
         }
-        if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
+        else if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
             this.checkpoint1 = false;
             this.checkpoint2 = false;
             this.checkpoint3 = false;
