@@ -1,8 +1,6 @@
 // TODO: - refactor
 // TODO: - debug
 
-// TODO: - mute button
-
 // TODO: - better collision detection
 // TODO: - natrenovat AI
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
