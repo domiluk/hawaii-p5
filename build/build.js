@@ -189,7 +189,7 @@ function preload() {
     boat1.bmp = loadImage("images/lodcervena.png");
     boat2.bmp = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
-    alphaOstrov = loadImage("images/alpha1.bmp");
+    alphaOstrov = loadImage("images/alpha1.png");
     menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.png");
     soundFormats('wav');
