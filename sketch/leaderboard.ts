@@ -1,0 +1,26 @@
+type LeaderboardEntry = {
+    name: string,
+    lapTime: number,
+}
+
+const LEADERBOARD_KEY = "hawaii-leaderboard-v1"
+const MAX_ENTRIES = 8
+
+function saveToLeaderboard(name: string, lapTime: number): void {
+    const currentBoard = getLeaderboard()
+    currentBoard.push({ name, lapTime })
+
+    // sort by time ascending
+    currentBoard.sort((a: LeaderboardEntry, b: LeaderboardEntry) => a.lapTime - b.lapTime)
+
+    // keep only the top entries
+    const topEntries = currentBoard.slice(0, MAX_ENTRIES)
+
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(topEntries))
+}
+
+function getLeaderboard(): LeaderboardEntry[] {
+    const stored = localStorage.getItem(LEADERBOARD_KEY)
+    if (!stored) return []
+    return JSON.parse(stored)
+}

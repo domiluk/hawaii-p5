@@ -1,5 +1,4 @@
-// TODO: - v hre on escape menu
-// TODO: - spojazdnit leaderboard
+// TODO: - v hre on escape menu - pauza s exit to main menu buttonom?
 
 // TODO: - refactor
 // TODO: - debug
@@ -350,8 +349,6 @@ function leaderboardScreen(): void {
   textAlign(CENTER, TOP)
   textFont(airstream)
 
-  // NOTE: only 8 characters per name
-
   noStroke()
   fill(0)
   textSize(0.9 * 50)
@@ -360,17 +357,27 @@ function leaderboardScreen(): void {
 
   textAlign(LEFT, TOP)
   text("Name", 370, 250)
-
-  text("OG Boop", 370, 280)
-  text("Dano", 370, 310)
-
   textAlign(RIGHT, TOP)
   text("Lap time", 674, 250)
 
-  text("1.", 350, 280)
-  text("16.431 s", 674, 280)
-  text("2.", 350, 310)
-  text("17.555 s", 674, 310)
+  const entries = getLeaderboard()
+  entries.forEach((entry, index) => {
+    textAlign(LEFT, TOP)
+    text(entry.name, 370, 280 + index * 30)
+
+    textAlign(RIGHT, TOP)
+    text(`${index + 1}.`, 350, 280 + index * 30)
+    text(formatAsTime(entry.lapTime, true), 674, 280 + index * 30)
+  })
+
+  for (let index = entries.length; index < MAX_ENTRIES; index++) {
+    textAlign(LEFT, TOP)
+    text("--", 370, 280 + index * 30)
+
+    textAlign(RIGHT, TOP)
+    text(`${index + 1}.`, 350, 280 + index * 30)
+    text("--", 674, 280 + index * 30)
+  }
 }
 
 function gameOverScreen(): void {
@@ -405,6 +412,12 @@ function game(): void {
   // win conditions
   if (boat1.round == nLaps || boat2.round == nLaps) {
     switchScene(Scene.GAME_OVER)
+
+    if (boat1.round == nLaps) {
+      saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime)
+    } else {
+      saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime)
+    }
   }
 
   // update timer

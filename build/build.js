@@ -112,6 +112,21 @@ function resetBoats() {
         right: 68
     };
 }
+var LEADERBOARD_KEY = "hawaii-leaderboard-v1";
+var MAX_ENTRIES = 8;
+function saveToLeaderboard(name, lapTime) {
+    var currentBoard = getLeaderboard();
+    currentBoard.push({ name: name, lapTime: lapTime });
+    currentBoard.sort(function (a, b) { return a.lapTime - b.lapTime; });
+    var topEntries = currentBoard.slice(0, MAX_ENTRIES);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(topEntries));
+}
+function getLeaderboard() {
+    var stored = localStorage.getItem(LEADERBOARD_KEY);
+    if (!stored)
+        return [];
+    return JSON.parse(stored);
+}
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
@@ -397,14 +412,23 @@ function leaderboardScreen() {
     textSize(0.9 * 35);
     textAlign(LEFT, TOP);
     text("Name", 370, 250);
-    text("OG Boop", 370, 280);
-    text("Dano", 370, 310);
     textAlign(RIGHT, TOP);
     text("Lap time", 674, 250);
-    text("1.", 350, 280);
-    text("16.431 s", 674, 280);
-    text("2.", 350, 310);
-    text("17.555 s", 674, 310);
+    var entries = getLeaderboard();
+    entries.forEach(function (entry, index) {
+        textAlign(LEFT, TOP);
+        text(entry.name, 370, 280 + index * 30);
+        textAlign(RIGHT, TOP);
+        text("".concat(index + 1, "."), 350, 280 + index * 30);
+        text(formatAsTime(entry.lapTime, true), 674, 280 + index * 30);
+    });
+    for (var index = entries.length; index < MAX_ENTRIES; index++) {
+        textAlign(LEFT, TOP);
+        text("--", 370, 280 + index * 30);
+        textAlign(RIGHT, TOP);
+        text("".concat(index + 1, "."), 350, 280 + index * 30);
+        text("--", 674, 280 + index * 30);
+    }
 }
 function gameOverScreen() {
     if (keyIsPressed && keyCode == ESCAPE) {
@@ -430,6 +454,12 @@ function game() {
     }
     if (boat1.round == nLaps || boat2.round == nLaps) {
         switchScene(Scene.GAME_OVER);
+        if (boat1.round == nLaps) {
+            saveToLeaderboard(player1textBox.input || "Player 1", boat1.bestLapTime);
+        }
+        else {
+            saveToLeaderboard(player2textBox.input || "Player 2", boat2.bestLapTime);
+        }
     }
     raceTime += deltaTime / 1000;
     boat1.update();
