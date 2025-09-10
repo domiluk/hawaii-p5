@@ -1,7 +1,7 @@
-// TODO: - v hre on escape menu - pauza s exit to main menu buttonom?
-
 // TODO: - refactor
 // TODO: - debug
+
+// TODO: - mute button
 
 // TODO: - better collision detection
 // TODO: - natrenovat AI
@@ -46,10 +46,20 @@ let dray: SAMPLE
 let spring: SAMPLE
 let mainSample: SAMPLE
 
-let muted: boolean
+let muted = true
 
 let raceTime: number
-let vol = 255
+
+const sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+let sfxIndex = 10
+let sfxVol = 100
+
+const musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+let musicIndex = 10
+let musicVol = 100
+
+const lapsOptions = [1, 3, 5, 7]
+let lapsIndex = 1
 let nLaps = 3
 
 const ROTATE_BY = 1.5 * 60 // px/s
@@ -85,8 +95,11 @@ function preload() {
 
   soundFormats('wav')
   dray = loadSound("sounds/dray.wav")
+  dray.setVolume(0)
   spring = loadSound("sounds/spring.wav")
+  spring.setVolume(0)
   mainSample = loadSound("sounds/main.wav")
+  mainSample.setVolume(0)
 }
 
 function setup() {
@@ -103,7 +116,9 @@ function setup() {
 
   textFont(airstream)
   textSize(50)
-  switchScene(Scene.PLAY_MENU)
+  mainSample.setLoop(true)
+  mainSample.play()
+  switchScene(Scene.MAIN_MENU)
 }
 
 function draw() {
@@ -138,12 +153,12 @@ function draw() {
   noStroke()
   fill(0)
   text(mouseX + " : " + mouseY, 10, 10)
+
+  dl_mouseIsPressed = false
 }
 
 function switchScene(newScene: Scene, reset = true): void {
-  if (newScene == Scene.MAIN_MENU) {
-    // main_sample.play()
-  } else if (newScene == Scene.GAME) {
+  if (newScene == Scene.GAME) {
     if (reset) {
       resetBoats()
       raceTime = 0
@@ -154,6 +169,15 @@ function switchScene(newScene: Scene, reset = true): void {
 
 function toggleMute(): void {
   muted = !muted
+  if (muted) {
+    dray.setVolume(0)
+    spring.setVolume(0)
+    mainSample.setVolume(0)
+  } else {
+    dray.setVolume(sfxVol / 300)
+    spring.setVolume(sfxVol / 300)
+    mainSample.setVolume(musicVol / 300)
+  }
 }
 
 function menuButtons(): void {
@@ -204,6 +228,13 @@ function menuButtons(): void {
     yOffset: 7,
     rotate: 15,
     font: symbols,
+  }
+  if (muted) {
+    // Show unmute icon
+    muteLabel.text = "\ueee8"
+  } else {
+    // Show mute icon
+    muteLabel.text = "\uf028"
   }
   if (textButton(muteLabel, 883, 678, 45, 33)) {
     toggleMute()
@@ -293,9 +324,9 @@ function optionsScreen(): void {
   optionsSectionLabel("Game options", 800, 230)
 
   optionLabel("Laps", 775, 270)
-  const lapsOptions = [1, 3, 5, 7]
-  const lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30)
+  const lapsChangedToIndex = optionSelector(lapsOptions, lapsIndex, 800, 270, 30)
   if (lapsChangedToIndex != -1) {
+    lapsIndex = lapsChangedToIndex
     nLaps = lapsOptions[lapsChangedToIndex]
   }
 
@@ -304,25 +335,37 @@ function optionsScreen(): void {
   optionsSectionLabel("Settings", 800, 330)
 
   optionLabel("Sound volume", 775, 370)
-  const sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-  const sfxChangedToIndex = optionSelector(sfxOptions, 10, 800, 370, 45)
+  const sfxChangedToIndex = optionSelector(sfxOptions, sfxIndex, 800, 370, 45)
   if (sfxChangedToIndex != -1) {
-    vol = sfxOptions[sfxChangedToIndex]
+    sfxIndex = sfxChangedToIndex
+    sfxVol = sfxOptions[sfxChangedToIndex]
+
+    if (muted) {
+      toggleMute()
+    }
+
+    spring.setVolume(sfxVol / 300) // the sfx are so loud we need to divide by more than 100
+    dray.setVolume(sfxVol / 300) // the sfx are so loud we need to divide by more than 100
+    dray.play()
   }
 
   optionLabel("Music volume", 775, 400)
-  const musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-  const musicChangedToIndex = optionSelector(musicOptions, 10, 800, 400, 45)
+  const musicChangedToIndex = optionSelector(musicOptions, musicIndex, 800, 400, 45)
   if (musicChangedToIndex != -1) {
-    // TODO: implement this
+    musicIndex = musicChangedToIndex
+    musicVol = musicOptions[musicChangedToIndex]
+
+    if (muted) {
+      toggleMute()
+    }
+
+    mainSample.setVolume(musicVol / 300) // the music is so loud we need to divide by more than 100
   }
 
-  optionLabel("Graphics", 775, 430)
-  const gfxOptions = ["original", "enhanced"]
-  const gfxChangedToIndex = optionSelector(gfxOptions, 1, 800, 430, 90)
-  if (gfxChangedToIndex != -1) {
-    // TODO: implement this
-  }
+  // optionLabel("Graphics", 775, 430)
+  // const gfxOptions = ["original", "enhanced"]
+  // const gfxChangedToIndex = optionSelector(gfxOptions, 1, 800, 430, 90)
+  // if (gfxChangedToIndex != -1) {}
 }
 
 function creditsScreen(): void {
@@ -543,11 +586,22 @@ function white_text_with_shadow(str: string, x: number, y: number): void {
   text(str, x - 1, y - 1)
 }
 
+let isFirstClick = true
+
 function mousePressed(): void {
-  // if (getAudioContext().state !== 'running') {
-  //   getAudioContext().resume();
-  // }
-  userStartAudio()
+  dl_mouseIsPressed = true
+
+  if (isFirstClick) {
+    userStartAudio()
+    toggleMute()
+    isFirstClick = false
+
+    // this is a hack to prevent multiple triggers of mute button
+    if (mouseX >= 883 && mouseX < 928 && mouseY >= 678 && mouseY < 711) {
+      dl_mouseIsPressed = false
+    }
+  }
+
   if (scene == Scene.OPTIONS) {
     player1textBox.mousePressed()
     player2textBox.mousePressed()

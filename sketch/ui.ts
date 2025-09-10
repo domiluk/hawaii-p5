@@ -7,6 +7,8 @@ type TextLabel = {
     font?: p5.Font,
 }
 
+let dl_mouseIsPressed = false
+
 function textLabel(label: TextLabel, x: number, y: number, fillColor = color(0), horizAlign: p5.HORIZ_ALIGN = CENTER, vertAlign: p5.VERT_ALIGN = TOP) {
     noStroke()
     fill(fillColor)
@@ -34,7 +36,7 @@ function textButton(label: TextLabel, x: number, y: number, w: number, h: number
 
     if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
         fillColor = 255
-        if (mouseIsPressed) {
+        if (dl_mouseIsPressed) {
             mouseIsPressedInsideButton = true
         }
     }
@@ -77,11 +79,11 @@ function optionSelector(options: (string | number)[], pickedIndex: number, x: nu
     let changedTo = -1
 
     if (leftChevronButton(x, y)) {
-        changedTo = (pickedIndex - 1) % options.length
+        changedTo = constrain(pickedIndex - 1, 0, options.length - 1)
     }
 
     if (rightChevronButton(x + 25 + gapWidth, y)) {
-        changedTo = (pickedIndex + 1) % options.length
+        changedTo = constrain(pickedIndex + 1, 0, options.length - 1)
     }
 
     noStroke()

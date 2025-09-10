@@ -157,9 +157,16 @@ var panel;
 var dray;
 var spring;
 var mainSample;
-var muted;
+var muted = true;
 var raceTime;
-var vol = 255;
+var sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+var sfxIndex = 10;
+var sfxVol = 100;
+var musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+var musicIndex = 10;
+var musicVol = 100;
+var lapsOptions = [1, 3, 5, 7];
+var lapsIndex = 1;
 var nLaps = 3;
 var ROTATE_BY = 1.5 * 60;
 var MAX_SPEED = 6.5 * 60;
@@ -187,8 +194,11 @@ function preload() {
     panel = loadImage("images/panel.png");
     soundFormats('wav');
     dray = loadSound("sounds/dray.wav");
+    dray.setVolume(0);
     spring = loadSound("sounds/spring.wav");
+    spring.setVolume(0);
     mainSample = loadSound("sounds/main.wav");
+    mainSample.setVolume(0);
 }
 function setup() {
     createCanvas(1024, 768);
@@ -200,7 +210,9 @@ function setup() {
     player2textBox = new TextBox("Name:", 8, 190, 405);
     textFont(airstream);
     textSize(50);
-    switchScene(Scene.PLAY_MENU);
+    mainSample.setLoop(true);
+    mainSample.play();
+    switchScene(Scene.MAIN_MENU);
 }
 function draw() {
     background(0);
@@ -232,12 +244,11 @@ function draw() {
     noStroke();
     fill(0);
     text(mouseX + " : " + mouseY, 10, 10);
+    dl_mouseIsPressed = false;
 }
 function switchScene(newScene, reset) {
     if (reset === void 0) { reset = true; }
-    if (newScene == Scene.MAIN_MENU) {
-    }
-    else if (newScene == Scene.GAME) {
+    if (newScene == Scene.GAME) {
         if (reset) {
             resetBoats();
             raceTime = 0;
@@ -247,6 +258,16 @@ function switchScene(newScene, reset) {
 }
 function toggleMute() {
     muted = !muted;
+    if (muted) {
+        dray.setVolume(0);
+        spring.setVolume(0);
+        mainSample.setVolume(0);
+    }
+    else {
+        dray.setVolume(sfxVol / 300);
+        spring.setVolume(sfxVol / 300);
+        mainSample.setVolume(musicVol / 300);
+    }
 }
 function menuButtons() {
     var playLabel = {
@@ -293,6 +314,12 @@ function menuButtons() {
         rotate: 15,
         font: symbols,
     };
+    if (muted) {
+        muteLabel.text = "\ueee8";
+    }
+    else {
+        muteLabel.text = "\uf028";
+    }
     if (textButton(muteLabel, 883, 678, 45, 33)) {
         toggleMute();
     }
@@ -363,27 +390,33 @@ function optionsScreen() {
     player2textBox.draw();
     optionsSectionLabel("Game options", 800, 230);
     optionLabel("Laps", 775, 270);
-    var lapsOptions = [1, 3, 5, 7];
-    var lapsChangedToIndex = optionSelector(lapsOptions, 1, 800, 270, 30);
+    var lapsChangedToIndex = optionSelector(lapsOptions, lapsIndex, 800, 270, 30);
     if (lapsChangedToIndex != -1) {
+        lapsIndex = lapsChangedToIndex;
         nLaps = lapsOptions[lapsChangedToIndex];
     }
     optionsSectionLabel("Settings", 800, 330);
     optionLabel("Sound volume", 775, 370);
-    var sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-    var sfxChangedToIndex = optionSelector(sfxOptions, 10, 800, 370, 45);
+    var sfxChangedToIndex = optionSelector(sfxOptions, sfxIndex, 800, 370, 45);
     if (sfxChangedToIndex != -1) {
-        vol = sfxOptions[sfxChangedToIndex];
+        sfxIndex = sfxChangedToIndex;
+        sfxVol = sfxOptions[sfxChangedToIndex];
+        if (muted) {
+            toggleMute();
+        }
+        spring.setVolume(sfxVol / 300);
+        dray.setVolume(sfxVol / 300);
+        dray.play();
     }
     optionLabel("Music volume", 775, 400);
-    var musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-    var musicChangedToIndex = optionSelector(musicOptions, 10, 800, 400, 45);
+    var musicChangedToIndex = optionSelector(musicOptions, musicIndex, 800, 400, 45);
     if (musicChangedToIndex != -1) {
-    }
-    optionLabel("Graphics", 775, 430);
-    var gfxOptions = ["original", "enhanced"];
-    var gfxChangedToIndex = optionSelector(gfxOptions, 1, 800, 430, 90);
-    if (gfxChangedToIndex != -1) {
+        musicIndex = musicChangedToIndex;
+        musicVol = musicOptions[musicChangedToIndex];
+        if (muted) {
+            toggleMute();
+        }
+        mainSample.setVolume(musicVol / 300);
     }
 }
 function creditsScreen() {
@@ -562,8 +595,17 @@ function white_text_with_shadow(str, x, y) {
     fill(255);
     text(str, x - 1, y - 1);
 }
+var isFirstClick = true;
 function mousePressed() {
-    userStartAudio();
+    dl_mouseIsPressed = true;
+    if (isFirstClick) {
+        userStartAudio();
+        toggleMute();
+        isFirstClick = false;
+        if (mouseX >= 883 && mouseX < 928 && mouseY >= 678 && mouseY < 711) {
+            dl_mouseIsPressed = false;
+        }
+    }
     if (scene == Scene.OPTIONS) {
         player1textBox.mousePressed();
         player2textBox.mousePressed();
@@ -617,6 +659,7 @@ function drawGameCameras() {
         boat2.draw(null, camleft1, camup1);
     }
 }
+var dl_mouseIsPressed = false;
 function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
     var _a, _b, _c;
     if (fillColor === void 0) { fillColor = color(0); }
@@ -646,7 +689,7 @@ function textButton(label, x, y, w, h, debug) {
     var fillColor = 0;
     if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
         fillColor = 255;
-        if (mouseIsPressed) {
+        if (dl_mouseIsPressed) {
             mouseIsPressedInsideButton = true;
         }
     }
@@ -680,10 +723,10 @@ function rightChevronButton(x, y) {
 function optionSelector(options, pickedIndex, x, y, gapWidth) {
     var changedTo = -1;
     if (leftChevronButton(x, y)) {
-        changedTo = (pickedIndex - 1) % options.length;
+        changedTo = constrain(pickedIndex - 1, 0, options.length - 1);
     }
     if (rightChevronButton(x + 25 + gapWidth, y)) {
-        changedTo = (pickedIndex + 1) % options.length;
+        changedTo = constrain(pickedIndex + 1, 0, options.length - 1);
     }
     noStroke();
     fill(0);
