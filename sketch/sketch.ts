@@ -230,10 +230,10 @@ function menuButtons(): void {
     font: symbols,
   }
   if (muted) {
-    // Show unmute icon
+    // Show muted icon
     muteLabel.text = "\ueee8"
   } else {
-    // Show mute icon
+    // Show unmuted icon
     muteLabel.text = "\uf028"
   }
   if (textButton(muteLabel, 883, 678, 45, 33)) {
