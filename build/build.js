@@ -67,8 +67,7 @@ var Boat = (function () {
             this.rot = atan2(vy, vx);
             this.y = constrain(this.y, r, ostrov.height - r - 1);
         }
-        var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
-        var redValue = red(px);
+        var redValue = 1;
         if (redValue == 0) {
             this.rot += 180;
         }

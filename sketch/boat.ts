@@ -78,8 +78,8 @@ class Boat {
             this.y = constrain(this.y, r, ostrov.height - r - 1)
         }
 
-        const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
-        const redValue = red(px)
+        //const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
+        const redValue: number = 1 //red(px)
 
         // checkni naraz do ostrova
         if (redValue == 0) {
