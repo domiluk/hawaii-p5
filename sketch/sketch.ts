@@ -2,6 +2,7 @@
 // TODO: - debug
 
 // TODO: - better collision detection
+
 // TODO: - natrenovat AI
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
@@ -50,11 +51,11 @@ let raceTime: number
 
 const sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 let sfxIndex = 10
-let sfxVol = 100
+let sfxVol = 1 //100
 
 const musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 let musicIndex = 10
-let musicVol = 100
+let musicVol = 1 //100
 
 const lapsOptions = [1, 3, 5, 7]
 let lapsIndex = 1
@@ -74,6 +75,9 @@ let symbols: p5.Font
 
 let player1textBox: TextBox
 let player2textBox: TextBox
+
+let topLeftIslandStrings: string[]
+let topLeftIsland: Island
 
 function preload() {
   airstream = loadFont("fonts/airstream.ttf")
@@ -98,6 +102,8 @@ function preload() {
   spring.setVolume(0)
   mainSample = loadSound("sounds/main.wav")
   mainSample.setVolume(0)
+
+  topLeftIslandStrings = loadStrings("islands/topleft.txt")
 }
 
 function setup() {
@@ -117,6 +123,9 @@ function setup() {
   mainSample.setLoop(true)
   mainSample.play()
   switchScene(Scene.MAIN_MENU)
+
+  topLeftIsland = new Island()
+  topLeftIsland.load(topLeftIslandStrings)
 }
 
 function draw() {
@@ -150,7 +159,13 @@ function draw() {
   textAlign(LEFT, TOP)
   noStroke()
   fill(0)
-  text(mouseX + " : " + mouseY, 10, 10)
+  text(mouseX + " : " + mouseY, mouseX + 5, mouseY - 15)
+  if (scene == Scene.GAME && gameMode == Mode.SINGLEPLAYER) {
+    text(floor(mouseX + camleft1) + " : " + floor(mouseY + camup1), mouseX + 5, mouseY - 35)
+  }
+  stroke(0)
+  line(mouseX - 10, mouseY, mouseX + 10, mouseY)
+  line(mouseX, mouseY - 10, mouseX, mouseY + 10)
 
   dl_mouseIsPressed = false
 }
@@ -503,19 +518,16 @@ function game(): void {
     // update timer
     raceTime += deltaTime / 1000
 
+    // checkni naraz do lode
+    boat1.collideWith(boat2)
+
+    // update boat positions etc
     boat1.update()
     if (gameMode == Mode.MULTIPLAYER) {
       boat2.update()
-    }
-
-    // pohni za AIcku ak singleplayer
-    if (gameMode == Mode.SINGLEPLAYER) {
+    } else if (gameMode == Mode.SINGLEPLAYER) {
+      // pohni za AIcku ak singleplayer
       // TODO: implement this
-    }
-
-    // naraz do lode
-    if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
-      spring.play()
     }
   }
 
@@ -670,5 +682,7 @@ function drawGameCameras(): void {
 
     boat1.draw(null, camleft1, camup1)
     boat2.draw(null, camleft1, camup1)
+
+    topLeftIsland.draw(camleft1, camup1)
   }
 }

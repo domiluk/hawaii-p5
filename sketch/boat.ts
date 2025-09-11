@@ -1,3 +1,5 @@
+const BOAT_COLLISION_RADIUS = 28
+
 class Boat {
     x: number
     y: number
@@ -25,6 +27,9 @@ class Boat {
         g.translate(this.x - camleft, this.y - camup)
         g.rotate(this.rot + 90)
         g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2)
+        g.stroke(0)
+        g.noFill()
+        g.circle(0, 0, BOAT_COLLISION_RADIUS * 2)
         g.pop()
     }
 
@@ -110,6 +115,49 @@ class Boat {
 
         // pohni timer
         this.lapTime += deltaTime / 1000
+    }
+
+    collideWith(other: Boat) {
+        const distance = dist(this.x, this.y, other.x, other.y)
+        if (distance <= BOAT_COLLISION_RADIUS * 2) {
+            const impact = p5.Vector.sub(createVector(other.x, other.y), createVector(this.x, this.y))
+
+            // Push the boats out so they don't overlap
+            const overlap = BOAT_COLLISION_RADIUS * 2 - distance
+            const dir = impact.copy().setMag(0.5 * overlap)
+            this.x -= dir.x
+            this.y -= dir.y
+            other.x += dir.x
+            other.y += dir.y
+            const newDistance = BOAT_COLLISION_RADIUS * 2
+            impact.setMag(newDistance)
+
+            // Calculate new velocities
+            const m = 1
+            const mSum = 2 * m
+            const v1x = this.vel * cos(this.rot)
+            const v1y = this.vel * sin(this.rot)
+            const v2x = other.vel * cos(other.rot)
+            const v2y = other.vel * sin(other.rot)
+            const vDiff = p5.Vector.sub(createVector(v2x, v2y), createVector(v1x, v1y))
+
+            // This boat
+            const num = vDiff.dot(impact)
+            const den = newDistance * newDistance
+            const deltaV1 = impact.copy().mult(num / den)
+            const velocity1 = createVector(v1x, v1y).add(deltaV1)
+            this.vel = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y)
+            this.rot = atan2(velocity1.y, velocity1.x)
+
+            // Other boat
+            const deltaV2 = impact.copy().mult(-num / den)
+            const velocity2 = createVector(v2x, v2y).add(deltaV2)
+            other.vel = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y)
+            other.rot = atan2(velocity2.y, velocity2.x)
+
+            // Play sfx
+            spring.play()
+        }
     }
 }
 

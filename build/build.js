@@ -15,6 +15,7 @@ function getpixel(img, x, y) {
     var p = img.pixels;
     return color(p[i], p[i + 1], p[i + 2], p[i + 3]);
 }
+var BOAT_COLLISION_RADIUS = 28;
 var Boat = (function () {
     function Boat() {
     }
@@ -26,6 +27,9 @@ var Boat = (function () {
         g.translate(this.x - camleft, this.y - camup);
         g.rotate(this.rot + 90);
         g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2);
+        g.stroke(0);
+        g.noFill();
+        g.circle(0, 0, BOAT_COLLISION_RADIUS * 2);
         g.pop();
     };
     Boat.prototype.update = function () {
@@ -90,6 +94,38 @@ var Boat = (function () {
         this.y += sin(this.rot) * this.vel * deltaTime / 1000;
         this.lapTime += deltaTime / 1000;
     };
+    Boat.prototype.collideWith = function (other) {
+        var distance = dist(this.x, this.y, other.x, other.y);
+        if (distance <= BOAT_COLLISION_RADIUS * 2) {
+            var impact = p5.Vector.sub(createVector(other.x, other.y), createVector(this.x, this.y));
+            var overlap = BOAT_COLLISION_RADIUS * 2 - distance;
+            var dir = impact.copy().setMag(0.5 * overlap);
+            this.x -= dir.x;
+            this.y -= dir.y;
+            other.x += dir.x;
+            other.y += dir.y;
+            var newDistance = BOAT_COLLISION_RADIUS * 2;
+            impact.setMag(newDistance);
+            var m = 1;
+            var mSum = 2 * m;
+            var v1x = this.vel * cos(this.rot);
+            var v1y = this.vel * sin(this.rot);
+            var v2x = other.vel * cos(other.rot);
+            var v2y = other.vel * sin(other.rot);
+            var vDiff = p5.Vector.sub(createVector(v2x, v2y), createVector(v1x, v1y));
+            var num = vDiff.dot(impact);
+            var den = newDistance * newDistance;
+            var deltaV1 = impact.copy().mult(num / den);
+            var velocity1 = createVector(v1x, v1y).add(deltaV1);
+            this.vel = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y);
+            this.rot = atan2(velocity1.y, velocity1.x);
+            var deltaV2 = impact.copy().mult(-num / den);
+            var velocity2 = createVector(v2x, v2y).add(deltaV2);
+            other.vel = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y);
+            other.rot = atan2(velocity2.y, velocity2.x);
+            spring.play();
+        }
+    };
     return Boat;
 }());
 function resetBoats() {
@@ -126,6 +162,31 @@ function resetBoats() {
         right: 68
     };
 }
+var Island = (function () {
+    function Island() {
+        this.points = [];
+    }
+    Island.prototype.load = function (lines) {
+        for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+            var line_1 = lines_1[_i];
+            var _a = line_1.split(" ").map(function (number) { return parseInt(number); }), x = _a[0], y = _a[1];
+            this.points.push({ x: x, y: y });
+        }
+    };
+    Island.prototype.draw = function (camleft, camup) {
+        for (var i = 0; i < this.points.length; i++) {
+            var p1 = this.points[i];
+            var p2 = i + 1 == this.points.length ? this.points[0] : this.points[i + 1];
+            stroke(0);
+            line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup);
+        }
+        for (var _i = 0, _a = this.points; _i < _a.length; _i++) {
+            var point_1 = _a[_i];
+            ellipse(point_1.x - camleft, point_1.y - camup, 5, 5);
+        }
+    };
+    return Island;
+}());
 var LEADERBOARD_KEY = "hawaii-leaderboard-v1";
 var MAX_ENTRIES = 8;
 function saveToLeaderboard(name, lapTime) {
@@ -175,10 +236,10 @@ var muted = true;
 var raceTime;
 var sfxOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 var sfxIndex = 10;
-var sfxVol = 100;
+var sfxVol = 1;
 var musicOptions = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 var musicIndex = 10;
-var musicVol = 100;
+var musicVol = 1;
 var lapsOptions = [1, 3, 5, 7];
 var lapsIndex = 1;
 var nLaps = 3;
@@ -193,6 +254,8 @@ var airstream;
 var symbols;
 var player1textBox;
 var player2textBox;
+var topLeftIslandStrings;
+var topLeftIsland;
 function preload() {
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
@@ -213,6 +276,7 @@ function preload() {
     spring.setVolume(0);
     mainSample = loadSound("sounds/main.wav");
     mainSample.setVolume(0);
+    topLeftIslandStrings = loadStrings("islands/topleft.txt");
 }
 function setup() {
     createCanvas(1024, 768);
@@ -227,6 +291,8 @@ function setup() {
     mainSample.setLoop(true);
     mainSample.play();
     switchScene(Scene.MAIN_MENU);
+    topLeftIsland = new Island();
+    topLeftIsland.load(topLeftIslandStrings);
 }
 function draw() {
     background(0);
@@ -257,7 +323,13 @@ function draw() {
     textAlign(LEFT, TOP);
     noStroke();
     fill(0);
-    text(mouseX + " : " + mouseY, 10, 10);
+    text(mouseX + " : " + mouseY, mouseX + 5, mouseY - 15);
+    if (scene == Scene.GAME && gameMode == Mode.SINGLEPLAYER) {
+        text(floor(mouseX + camleft1) + " : " + floor(mouseY + camup1), mouseX + 5, mouseY - 35);
+    }
+    stroke(0);
+    line(mouseX - 10, mouseY, mouseX + 10, mouseY);
+    line(mouseX, mouseY - 10, mouseX, mouseY + 10);
     dl_mouseIsPressed = false;
 }
 function switchScene(newScene, reset) {
@@ -543,14 +615,12 @@ function game() {
             }
         }
         raceTime += deltaTime / 1000;
+        boat1.collideWith(boat2);
         boat1.update();
         if (gameMode == Mode.MULTIPLAYER) {
             boat2.update();
         }
-        if (gameMode == Mode.SINGLEPLAYER) {
-        }
-        if (dist(boat1.x, boat1.y, boat2.x, boat2.y) <= 90) {
-            spring.play();
+        else if (gameMode == Mode.SINGLEPLAYER) {
         }
     }
     drawGameCameras();
@@ -674,6 +744,7 @@ function drawGameCameras() {
         image(ostrov, -camleft1, -camup1);
         boat1.draw(null, camleft1, camup1);
         boat2.draw(null, camleft1, camup1);
+        topLeftIsland.draw(camleft1, camup1);
     }
 }
 var dl_mouseIsPressed = false;
