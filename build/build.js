@@ -732,6 +732,10 @@ function keyPressed() {
     if (scene == Scene.GAME) {
         if (keyCode == ESCAPE) {
             isPaused = !isPaused;
+            if (isPaused) {
+                dray.stop();
+                spring.stop();
+            }
         }
     }
 }

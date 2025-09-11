@@ -4,7 +4,6 @@
 // TODO: - better collision detection
 
 // TODO: - natrenovat AI
-// TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
 // TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
 // TODO: - dat prec debug rects a mouse vypis
 
@@ -658,6 +657,10 @@ function keyPressed(): void {
   if (scene == Scene.GAME) {
     if (keyCode == ESCAPE) {
       isPaused = !isPaused
+      if (isPaused) {
+        dray.stop()
+        spring.stop()
+      }
     }
   }
 }
