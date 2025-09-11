@@ -2,7 +2,6 @@
 // TODO: - debug
 
 // TODO: - better collision detection
-// TODO: - alpha the panel when boat is behind it
 
 // TODO: - natrenovat AI
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
@@ -542,7 +541,26 @@ function game(): void {
 }
 
 function drawTimerPanels(): void {
-  image(panel, 512 - 100, 0);
+  // if boat is behind the panel set it to transparent
+  let opacity = 255
+  if (gameMode == Mode.SINGLEPLAYER) {
+    const x = boat1.x - camleft1
+    const y = boat1.y - camup1
+    if (x > 512 - 100 && x < 512 + 100 && y < 100) {
+      opacity = 127
+    }
+  } else {
+    const x1 = boat1.x - camleft1
+    const y1 = boat1.y - camup1
+    const x2 = boat2.x - camleft2
+    const y2 = boat2.y - camup2
+    if ((x1 > 512 - 100 && x1 < 512 && y1 < 100) || (x2 > 0 && x2 < 100 && y2 < 100)) {
+      opacity = 127
+    }
+  }
+  tint(255, opacity)
+  image(panel, 512 - 100, 0)
+  tint(255, 255)
 
   textAlign(CENTER, TOP)
   noStroke()

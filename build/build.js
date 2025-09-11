@@ -631,7 +631,26 @@ function game() {
     }
 }
 function drawTimerPanels() {
+    var opacity = 255;
+    if (gameMode == Mode.SINGLEPLAYER) {
+        var x = boat1.x - camleft1;
+        var y = boat1.y - camup1;
+        if (x > 512 - 100 && x < 512 + 100 && y < 100) {
+            opacity = 127;
+        }
+    }
+    else {
+        var x1 = boat1.x - camleft1;
+        var y1 = boat1.y - camup1;
+        var x2 = boat2.x - camleft2;
+        var y2 = boat2.y - camup2;
+        if ((x1 > 512 - 100 && x1 < 512 && y1 < 100) || (x2 > 0 && x2 < 100 && y2 < 100)) {
+            opacity = 127;
+        }
+    }
+    tint(255, opacity);
     image(panel, 512 - 100, 0);
+    tint(255, 255);
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
