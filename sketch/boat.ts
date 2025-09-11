@@ -3,7 +3,7 @@ const BOAT_COLLISION_RADIUS = 28
 class Boat {
     x: number
     y: number
-    vel: number
+    speed: number
     rot: number
     round: number
     checkpoint1: boolean
@@ -37,21 +37,45 @@ class Boat {
         const gx: number = 0
         const gy: number = 0
 
-        // checkni naraz mimo mapy
-        if (this.x < BOAT_COLLISION_RADIUS || this.x >= ostrov.width - BOAT_COLLISION_RADIUS) {
-            const vx = -0.75 * cos(this.rot) * this.vel
-            const vy = sin(this.rot) * this.vel
-            this.vel = sqrt(vx * vx + vy * vy)
-            this.rot = atan2(vy, vx)
-            this.x = constrain(this.x, BOAT_COLLISION_RADIUS, ostrov.width - BOAT_COLLISION_RADIUS - 1)
+        // input
+        const accel = ACCEL * deltaTime / 1000
+        const slowdown = SLOWDOWN * deltaTime / 1000
+        const rotate_by = ROTATE_BY * deltaTime / 1000
+
+        if (keyIsDown(this.controls.up)) {
+            this.speed += accel
+        } else {
+            this.speed -= slowdown
         }
 
-        if (this.y < BOAT_COLLISION_RADIUS || this.y >= ostrov.height - BOAT_COLLISION_RADIUS) {
-            const vx = cos(this.rot) * this.vel
-            const vy = -0.75 * sin(this.rot) * this.vel
-            this.vel = sqrt(vx * vx + vy * vy)
+        if (keyIsDown(this.controls.down)) {
+            this.speed -= slowdown
+        }
+
+        if (keyIsDown(this.controls.left)) {
+            this.rot -= rotate_by
+        }
+
+        if (keyIsDown(this.controls.right)) {
+            this.rot += rotate_by
+        }
+
+        // limit speed
+        this.speed = constrain(this.speed, 0, MAX_SPEED)
+
+        // check collision with map edges
+        const r = BOAT_COLLISION_RADIUS
+        let vx = this.speed * cos(this.rot)
+        let vy = this.speed * sin(this.rot)
+        if ((this.x - r < 0 && vx < 0) || (this.x + r >= ostrov.width && vx > 0)) {
+            vx *= -0.75
             this.rot = atan2(vy, vx)
-            this.y = constrain(this.y, BOAT_COLLISION_RADIUS, ostrov.height - BOAT_COLLISION_RADIUS - 1)
+            this.x = constrain(this.x, r, ostrov.width - r - 1)
+        }
+        if ((this.y - r < 0 && vy < 0) || (this.y + r >= ostrov.height && vy > 0)) {
+            vy *= -0.75
+            this.rot = atan2(vy, vx)
+            this.y = constrain(this.y, r, ostrov.height - r - 1)
         }
 
         const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
@@ -88,32 +112,11 @@ class Boat {
             dray.play()
         }
 
+        // move the boat
+        this.x += this.speed * cos(this.rot) * deltaTime / 1000
+        this.y += this.speed * sin(this.rot) * deltaTime / 1000
 
-        // input
-        if (keyIsDown(this.controls.up)) {
-            this.vel += ACCEL * deltaTime / 1000
-        } else {
-            this.vel -= SLOWDOWN * deltaTime / 1000
-        }
-
-        if (keyIsDown(this.controls.down)) {
-            this.vel -= SLOWDOWN * deltaTime / 1000
-        }
-
-        if (keyIsDown(this.controls.left)) {
-            this.rot -= ROTATE_BY * deltaTime / 1000
-        }
-
-        if (keyIsDown(this.controls.right)) {
-            this.rot += ROTATE_BY * deltaTime / 1000
-        }
-
-        // pohni lodou
-        this.vel = constrain(this.vel, 0, MAX_SPEED)
-        this.x += cos(this.rot) * this.vel * deltaTime / 1000
-        this.y += sin(this.rot) * this.vel * deltaTime / 1000
-
-        // pohni timer
+        // move timer
         this.lapTime += deltaTime / 1000
     }
 
@@ -133,12 +136,10 @@ class Boat {
             impact.setMag(newDistance)
 
             // Calculate new velocities
-            const m = 1
-            const mSum = 2 * m
-            const v1x = this.vel * cos(this.rot)
-            const v1y = this.vel * sin(this.rot)
-            const v2x = other.vel * cos(other.rot)
-            const v2y = other.vel * sin(other.rot)
+            const v1x = this.speed * cos(this.rot)
+            const v1y = this.speed * sin(this.rot)
+            const v2x = other.speed * cos(other.rot)
+            const v2y = other.speed * sin(other.rot)
             const vDiff = p5.Vector.sub(createVector(v2x, v2y), createVector(v1x, v1y))
 
             // This boat
@@ -146,13 +147,13 @@ class Boat {
             const den = newDistance * newDistance
             const deltaV1 = impact.copy().mult(num / den)
             const velocity1 = createVector(v1x, v1y).add(deltaV1)
-            this.vel = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y)
+            this.speed = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y)
             this.rot = atan2(velocity1.y, velocity1.x)
 
             // Other boat
             const deltaV2 = impact.copy().mult(-num / den)
             const velocity2 = createVector(v2x, v2y).add(deltaV2)
-            other.vel = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y)
+            other.speed = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y)
             other.rot = atan2(velocity2.y, velocity2.x)
 
             // Play sfx
@@ -168,11 +169,10 @@ function resetBoats(): void {
     boat1.checkpoint1 = false
     boat1.checkpoint2 = false
     boat1.checkpoint3 = false
-    boat1.vel = 0
+    boat1.speed = 0
     boat1.rot = -54
     boat1.lapTime = 0
     boat1.bestLapTime = Infinity
-    // boat1.speed = 5.0
     boat1.controls = {
         up: UP_ARROW,
         down: DOWN_ARROW,
@@ -186,7 +186,7 @@ function resetBoats(): void {
     boat2.checkpoint1 = false
     boat2.checkpoint2 = false
     boat2.checkpoint3 = false
-    boat2.vel = 0
+    boat2.speed = 0
     boat2.rot = -54
     boat2.lapTime = 0
     boat2.bestLapTime = Infinity

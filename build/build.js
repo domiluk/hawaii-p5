@@ -35,19 +35,37 @@ var Boat = (function () {
     Boat.prototype.update = function () {
         var gx = 0;
         var gy = 0;
-        if (this.x < BOAT_COLLISION_RADIUS || this.x >= ostrov.width - BOAT_COLLISION_RADIUS) {
-            var vx = -0.75 * cos(this.rot) * this.vel;
-            var vy = sin(this.rot) * this.vel;
-            this.vel = sqrt(vx * vx + vy * vy);
-            this.rot = atan2(vy, vx);
-            this.x = constrain(this.x, BOAT_COLLISION_RADIUS, ostrov.width - BOAT_COLLISION_RADIUS - 1);
+        var accel = ACCEL * deltaTime / 1000;
+        var slowdown = SLOWDOWN * deltaTime / 1000;
+        var rotate_by = ROTATE_BY * deltaTime / 1000;
+        if (keyIsDown(this.controls.up)) {
+            this.speed += accel;
         }
-        if (this.y < BOAT_COLLISION_RADIUS || this.y >= ostrov.height - BOAT_COLLISION_RADIUS) {
-            var vx = cos(this.rot) * this.vel;
-            var vy = -0.75 * sin(this.rot) * this.vel;
-            this.vel = sqrt(vx * vx + vy * vy);
+        else {
+            this.speed -= slowdown;
+        }
+        if (keyIsDown(this.controls.down)) {
+            this.speed -= slowdown;
+        }
+        if (keyIsDown(this.controls.left)) {
+            this.rot -= rotate_by;
+        }
+        if (keyIsDown(this.controls.right)) {
+            this.rot += rotate_by;
+        }
+        this.speed = constrain(this.speed, 0, MAX_SPEED);
+        var r = BOAT_COLLISION_RADIUS;
+        var vx = this.speed * cos(this.rot);
+        var vy = this.speed * sin(this.rot);
+        if ((this.x - r < 0 && vx < 0) || (this.x + r >= ostrov.width && vx > 0)) {
+            vx *= -0.75;
             this.rot = atan2(vy, vx);
-            this.y = constrain(this.y, BOAT_COLLISION_RADIUS, ostrov.height - BOAT_COLLISION_RADIUS - 1);
+            this.x = constrain(this.x, r, ostrov.width - r - 1);
+        }
+        if ((this.y - r < 0 && vy < 0) || (this.y + r >= ostrov.height && vy > 0)) {
+            vy *= -0.75;
+            this.rot = atan2(vy, vx);
+            this.y = constrain(this.y, r, ostrov.height - r - 1);
         }
         var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
         var redValue = red(px);
@@ -74,24 +92,8 @@ var Boat = (function () {
             this.round++;
             dray.play();
         }
-        if (keyIsDown(this.controls.up)) {
-            this.vel += ACCEL * deltaTime / 1000;
-        }
-        else {
-            this.vel -= SLOWDOWN * deltaTime / 1000;
-        }
-        if (keyIsDown(this.controls.down)) {
-            this.vel -= SLOWDOWN * deltaTime / 1000;
-        }
-        if (keyIsDown(this.controls.left)) {
-            this.rot -= ROTATE_BY * deltaTime / 1000;
-        }
-        if (keyIsDown(this.controls.right)) {
-            this.rot += ROTATE_BY * deltaTime / 1000;
-        }
-        this.vel = constrain(this.vel, 0, MAX_SPEED);
-        this.x += cos(this.rot) * this.vel * deltaTime / 1000;
-        this.y += sin(this.rot) * this.vel * deltaTime / 1000;
+        this.x += this.speed * cos(this.rot) * deltaTime / 1000;
+        this.y += this.speed * sin(this.rot) * deltaTime / 1000;
         this.lapTime += deltaTime / 1000;
     };
     Boat.prototype.collideWith = function (other) {
@@ -106,22 +108,20 @@ var Boat = (function () {
             other.y += dir.y;
             var newDistance = BOAT_COLLISION_RADIUS * 2;
             impact.setMag(newDistance);
-            var m = 1;
-            var mSum = 2 * m;
-            var v1x = this.vel * cos(this.rot);
-            var v1y = this.vel * sin(this.rot);
-            var v2x = other.vel * cos(other.rot);
-            var v2y = other.vel * sin(other.rot);
+            var v1x = this.speed * cos(this.rot);
+            var v1y = this.speed * sin(this.rot);
+            var v2x = other.speed * cos(other.rot);
+            var v2y = other.speed * sin(other.rot);
             var vDiff = p5.Vector.sub(createVector(v2x, v2y), createVector(v1x, v1y));
             var num = vDiff.dot(impact);
             var den = newDistance * newDistance;
             var deltaV1 = impact.copy().mult(num / den);
             var velocity1 = createVector(v1x, v1y).add(deltaV1);
-            this.vel = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y);
+            this.speed = sqrt(velocity1.x * velocity1.x + velocity1.y * velocity1.y);
             this.rot = atan2(velocity1.y, velocity1.x);
             var deltaV2 = impact.copy().mult(-num / den);
             var velocity2 = createVector(v2x, v2y).add(deltaV2);
-            other.vel = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y);
+            other.speed = sqrt(velocity2.x * velocity2.x + velocity2.y * velocity2.y);
             other.rot = atan2(velocity2.y, velocity2.x);
             spring.play();
         }
@@ -135,7 +135,7 @@ function resetBoats() {
     boat1.checkpoint1 = false;
     boat1.checkpoint2 = false;
     boat1.checkpoint3 = false;
-    boat1.vel = 0;
+    boat1.speed = 0;
     boat1.rot = -54;
     boat1.lapTime = 0;
     boat1.bestLapTime = Infinity;
@@ -151,7 +151,7 @@ function resetBoats() {
     boat2.checkpoint1 = false;
     boat2.checkpoint2 = false;
     boat2.checkpoint3 = false;
-    boat2.vel = 0;
+    boat2.speed = 0;
     boat2.rot = -54;
     boat2.lapTime = 0;
     boat2.bestLapTime = Infinity;
@@ -621,6 +621,7 @@ function game() {
             boat2.update();
         }
         else if (gameMode == Mode.SINGLEPLAYER) {
+            boat2.update();
         }
     }
     drawGameCameras();

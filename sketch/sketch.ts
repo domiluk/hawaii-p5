@@ -2,6 +2,7 @@
 // TODO: - debug
 
 // TODO: - better collision detection
+// TODO: - alpha the panel when boat is behind it
 
 // TODO: - natrenovat AI
 // TODO: - on game exit (mozno on escape) vsetky zvuky (sfx) skoncit prehravat
@@ -518,7 +519,7 @@ function game(): void {
     // update timer
     raceTime += deltaTime / 1000
 
-    // checkni naraz do lode
+    // check boat collisions
     boat1.collideWith(boat2)
 
     // update boat positions etc
@@ -526,8 +527,9 @@ function game(): void {
     if (gameMode == Mode.MULTIPLAYER) {
       boat2.update()
     } else if (gameMode == Mode.SINGLEPLAYER) {
-      // pohni za AIcku ak singleplayer
-      // TODO: implement this
+      // move for AI
+      // TODO: implement AI
+      boat2.update() // TODO: get rid of this
     }
   }
 
