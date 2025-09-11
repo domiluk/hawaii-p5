@@ -3,8 +3,9 @@
 
 // TODO: - better collision detection
 
+// TODO: - OTESTOVAT NA PC: bez getpixelu ci to pojde rychlejsie alebo nie
+// TODO: - OTESTOVAT NA PC: keypressed/keytyped: when space or backspace etc do not do default browser behaviour
 // TODO: - natrenovat AI
-// TODO: - keypressed/keytyped: when space or backspace etc do not do default browser behaviour
 // TODO: - dat prec debug rects a mouse vypis
 
 type SAMPLE = p5.SoundFile
