@@ -65,31 +65,24 @@ class Boat {
 
         // check collision with map edges
         const r = BOAT_COLLISION_RADIUS
-        let vx = this.speed * cos(this.rot)
-        let vy = this.speed * sin(this.rot)
+        const vx = this.speed * cos(this.rot)
+        const vy = this.speed * sin(this.rot)
         if ((this.x - r < 0 && vx < 0) || (this.x + r >= ostrov.width && vx > 0)) {
-            vx *= -0.75
-            this.rot = atan2(vy, vx)
+            this.speed *= 0.5
+            this.rot = atan2(vy, -vx)
             this.x = constrain(this.x, r, ostrov.width - r - 1)
         }
         if ((this.y - r < 0 && vy < 0) || (this.y + r >= ostrov.height && vy > 0)) {
-            vy *= -0.75
-            this.rot = atan2(vy, vx)
+            this.speed *= 0.5
+            this.rot = atan2(-vy, vx)
             this.y = constrain(this.y, r, ostrov.height - r - 1)
         }
 
         const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
         const redValue = red(px)
 
-        // checkni naraz do ostrova
-        if (redValue == 0) {
-            // this.vel *= 0.75
-            // this.vel *= -1
-            this.rot += 180
-        }
-
         // checkni naraz do checkpointov
-        else if (redValue == 64) {
+        if (redValue == 64) {
             this.checkpoint1 = true
         }
         else if (redValue == 128) {

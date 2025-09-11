@@ -3,8 +3,6 @@
 
 // TODO: - better collision detection
 
-// TODO: - OTESTOVAT NA PC: bez getpixelu ci to pojde rychlejsie alebo nie
-// TODO: - OTESTOVAT NA PC: keypressed/keytyped: when space or backspace etc do not do default browser behaviour
 // TODO: - natrenovat AI
 // TODO: - dat prec debug rects a mouse vypis
 
@@ -521,6 +519,9 @@ function game(): void {
     // check boat collisions
     boat1.collideWith(boat2)
 
+    topLeftIsland.collideWith(boat1)
+    topLeftIsland.collideWith(boat2)
+
     // update boat positions etc
     boat1.update()
     if (gameMode == Mode.MULTIPLAYER) {
@@ -697,8 +698,7 @@ function drawGameCameras(): void {
     stroke(0)
     line(512, 0, 512, 768)
   }
-
-  if (gameMode == Mode.SINGLEPLAYER) {
+  else if (gameMode == Mode.SINGLEPLAYER) {
     camleft1 = constrain(boat1.x - 512, 0, ostrov.width - 1024)
     camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768)
 
