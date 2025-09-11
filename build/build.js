@@ -35,19 +35,19 @@ var Boat = (function () {
     Boat.prototype.update = function () {
         var gx = 0;
         var gy = 0;
-        if (this.x < 0 || this.x >= ostrov.width) {
+        if (this.x < BOAT_COLLISION_RADIUS || this.x >= ostrov.width - BOAT_COLLISION_RADIUS) {
             var vx = -0.75 * cos(this.rot) * this.vel;
             var vy = sin(this.rot) * this.vel;
             this.vel = sqrt(vx * vx + vy * vy);
             this.rot = atan2(vy, vx);
-            this.x = constrain(this.x, 0, ostrov.width - 1);
+            this.x = constrain(this.x, BOAT_COLLISION_RADIUS, ostrov.width - BOAT_COLLISION_RADIUS - 1);
         }
-        if (this.y < 0 || this.y >= ostrov.height) {
+        if (this.y < BOAT_COLLISION_RADIUS || this.y >= ostrov.height - BOAT_COLLISION_RADIUS) {
             var vx = cos(this.rot) * this.vel;
             var vy = -0.75 * sin(this.rot) * this.vel;
             this.vel = sqrt(vx * vx + vy * vy);
             this.rot = atan2(vy, vx);
-            this.y = constrain(this.y, 0, ostrov.height - 1);
+            this.y = constrain(this.y, BOAT_COLLISION_RADIUS, ostrov.height - BOAT_COLLISION_RADIUS - 1);
         }
         var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
         var redValue = red(px);

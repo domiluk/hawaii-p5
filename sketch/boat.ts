@@ -38,20 +38,20 @@ class Boat {
         const gy: number = 0
 
         // checkni naraz mimo mapy
-        if (this.x < 0 || this.x >= ostrov.width) {
+        if (this.x < BOAT_COLLISION_RADIUS || this.x >= ostrov.width - BOAT_COLLISION_RADIUS) {
             const vx = -0.75 * cos(this.rot) * this.vel
             const vy = sin(this.rot) * this.vel
             this.vel = sqrt(vx * vx + vy * vy)
             this.rot = atan2(vy, vx)
-            this.x = constrain(this.x, 0, ostrov.width - 1)
+            this.x = constrain(this.x, BOAT_COLLISION_RADIUS, ostrov.width - BOAT_COLLISION_RADIUS - 1)
         }
 
-        if (this.y < 0 || this.y >= ostrov.height) {
+        if (this.y < BOAT_COLLISION_RADIUS || this.y >= ostrov.height - BOAT_COLLISION_RADIUS) {
             const vx = cos(this.rot) * this.vel
             const vy = -0.75 * sin(this.rot) * this.vel
             this.vel = sqrt(vx * vx + vy * vy)
             this.rot = atan2(vy, vx)
-            this.y = constrain(this.y, 0, ostrov.height - 1)
+            this.y = constrain(this.y, BOAT_COLLISION_RADIUS, ostrov.height - BOAT_COLLISION_RADIUS - 1)
         }
 
         const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
