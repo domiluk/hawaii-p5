@@ -10,7 +10,6 @@ function getpixel(img, x, y) {
     y = floor(y);
     if (x < 0 || y < 0 || x >= img.width || y >= img.height)
         return color(0);
-    img.loadPixels();
     var i = 4 * (y * img.width + x);
     var p = img.pixels;
     return color(p[i], p[i + 1], p[i + 2], p[i + 3]);
@@ -363,6 +362,7 @@ function setup() {
     topLeftIsland.load(topLeftIslandStrings);
     bottomRightIsland = new Island();
     bottomRightIsland.load(bottomRightIslandStrings);
+    alphaOstrov.loadPixels();
 }
 function draw() {
     background(0);

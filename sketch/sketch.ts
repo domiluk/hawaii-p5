@@ -134,6 +134,8 @@ function setup() {
 
   bottomRightIsland = new Island()
   bottomRightIsland.load(bottomRightIslandStrings)
+
+  alphaOstrov.loadPixels()
 }
 
 function draw() {
