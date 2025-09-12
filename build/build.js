@@ -264,6 +264,9 @@ function getLeaderboard() {
         return [];
     return JSON.parse(stored);
 }
+var DT_HISTORY_LENGTH = 400;
+var dtHistory = [];
+var dtHistoryIndex = 0;
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
@@ -398,6 +401,20 @@ function draw() {
     stroke(0);
     line(mouseX - 10, mouseY, mouseX + 10, mouseY);
     line(mouseX, mouseY - 10, mouseX, mouseY + 10);
+    dtHistory[dtHistoryIndex] = Math.round(deltaTime);
+    for (var i = 0; i < dtHistory.length; i++) {
+        stroke(0);
+        var diffFromCurrent = dtHistoryIndex - i;
+        if (diffFromCurrent < 0) {
+            diffFromCurrent += DT_HISTORY_LENGTH;
+        }
+        if (diffFromCurrent > DT_HISTORY_LENGTH - 255) {
+            stroke(0, 255 - (diffFromCurrent - DT_HISTORY_LENGTH + 255));
+        }
+        var x = 1024 - DT_HISTORY_LENGTH - 10 + i;
+        line(x, 100 - dtHistory[i], x, 100);
+    }
+    dtHistoryIndex = (dtHistoryIndex + 1) % DT_HISTORY_LENGTH;
     dl_mouseIsPressed = false;
 }
 function switchScene(newScene, reset) {

@@ -6,6 +6,10 @@
 // TODO: - natrenovat AI
 // TODO: - dat prec debug rects a mouse vypis
 
+const DT_HISTORY_LENGTH = 400
+const dtHistory: number[] = []
+let dtHistoryIndex = 0
+
 type SAMPLE = p5.SoundFile
 
 enum Mode {
@@ -171,6 +175,25 @@ function draw() {
   stroke(0)
   line(mouseX - 10, mouseY, mouseX + 10, mouseY)
   line(mouseX, mouseY - 10, mouseX, mouseY + 10)
+
+  // DELTA TIME HISTORY
+  dtHistory[dtHistoryIndex] = Math.round(deltaTime)
+
+  for (let i = 0; i < dtHistory.length; i++) {
+    stroke(0)
+    let diffFromCurrent = dtHistoryIndex - i
+    // Fix for wrapped around values
+    if (diffFromCurrent < 0) {
+      diffFromCurrent += DT_HISTORY_LENGTH
+    }
+    if (diffFromCurrent > DT_HISTORY_LENGTH - 255) {
+      stroke(0, 255 - (diffFromCurrent - DT_HISTORY_LENGTH + 255))
+    }
+    const x = 1024 - DT_HISTORY_LENGTH - 10 + i
+    line(x, 100 - dtHistory[i], x, 100)
+  }
+
+  dtHistoryIndex = (dtHistoryIndex + 1) % DT_HISTORY_LENGTH
 
   dl_mouseIsPressed = false
 }
