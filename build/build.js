@@ -318,6 +318,8 @@ var player1textBox;
 var player2textBox;
 var topLeftIslandStrings;
 var topLeftIsland;
+var bottomRightIslandStrings;
+var bottomRightIsland;
 function preload() {
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
@@ -339,6 +341,7 @@ function preload() {
     mainSample = loadSound("sounds/main.wav");
     mainSample.setVolume(0);
     topLeftIslandStrings = loadStrings("islands/topleft.txt");
+    bottomRightIslandStrings = loadStrings("islands/bottomright.txt");
 }
 function setup() {
     createCanvas(1024, 768);
@@ -355,6 +358,8 @@ function setup() {
     switchScene(Scene.MAIN_MENU);
     topLeftIsland = new Island();
     topLeftIsland.load(topLeftIslandStrings);
+    bottomRightIsland = new Island();
+    bottomRightIsland.load(bottomRightIslandStrings);
 }
 function draw() {
     background(0);
@@ -389,6 +394,7 @@ function draw() {
     if (scene == Scene.GAME && gameMode == Mode.SINGLEPLAYER) {
         text(floor(mouseX + camleft1) + " : " + floor(mouseY + camup1), mouseX + 5, mouseY - 35);
     }
+    text("FPS: " + floor(frameRate()), mouseX + 5, mouseY - 55);
     stroke(0);
     line(mouseX - 10, mouseY, mouseX + 10, mouseY);
     line(mouseX, mouseY - 10, mouseX, mouseY + 10);
@@ -680,6 +686,8 @@ function game() {
         boat1.collideWith(boat2);
         topLeftIsland.collideWith(boat1);
         topLeftIsland.collideWith(boat2);
+        bottomRightIsland.collideWith(boat1);
+        bottomRightIsland.collideWith(boat2);
         boat1.update();
         if (gameMode == Mode.MULTIPLAYER) {
             boat2.update();
@@ -833,6 +841,7 @@ function drawGameCameras() {
         boat1.draw(null, camleft1, camup1);
         boat2.draw(null, camleft1, camup1);
         topLeftIsland.draw(camleft1, camup1);
+        bottomRightIsland.draw(camleft1, camup1);
     }
 }
 var dl_mouseIsPressed = false;

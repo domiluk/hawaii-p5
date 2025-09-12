@@ -76,6 +76,8 @@ let player2textBox: TextBox
 
 let topLeftIslandStrings: string[]
 let topLeftIsland: Island
+let bottomRightIslandStrings: string[]
+let bottomRightIsland: Island
 
 function preload() {
   airstream = loadFont("fonts/airstream.ttf")
@@ -102,6 +104,7 @@ function preload() {
   mainSample.setVolume(0)
 
   topLeftIslandStrings = loadStrings("islands/topleft.txt")
+  bottomRightIslandStrings = loadStrings("islands/bottomright.txt")
 }
 
 function setup() {
@@ -124,6 +127,9 @@ function setup() {
 
   topLeftIsland = new Island()
   topLeftIsland.load(topLeftIslandStrings)
+
+  bottomRightIsland = new Island()
+  bottomRightIsland.load(bottomRightIslandStrings)
 }
 
 function draw() {
@@ -161,6 +167,7 @@ function draw() {
   if (scene == Scene.GAME && gameMode == Mode.SINGLEPLAYER) {
     text(floor(mouseX + camleft1) + " : " + floor(mouseY + camup1), mouseX + 5, mouseY - 35)
   }
+  text("FPS: " + floor(frameRate()), mouseX + 5, mouseY - 55)
   stroke(0)
   line(mouseX - 10, mouseY, mouseX + 10, mouseY)
   line(mouseX, mouseY - 10, mouseX, mouseY + 10)
@@ -519,8 +526,11 @@ function game(): void {
     // check boat collisions
     boat1.collideWith(boat2)
 
+    // check island collisions
     topLeftIsland.collideWith(boat1)
     topLeftIsland.collideWith(boat2)
+    bottomRightIsland.collideWith(boat1)
+    bottomRightIsland.collideWith(boat2)
 
     // update boat positions etc
     boat1.update()
@@ -708,5 +718,6 @@ function drawGameCameras(): void {
     boat2.draw(null, camleft1, camup1)
 
     topLeftIsland.draw(camleft1, camup1)
+    bottomRightIsland.draw(camleft1, camup1)
   }
 }
