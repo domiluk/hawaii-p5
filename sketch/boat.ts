@@ -1,4 +1,8 @@
 const BOAT_COLLISION_RADIUS = 28
+const ROTATE_BY = 1.5 * 60 // px/s
+const MAX_SPEED = 6.5 * 60 // px/s, originally 10
+const ACCEL = 0.05 * 3600 // px/s²
+const SLOWDOWN = 0.08 * 3600 // px/s²
 
 class Boat {
     x: number
