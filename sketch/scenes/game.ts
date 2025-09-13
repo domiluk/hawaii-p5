@@ -1,5 +1,5 @@
 class GameScene extends Scene {
-    update(): void {
+    override update(): void {
         if (!isPaused) {
             // win conditions
             if (boat1.round == nLaps || boat2.round == nLaps) {
@@ -36,7 +36,7 @@ class GameScene extends Scene {
         }
     }
 
-    draw(): void {
+    override draw(): void {
         this.drawGameCameras()
         this.drawTimerPanels()
 
@@ -45,7 +45,7 @@ class GameScene extends Scene {
         }
     }
 
-    enter(): void {
+    override enter(): void {
         resetBoats()
         raceTime = 0
     }
@@ -183,6 +183,16 @@ class GameScene extends Scene {
             fill(255)
         }
         text("Main Menu", width / 2, mainMenuY)
+    }
+
+    override keyPressed(): void {
+        if (keyCode == ESCAPE) {
+            isPaused = !isPaused
+            if (isPaused) {
+                dray.stop()
+                spring.stop()
+            }
+        }
     }
 }
 

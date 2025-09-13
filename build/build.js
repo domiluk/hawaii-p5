@@ -303,16 +303,23 @@ var Scene = (function () {
     Scene.prototype.update = function () { };
     Scene.prototype.enter = function () { };
     Scene.prototype.exit = function () { };
+    Scene.prototype.keyPressed = function () { };
+    Scene.prototype.keyReleased = function () { };
+    Scene.prototype.keyTyped = function () { };
+    Scene.prototype.mouseMoved = function () { };
+    Scene.prototype.mousePressed = function () { };
+    Scene.prototype.mouseReleased = function () { };
     return Scene;
 }());
 var SceneManager = (function () {
-    function SceneManager(scenes) {
+    function SceneManager(scenes, initialScene) {
         var _this = this;
         this.scenes = new Map();
         Object.entries(scenes).forEach(function (_a) {
             var id = _a[0], Scene = _a[1];
             _this.scenes.set(id, new Scene());
         });
+        this.switchTo(initialScene);
     }
     SceneManager.prototype.switchTo = function (name) {
         var _a, _b;
@@ -336,6 +343,30 @@ var SceneManager = (function () {
     SceneManager.prototype.getCurrentSceneName = function () {
         return this.currentSceneName;
     };
+    SceneManager.prototype.keyPressed = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyPressed();
+    };
+    SceneManager.prototype.keyReleased = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyReleased();
+    };
+    SceneManager.prototype.keyTyped = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyTyped();
+    };
+    SceneManager.prototype.mouseMoved = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseMoved();
+    };
+    SceneManager.prototype.mousePressed = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mousePressed();
+    };
+    SceneManager.prototype.mouseReleased = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseReleased();
+    };
     return SceneManager;
 }());
 var DT_HISTORY_LENGTH = 400;
@@ -347,6 +378,16 @@ var Mode;
     Mode[Mode["MULTIPLAYER"] = 1] = "MULTIPLAYER";
 })(Mode || (Mode = {}));
 var gameMode = Mode.SINGLEPLAYER;
+var HawaiiScene;
+(function (HawaiiScene) {
+    HawaiiScene["MAIN_MENU"] = "main menu";
+    HawaiiScene["PLAY_MENU"] = "play menu";
+    HawaiiScene["OPTIONS"] = "options";
+    HawaiiScene["CREDITS"] = "credits";
+    HawaiiScene["LEADERBOARD"] = "leaderboard";
+    HawaiiScene["GAME"] = "game";
+    HawaiiScene["GAME_OVER"] = "game over";
+})(HawaiiScene || (HawaiiScene = {}));
 var sceneManager;
 var uiManager;
 var isPaused = false;
@@ -359,6 +400,8 @@ var rightBuffer;
 var ostrov;
 var alphaOstrov;
 var panel;
+var lodCervena;
+var lodZelena;
 var dray;
 var spring;
 var mainSample;
@@ -389,37 +432,32 @@ function preload() {
     symbols = loadFont("fonts/symbols.ttf");
     leftBuffer = createGraphics(512, 768);
     rightBuffer = createGraphics(512, 768);
-    boat1 = new Boat();
-    boat2 = new Boat();
-    boat1.bmp = loadImage("images/lodcervena.png");
-    boat2.bmp = loadImage("images/lodzelena.png");
+    lodCervena = loadImage("images/lodcervena.png");
+    lodZelena = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
     alphaOstrov = loadImage("images/alpha1.png");
     menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.png");
     soundFormats('wav');
     dray = loadSound("sounds/dray.wav");
-    dray.setVolume(0);
     spring = loadSound("sounds/spring.wav");
-    spring.setVolume(0);
     mainSample = loadSound("sounds/main.wav");
-    mainSample.setVolume(0);
     topLeftIslandStrings = loadStrings("islands/topleft.txt");
     bottomRightIslandStrings = loadStrings("islands/bottomright.txt");
 }
 function setup() {
+    var _a;
     createCanvas(1024, 768);
-    var scenes = {
-        'main menu': MainMenuScene,
-        'play menu': PlayMenuScene,
-        'options': OptionsScene,
-        'credits': CreditsScene,
-        'leaderboard': LeaderboardScene,
-        'game': GameScene,
-        'game over': GameOverScene,
-    };
-    sceneManager = new SceneManager(scenes);
-    sceneManager.switchTo('main menu');
+    var scenes = (_a = {},
+        _a["main menu"] = MainMenuScene,
+        _a["play menu"] = PlayMenuScene,
+        _a["options"] = OptionsScene,
+        _a["credits"] = CreditsScene,
+        _a["leaderboard"] = LeaderboardScene,
+        _a["game"] = GameScene,
+        _a["game over"] = GameOverScene,
+        _a);
+    sceneManager = new SceneManager(scenes, "main menu");
     player1textBox = new TextBox("Name:", 8, 190, 295);
     player2textBox = new TextBox("Name:", 8, 190, 405);
     uiManager = new UIManager();
@@ -429,7 +467,14 @@ function setup() {
     leftBuffer.angleMode(DEGREES);
     rightBuffer.angleMode(DEGREES);
     textFont(airstream);
+    boat1 = new Boat();
+    boat2 = new Boat();
+    boat1.bmp = lodCervena;
+    boat2.bmp = lodZelena;
     resetBoats();
+    dray.setVolume(0);
+    spring.setVolume(0);
+    mainSample.setVolume(0);
     mainSample.setLoop(true);
     mainSample.play();
     topLeftIsland = new Island();
@@ -463,18 +508,10 @@ function mouseMoved() {
     uiManager.mouseMoved();
 }
 function keyPressed() {
+    sceneManager.keyPressed();
     uiManager.keyPressed();
     if (key == "m") {
         toggleMute();
-    }
-    if (sceneManager.getCurrentSceneName() == "game") {
-        if (keyCode == ESCAPE) {
-            isPaused = !isPaused;
-            if (isPaused) {
-                dray.stop();
-                spring.stop();
-            }
-        }
     }
 }
 function keyTyped() {
@@ -866,6 +903,15 @@ var GameScene = (function (_super) {
             fill(255);
         }
         text("Main Menu", width / 2, mainMenuY);
+    };
+    GameScene.prototype.keyPressed = function () {
+        if (keyCode == ESCAPE) {
+            isPaused = !isPaused;
+            if (isPaused) {
+                dray.stop();
+                spring.stop();
+            }
+        }
     };
     return GameScene;
 }(Scene));
