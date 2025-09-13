@@ -1,3 +1,5 @@
+/// <reference path="../p5-gamedev-framework/scene-manager.ts" />
+
 class OptionsScene extends Scene {
     override enter(): void {
         uiManager.setActiveGroup("options")

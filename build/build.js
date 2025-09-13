@@ -297,78 +297,6 @@ function getLeaderboard() {
         return [];
     return JSON.parse(stored);
 }
-var Scene = (function () {
-    function Scene() {
-    }
-    Scene.prototype.update = function () { };
-    Scene.prototype.enter = function () { };
-    Scene.prototype.exit = function () { };
-    Scene.prototype.keyPressed = function () { };
-    Scene.prototype.keyReleased = function () { };
-    Scene.prototype.keyTyped = function () { };
-    Scene.prototype.mouseMoved = function () { };
-    Scene.prototype.mousePressed = function () { };
-    Scene.prototype.mouseReleased = function () { };
-    return Scene;
-}());
-var SceneManager = (function () {
-    function SceneManager(scenes, initialScene) {
-        var _this = this;
-        this.scenes = new Map();
-        Object.entries(scenes).forEach(function (_a) {
-            var id = _a[0], Scene = _a[1];
-            _this.scenes.set(id, new Scene());
-        });
-        this.switchTo(initialScene);
-    }
-    SceneManager.prototype.switchTo = function (name) {
-        var _a, _b;
-        if (!this.scenes.has(name)) {
-            console.error("Scene ".concat(name, " not found"));
-            return;
-        }
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.exit();
-        this.currentSceneName = name;
-        this.currentScene = this.scenes.get(name);
-        (_b = this.currentScene) === null || _b === void 0 ? void 0 : _b.enter();
-    };
-    SceneManager.prototype.update = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.update();
-    };
-    SceneManager.prototype.draw = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.draw();
-    };
-    SceneManager.prototype.getCurrentSceneName = function () {
-        return this.currentSceneName;
-    };
-    SceneManager.prototype.keyPressed = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyPressed();
-    };
-    SceneManager.prototype.keyReleased = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyReleased();
-    };
-    SceneManager.prototype.keyTyped = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyTyped();
-    };
-    SceneManager.prototype.mouseMoved = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseMoved();
-    };
-    SceneManager.prototype.mousePressed = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mousePressed();
-    };
-    SceneManager.prototype.mouseReleased = function () {
-        var _a;
-        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseReleased();
-    };
-    return SceneManager;
-}());
 var DT_HISTORY_LENGTH = 400;
 var dtHistory = [];
 var dtHistoryIndex = 0;
@@ -517,74 +445,6 @@ function keyPressed() {
 function keyTyped() {
     uiManager.keyTyped();
 }
-var UIElement = (function () {
-    function UIElement() {
-    }
-    UIElement.prototype.keyPressed = function () { };
-    UIElement.prototype.keyReleased = function () { };
-    UIElement.prototype.keyTyped = function () { };
-    UIElement.prototype.mouseMoved = function () { };
-    UIElement.prototype.mousePressed = function () { };
-    UIElement.prototype.mouseReleased = function () { };
-    return UIElement;
-}());
-var UIManager = (function () {
-    function UIManager() {
-        this.elementsByGroup = new Map();
-        this.activeGroup = 'default';
-    }
-    UIManager.prototype.update = function () {
-        var activeElements = this.elementsByGroup.get(this.activeGroup);
-        if (!activeElements)
-            return;
-        activeElements.forEach(function (element) { return element.update(); });
-    };
-    UIManager.prototype.draw = function () {
-        var activeElements = this.elementsByGroup.get(this.activeGroup);
-        if (!activeElements)
-            return;
-        activeElements.forEach(function (element) { return element.draw(); });
-    };
-    UIManager.prototype.add = function (element, group) {
-        if (group === void 0) { group = 'default'; }
-        if (!this.elementsByGroup.has(group)) {
-            this.elementsByGroup.set(group, []);
-        }
-        this.elementsByGroup.get(group).push(element);
-    };
-    UIManager.prototype.setActiveGroup = function (group) {
-        if (!this.elementsByGroup.has(group)) {
-            console.warn("Group '".concat(group, "' doesn't exist"));
-            return;
-        }
-        this.activeGroup = group;
-    };
-    UIManager.prototype.handleEvent = function (eventName) {
-        var activeElements = this.elementsByGroup.get(this.activeGroup);
-        if (!activeElements)
-            return;
-        activeElements.forEach(function (element) { return element[eventName](); });
-    };
-    UIManager.prototype.keyPressed = function () {
-        this.handleEvent('keyPressed');
-    };
-    UIManager.prototype.keyReleased = function () {
-        this.handleEvent('keyReleased');
-    };
-    UIManager.prototype.keyTyped = function () {
-        this.handleEvent('keyTyped');
-    };
-    UIManager.prototype.mouseMoved = function () {
-        this.handleEvent('mouseMoved');
-    };
-    UIManager.prototype.mousePressed = function () {
-        this.handleEvent('mousePressed');
-    };
-    UIManager.prototype.mouseReleased = function () {
-        this.handleEvent('mouseReleased');
-    };
-    return UIManager;
-}());
 var dl_mouseIsPressed = false;
 function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
     var _a, _b, _c;
@@ -687,6 +547,146 @@ function formatAsTime(seconds, includeMillis) {
     }
     return nf(min, 1) + ":" + nf(sec, 2);
 }
+var Scene = (function () {
+    function Scene() {
+    }
+    Scene.prototype.update = function () { };
+    Scene.prototype.enter = function () { };
+    Scene.prototype.exit = function () { };
+    Scene.prototype.keyPressed = function () { };
+    Scene.prototype.keyReleased = function () { };
+    Scene.prototype.keyTyped = function () { };
+    Scene.prototype.mouseMoved = function () { };
+    Scene.prototype.mousePressed = function () { };
+    Scene.prototype.mouseReleased = function () { };
+    return Scene;
+}());
+var SceneManager = (function () {
+    function SceneManager(scenes, initialScene) {
+        var _this = this;
+        this.scenes = new Map();
+        Object.entries(scenes).forEach(function (_a) {
+            var id = _a[0], Scene = _a[1];
+            _this.scenes.set(id, new Scene());
+        });
+        this.switchTo(initialScene);
+    }
+    SceneManager.prototype.switchTo = function (name) {
+        var _a, _b;
+        if (!this.scenes.has(name)) {
+            console.error("Scene ".concat(name, " not found"));
+            return;
+        }
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.exit();
+        this.currentSceneName = name;
+        this.currentScene = this.scenes.get(name);
+        (_b = this.currentScene) === null || _b === void 0 ? void 0 : _b.enter();
+    };
+    SceneManager.prototype.update = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.update();
+    };
+    SceneManager.prototype.draw = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.draw();
+    };
+    SceneManager.prototype.getCurrentSceneName = function () {
+        return this.currentSceneName;
+    };
+    SceneManager.prototype.keyPressed = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyPressed();
+    };
+    SceneManager.prototype.keyReleased = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyReleased();
+    };
+    SceneManager.prototype.keyTyped = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.keyTyped();
+    };
+    SceneManager.prototype.mouseMoved = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseMoved();
+    };
+    SceneManager.prototype.mousePressed = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mousePressed();
+    };
+    SceneManager.prototype.mouseReleased = function () {
+        var _a;
+        (_a = this.currentScene) === null || _a === void 0 ? void 0 : _a.mouseReleased();
+    };
+    return SceneManager;
+}());
+var UIElement = (function () {
+    function UIElement() {
+    }
+    UIElement.prototype.keyPressed = function () { };
+    UIElement.prototype.keyReleased = function () { };
+    UIElement.prototype.keyTyped = function () { };
+    UIElement.prototype.mouseMoved = function () { };
+    UIElement.prototype.mousePressed = function () { };
+    UIElement.prototype.mouseReleased = function () { };
+    return UIElement;
+}());
+var UIManager = (function () {
+    function UIManager() {
+        this.elementsByGroup = new Map();
+        this.activeGroup = 'default';
+    }
+    UIManager.prototype.update = function () {
+        var activeElements = this.elementsByGroup.get(this.activeGroup);
+        if (!activeElements)
+            return;
+        activeElements.forEach(function (element) { return element.update(); });
+    };
+    UIManager.prototype.draw = function () {
+        var activeElements = this.elementsByGroup.get(this.activeGroup);
+        if (!activeElements)
+            return;
+        activeElements.forEach(function (element) { return element.draw(); });
+    };
+    UIManager.prototype.add = function (element, group) {
+        if (group === void 0) { group = 'default'; }
+        if (!this.elementsByGroup.has(group)) {
+            this.elementsByGroup.set(group, []);
+        }
+        this.elementsByGroup.get(group).push(element);
+    };
+    UIManager.prototype.setActiveGroup = function (group) {
+        if (!this.elementsByGroup.has(group)) {
+            console.warn("Group '".concat(group, "' doesn't exist"));
+            return;
+        }
+        this.activeGroup = group;
+    };
+    UIManager.prototype.handleEvent = function (eventName) {
+        var activeElements = this.elementsByGroup.get(this.activeGroup);
+        if (!activeElements)
+            return;
+        activeElements.forEach(function (element) { return element[eventName](); });
+    };
+    UIManager.prototype.keyPressed = function () {
+        this.handleEvent('keyPressed');
+    };
+    UIManager.prototype.keyReleased = function () {
+        this.handleEvent('keyReleased');
+    };
+    UIManager.prototype.keyTyped = function () {
+        this.handleEvent('keyTyped');
+    };
+    UIManager.prototype.mouseMoved = function () {
+        this.handleEvent('mouseMoved');
+    };
+    UIManager.prototype.mousePressed = function () {
+        this.handleEvent('mousePressed');
+    };
+    UIManager.prototype.mouseReleased = function () {
+        this.handleEvent('mouseReleased');
+    };
+    return UIManager;
+}());
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||

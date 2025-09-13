@@ -1,3 +1,5 @@
+/// <reference path="../p5-gamedev-framework/scene-manager.ts" />
+
 class GameScene extends Scene {
     override update(): void {
         if (!isPaused) {

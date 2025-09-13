@@ -1,3 +1,5 @@
+/// <reference path="../p5-gamedev-framework/ui-manager.ts" />
+
 class TextBox extends UIElement {
     width: number = 0
     height: number = 0
