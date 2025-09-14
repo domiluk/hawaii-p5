@@ -306,7 +306,23 @@ function getLeaderboard() {
     var stored = localStorage.getItem(LEADERBOARD_KEY);
     if (!stored)
         return [];
-    return JSON.parse(stored);
+    try {
+        var parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.every(isLeaderboardEntry)) {
+            return parsed;
+        }
+        return [];
+    }
+    catch (e) {
+        console.error('Failed to parse leaderboard:', e);
+        return [];
+    }
+}
+function isLeaderboardEntry(obj) {
+    return typeof obj === 'object' &&
+        obj != null &&
+        typeof obj.name === 'string' &&
+        typeof obj.lapTime === 'number';
 }
 var OPTIONS_KEY = "hawaii-options-v1";
 function saveOptions() {
@@ -323,14 +339,21 @@ function getOptions() {
     var stored = localStorage.getItem(OPTIONS_KEY);
     if (!stored)
         return null;
-    var parsed = JSON.parse(stored);
-    if (isOptionsEntry(parsed)) {
-        return parsed;
+    try {
+        var parsed = JSON.parse(stored);
+        if (isOptionsEntry(parsed)) {
+            return parsed;
+        }
+        return null;
     }
-    return null;
+    catch (e) {
+        console.error('Failed to parse options:', e);
+        return null;
+    }
 }
 function isOptionsEntry(obj) {
     return typeof obj === 'object' &&
+        obj != null &&
         typeof obj.name1 === 'string' &&
         typeof obj.name2 === 'string' &&
         typeof obj.lapsIndex === 'number' &&

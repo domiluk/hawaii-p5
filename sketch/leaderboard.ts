@@ -22,5 +22,22 @@ function saveToLeaderboard(name: string, lapTime: number): void {
 function getLeaderboard(): LeaderboardEntry[] {
     const stored = localStorage.getItem(LEADERBOARD_KEY)
     if (!stored) return []
-    return JSON.parse(stored)
+
+    try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.every(isLeaderboardEntry)) {
+            return parsed
+        }
+        return []
+    } catch (e) {
+        console.error('Failed to parse leaderboard:', e)
+        return []
+    }
+}
+
+function isLeaderboardEntry(obj: any): obj is LeaderboardEntry {
+    return typeof obj === 'object' &&
+        obj != null &&
+        typeof obj.name === 'string' &&
+        typeof obj.lapTime === 'number'
 }

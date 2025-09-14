@@ -22,16 +22,21 @@ function saveOptions(): void {
 function getOptions(): OptionsEntry | null {
     const stored = localStorage.getItem(OPTIONS_KEY)
     if (!stored) return null
-    const parsed = JSON.parse(stored)
-    // Add type guard
-    if (isOptionsEntry(parsed)) {
-        return parsed
+    try {
+        const parsed = JSON.parse(stored)
+        if (isOptionsEntry(parsed)) {
+            return parsed
+        }
+        return null
+    } catch (e) {
+        console.error('Failed to parse options:', e)
+        return null
     }
-    return null
 }
 
 function isOptionsEntry(obj: any): obj is OptionsEntry {
     return typeof obj === 'object' &&
+        obj != null &&
         typeof obj.name1 === 'string' &&
         typeof obj.name2 === 'string' &&
         typeof obj.lapsIndex === 'number' &&
