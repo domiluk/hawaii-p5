@@ -323,7 +323,19 @@ function getOptions() {
     var stored = localStorage.getItem(OPTIONS_KEY);
     if (!stored)
         return null;
-    return JSON.parse(stored);
+    var parsed = JSON.parse(stored);
+    if (isOptionsEntry(parsed)) {
+        return parsed;
+    }
+    return null;
+}
+function isOptionsEntry(obj) {
+    return typeof obj === 'object' &&
+        typeof obj.name1 === 'string' &&
+        typeof obj.name2 === 'string' &&
+        typeof obj.lapsIndex === 'number' &&
+        typeof obj.sfxIndex === 'number' &&
+        typeof obj.musicIndex === 'number';
 }
 var Mode;
 (function (Mode) {
