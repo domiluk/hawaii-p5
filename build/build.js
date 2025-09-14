@@ -458,95 +458,6 @@ function keyPressed() {
 function keyTyped() {
     uiManager.keyTyped();
 }
-var dl_mouseIsPressed = false;
-function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
-    var _a, _b, _c;
-    if (fillColor === void 0) { fillColor = color(0); }
-    if (horizAlign === void 0) { horizAlign = CENTER; }
-    if (vertAlign === void 0) { vertAlign = TOP; }
-    noStroke();
-    fill(fillColor);
-    textAlign(horizAlign, vertAlign);
-    textSize(label.size);
-    textFont((_a = label.font) !== null && _a !== void 0 ? _a : airstream);
-    x = x + ((_b = label.xOffset) !== null && _b !== void 0 ? _b : 0);
-    y = y + ((_c = label.yOffset) !== null && _c !== void 0 ? _c : 0);
-    if (label.rotate) {
-        push();
-        translate(x, y);
-        rotate(label.rotate);
-        translate(-x, -y);
-    }
-    text(label.text, x, y);
-    if (label.rotate) {
-        pop();
-    }
-}
-function textButton(label, x, y, w, h) {
-    var mouseIsPressedInsideButton = false;
-    var fillColor = 0;
-    if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
-        fillColor = 255;
-        if (dl_mouseIsPressed) {
-            mouseIsPressedInsideButton = true;
-        }
-    }
-    textLabel(label, x, y, color(fillColor), CENTER, TOP);
-    if (debug) {
-        stroke(180);
-        strokeWeight(1);
-        noFill();
-        rect(x, y, w, h);
-    }
-    return mouseIsPressedInsideButton;
-}
-var leftChevronLabel = {
-    text: "‹",
-    size: 0.9 * 60,
-    xOffset: 15,
-    yOffset: -13,
-};
-var rightChevronLabel = {
-    text: "›",
-    size: 0.9 * 60,
-    xOffset: 10,
-    yOffset: -13,
-};
-function leftChevronButton(x, y) {
-    return textButton(leftChevronLabel, x, y, 25, 25);
-}
-function rightChevronButton(x, y) {
-    return textButton(rightChevronLabel, x, y, 25, 25);
-}
-function optionSelector(options, pickedIndex, x, y, gapWidth) {
-    var changedTo = -1;
-    if (leftChevronButton(x, y)) {
-        changedTo = constrain(pickedIndex - 1, 0, options.length - 1);
-    }
-    if (rightChevronButton(x + 25 + gapWidth, y)) {
-        changedTo = constrain(pickedIndex + 1, 0, options.length - 1);
-    }
-    noStroke();
-    fill(0);
-    textSize(0.9 * 30);
-    textAlign(CENTER, TOP);
-    text(options[pickedIndex], floor(x + 25 + gapWidth / 2), y);
-    return changedTo;
-}
-function optionLabel(text, x, y) {
-    var label = {
-        text: text,
-        size: 0.9 * 30,
-    };
-    textLabel(label, x, y, color(0), RIGHT, TOP);
-}
-function optionsSectionLabel(text, x, y) {
-    var label = {
-        text: text,
-        size: 0.9 * 30,
-    };
-    textLabel(label, x, y, color(255), CENTER, TOP);
-}
 function formatAsTime(seconds, includeMillis) {
     var min = Math.floor(seconds / 60);
     var sec = Math.floor(seconds % 60);
@@ -1158,6 +1069,95 @@ function menuButtons() {
     fill(0);
     textSize(0.9 * 75);
     text("Hawaii", 512, 100);
+}
+var dl_mouseIsPressed = false;
+function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
+    var _a, _b, _c;
+    if (fillColor === void 0) { fillColor = color(0); }
+    if (horizAlign === void 0) { horizAlign = CENTER; }
+    if (vertAlign === void 0) { vertAlign = TOP; }
+    noStroke();
+    fill(fillColor);
+    textAlign(horizAlign, vertAlign);
+    textSize(label.size);
+    textFont((_a = label.font) !== null && _a !== void 0 ? _a : airstream);
+    x = x + ((_b = label.xOffset) !== null && _b !== void 0 ? _b : 0);
+    y = y + ((_c = label.yOffset) !== null && _c !== void 0 ? _c : 0);
+    if (label.rotate) {
+        push();
+        translate(x, y);
+        rotate(label.rotate);
+        translate(-x, -y);
+    }
+    text(label.text, x, y);
+    if (label.rotate) {
+        pop();
+    }
+}
+function textButton(label, x, y, w, h) {
+    var mouseIsPressedInsideButton = false;
+    var fillColor = 0;
+    if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
+        fillColor = 255;
+        if (dl_mouseIsPressed) {
+            mouseIsPressedInsideButton = true;
+        }
+    }
+    textLabel(label, x, y, color(fillColor), CENTER, TOP);
+    if (debug) {
+        stroke(180);
+        strokeWeight(1);
+        noFill();
+        rect(x, y, w, h);
+    }
+    return mouseIsPressedInsideButton;
+}
+var leftChevronLabel = {
+    text: "‹",
+    size: 0.9 * 60,
+    xOffset: 15,
+    yOffset: -13,
+};
+var rightChevronLabel = {
+    text: "›",
+    size: 0.9 * 60,
+    xOffset: 10,
+    yOffset: -13,
+};
+function leftChevronButton(x, y) {
+    return textButton(leftChevronLabel, x, y, 25, 25);
+}
+function rightChevronButton(x, y) {
+    return textButton(rightChevronLabel, x, y, 25, 25);
+}
+function optionSelector(options, pickedIndex, x, y, gapWidth) {
+    var changedTo = -1;
+    if (leftChevronButton(x, y)) {
+        changedTo = constrain(pickedIndex - 1, 0, options.length - 1);
+    }
+    if (rightChevronButton(x + 25 + gapWidth, y)) {
+        changedTo = constrain(pickedIndex + 1, 0, options.length - 1);
+    }
+    noStroke();
+    fill(0);
+    textSize(0.9 * 30);
+    textAlign(CENTER, TOP);
+    text(options[pickedIndex], floor(x + 25 + gapWidth / 2), y);
+    return changedTo;
+}
+function optionLabel(text, x, y) {
+    var label = {
+        text: text,
+        size: 0.9 * 30,
+    };
+    textLabel(label, x, y, color(0), RIGHT, TOP);
+}
+function optionsSectionLabel(text, x, y) {
+    var label = {
+        text: text,
+        size: 0.9 * 30,
+    };
+    textLabel(label, x, y, color(255), CENTER, TOP);
 }
 var TextBox = (function (_super) {
     __extends(TextBox, _super);

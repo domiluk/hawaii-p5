@@ -1,7 +1,6 @@
 // TODO: - refactor
 // TODO: - debug
 
-// TODO: - if debug
 // TODO: - better collision detection
 // TODO: - nastavenia ukladat do local storage
 
