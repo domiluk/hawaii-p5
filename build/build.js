@@ -7,7 +7,7 @@ var Boat = (function () {
     function Boat() {
     }
     Boat.prototype.draw = function (g, camleft, camup) {
-        if (!g) {
+        if (g == null) {
             g = window;
         }
         g.push();
@@ -308,22 +308,29 @@ function getLeaderboard() {
         return [];
     return JSON.parse(stored);
 }
+var OPTIONS_KEY = "hawaii-options-v1";
+function saveOptions() {
+    var options = {
+        name1: player1textBox.input,
+        name2: player2textBox.input,
+        lapsIndex: lapsIndex,
+        sfxIndex: sfxIndex,
+        musicIndex: musicIndex
+    };
+    localStorage.setItem(OPTIONS_KEY, JSON.stringify(options));
+}
+function getOptions() {
+    var stored = localStorage.getItem(OPTIONS_KEY);
+    if (!stored)
+        return null;
+    return JSON.parse(stored);
+}
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
     Mode[Mode["MULTIPLAYER"] = 1] = "MULTIPLAYER";
 })(Mode || (Mode = {}));
 var gameMode = Mode.SINGLEPLAYER;
-var HawaiiScene;
-(function (HawaiiScene) {
-    HawaiiScene["MAIN_MENU"] = "main menu";
-    HawaiiScene["PLAY_MENU"] = "play menu";
-    HawaiiScene["OPTIONS"] = "options";
-    HawaiiScene["CREDITS"] = "credits";
-    HawaiiScene["LEADERBOARD"] = "leaderboard";
-    HawaiiScene["GAME"] = "game";
-    HawaiiScene["GAME_OVER"] = "game over";
-})(HawaiiScene || (HawaiiScene = {}));
 var sceneManager;
 var uiManager;
 var isPaused = false;
@@ -419,6 +426,17 @@ function setup() {
     topLeftIsland.load(topLeftIslandStrings);
     bottomRightIsland = new Island();
     bottomRightIsland.load(bottomRightIslandStrings);
+    var options = getOptions();
+    if (options != null) {
+        player1textBox.input = options.name1;
+        player2textBox.input = options.name2;
+        lapsIndex = options.lapsIndex;
+        nLaps = lapsOptions[lapsIndex];
+        sfxIndex = options.sfxIndex;
+        sfxVol = sfxOptions[sfxIndex];
+        musicIndex = options.musicIndex;
+        musicVol = musicOptions[musicIndex];
+    }
 }
 function draw() {
     background(0);
@@ -558,6 +576,7 @@ var UIManager = (function () {
     function UIManager() {
         this.elementsByGroup = new Map();
         this.activeGroup = 'default';
+        this.elementsByGroup.set('default', []);
     }
     UIManager.prototype.update = function () {
         var activeElements = this.elementsByGroup.get(this.activeGroup);
@@ -905,7 +924,8 @@ var OptionsScene = (function (_super) {
         uiManager.setActiveGroup("options");
     };
     OptionsScene.prototype.exit = function () {
-        uiManager.setActiveGroup(null);
+        uiManager.setActiveGroup("default");
+        saveOptions();
     };
     OptionsScene.prototype.draw = function () {
         image(menu, 0, 0);

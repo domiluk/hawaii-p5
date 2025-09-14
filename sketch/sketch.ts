@@ -1,4 +1,3 @@
-// TODO: - nastavenia ukladat do local storage
 // TODO: - camera object?
 
 // TODO: - natrenovat AI
@@ -154,6 +153,22 @@ function setup() {
 
   bottomRightIsland = new Island()
   bottomRightIsland.load(bottomRightIslandStrings)
+
+  // Load options from local storage
+  const options = getOptions()
+  if (options != null) {
+    player1textBox.input = options.name1
+    player2textBox.input = options.name2
+
+    lapsIndex = options.lapsIndex
+    nLaps = lapsOptions[lapsIndex]
+
+    sfxIndex = options.sfxIndex
+    sfxVol = sfxOptions[sfxIndex]
+
+    musicIndex = options.musicIndex
+    musicVol = musicOptions[musicIndex]
+  }
 }
 
 function draw() {

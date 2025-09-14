@@ -23,8 +23,8 @@ class Boat {
         right: number,
     }
 
-    draw(g: p5.Graphics | (Window & typeof globalThis), camleft: number, camup: number): void {
-        if (!g) {
+    draw(g: p5.Graphics | (Window & typeof globalThis) | null, camleft: number, camup: number): void {
+        if (g == null) {
             g = window
         }
         g.push()

@@ -41,7 +41,7 @@ class SceneManager<SceneName extends string> implements p5UIEventHandler {
         this.currentScene?.exit()
 
         this.currentSceneName = name;
-        this.currentScene = this.scenes.get(name)
+        this.currentScene = this.scenes.get(name)!
 
         this.currentScene?.enter()
     }

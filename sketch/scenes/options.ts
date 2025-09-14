@@ -6,7 +6,8 @@ class OptionsScene extends Scene {
     }
 
     override exit(): void {
-        uiManager.setActiveGroup(null)
+        uiManager.setActiveGroup("default")
+        saveOptions()
     }
 
     override draw(): void {

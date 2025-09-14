@@ -24,6 +24,10 @@ class UIManager implements p5UIEventHandler {
     private elementsByGroup = new Map<string, UIElement[]>()
     private activeGroup: string = 'default'
 
+    constructor() {
+        this.elementsByGroup.set('default', [])
+    }
+
     update(): void {
         const activeElements = this.elementsByGroup.get(this.activeGroup)
         if (!activeElements) return
@@ -42,7 +46,7 @@ class UIManager implements p5UIEventHandler {
         if (!this.elementsByGroup.has(group)) {
             this.elementsByGroup.set(group, [])
         }
-        this.elementsByGroup.get(group).push(element)
+        this.elementsByGroup.get(group)!.push(element)
     }
 
     setActiveGroup(group: string): void {
