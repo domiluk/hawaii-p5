@@ -3,12 +3,11 @@
 
 // TODO: - better collision detection
 // TODO: - nastavenia ukladat do local storage
+// TODO: - camera object?
 
 // TODO: - natrenovat AI
 // TODO: - dat prec debug rects a mouse vypis
 // TODO: - nastavit nastavenia na rozumne starting hodnoty
-
-type SAMPLE = p5.SoundFile
 
 enum Mode {
   SINGLEPLAYER,
@@ -48,9 +47,9 @@ let panel: p5.Image
 let lodCervena: p5.Image
 let lodZelena: p5.Image
 
-let dray: SAMPLE
-let spring: SAMPLE
-let mainSample: SAMPLE
+let dray: p5.SoundFile
+let spring: p5.SoundFile
+let mainSample: p5.SoundFile
 
 let muted = true
 
