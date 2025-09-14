@@ -1,12 +1,8 @@
-// TODO: - refactor
-// TODO: - debug
-
 // TODO: - better collision detection
 // TODO: - nastavenia ukladat do local storage
 // TODO: - camera object?
 
 // TODO: - natrenovat AI
-// TODO: - dat prec debug rects a mouse vypis
 // TODO: - nastavit nastavenia na rozumne starting hodnoty
 
 enum Mode {
