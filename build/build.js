@@ -1,19 +1,3 @@
-function putpixel(img, x, y, col) {
-    x = floor(x);
-    y = floor(y);
-    img.loadPixels();
-    img.set(x, y, col);
-    img.updatePixels();
-}
-function getpixel(img, x, y) {
-    x = floor(x);
-    y = floor(y);
-    if (x < 0 || y < 0 || x >= img.width || y >= img.height)
-        return color(0);
-    var i = 4 * (y * img.width + x);
-    var p = img.pixels;
-    return color(p[i], p[i + 1], p[i + 2], p[i + 3]);
-}
 var BOAT_COLLISION_RADIUS = 28;
 var ROTATE_BY = 1.5 * 60;
 var MAX_SPEED = 6.5 * 60;
@@ -38,8 +22,6 @@ var Boat = (function () {
         g.pop();
     };
     Boat.prototype.update = function () {
-        var gx = 0;
-        var gy = 0;
         var accel = ACCEL * deltaTime / 1000;
         var slowdown = SLOWDOWN * deltaTime / 1000;
         var rotate_by = ROTATE_BY * deltaTime / 1000;
@@ -72,27 +54,42 @@ var Boat = (function () {
             this.rot = atan2(-vy, vx);
             this.y = constrain(this.y, r, ostrov.height - r - 1);
         }
-        var px = getpixel(alphaOstrov, this.x + gx, this.y + gy);
-        var redValue = red(px);
-        if (redValue == 64) {
-            this.checkpoint1 = true;
-        }
-        else if (redValue == 128) {
-            this.checkpoint2 = true;
-        }
-        else if (redValue == 32) {
-            this.checkpoint3 = true;
-        }
-        else if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
-            this.checkpoint1 = false;
-            this.checkpoint2 = false;
-            this.checkpoint3 = false;
-            if (this.lapTime < this.bestLapTime) {
-                this.bestLapTime = this.lapTime;
+        var pos = createVector(this.x, this.y);
+        if (!this.checkpoint1) {
+            var Q = closestPointOnSegment(checkpoint1Segment, pos);
+            var d = p5.Vector.sub(pos, Q).mag();
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint1 = true;
             }
-            this.lapTime = 0;
-            this.round++;
-            dray.play();
+        }
+        else if (!this.checkpoint2) {
+            var Q = closestPointOnSegment(checkpoint2Segment, pos);
+            var d = p5.Vector.sub(pos, Q).mag();
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint2 = true;
+            }
+        }
+        else if (!this.checkpoint3) {
+            var Q = closestPointOnSegment(checkpoint3Segment, pos);
+            var d = p5.Vector.sub(pos, Q).mag();
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint3 = true;
+            }
+        }
+        else {
+            var Q = closestPointOnSegment(finishLineSegment, pos);
+            var d = p5.Vector.sub(pos, Q).mag();
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint1 = false;
+                this.checkpoint2 = false;
+                this.checkpoint3 = false;
+                if (this.lapTime < this.bestLapTime) {
+                    this.bestLapTime = this.lapTime;
+                }
+                this.lapTime = 0;
+                this.round++;
+                dray.play();
+            }
         }
         this.x += this.speed * cos(this.rot) * deltaTime / 1000;
         this.y += this.speed * sin(this.rot) * deltaTime / 1000;
@@ -221,9 +218,7 @@ var Island = (function () {
     Island.prototype.draw = function (camleft, camup) {
         for (var _i = 0, _a = this.segments; _i < _a.length; _i++) {
             var segment = _a[_i];
-            var p1 = segment[0], p2 = segment[1];
-            stroke(0);
-            line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup);
+            drawSegment(segment, camleft, camup);
         }
         for (var _b = 0, _c = this.points; _b < _c.length; _b++) {
             var point_1 = _c[_b];
@@ -248,6 +243,11 @@ var Island = (function () {
     };
     return Island;
 }());
+function drawSegment(segment, camleft, camup) {
+    var p1 = segment[0], p2 = segment[1];
+    stroke(0);
+    line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup);
+}
 function clamp01(value) {
     return max(0, min(1, value));
 }
@@ -334,7 +334,6 @@ var camleft2 = 0;
 var leftBuffer;
 var rightBuffer;
 var ostrov;
-var alphaOstrov;
 var panel;
 var lodCervena;
 var lodZelena;
@@ -363,6 +362,10 @@ var topLeftIslandStrings;
 var topLeftIsland;
 var bottomRightIslandStrings;
 var bottomRightIsland;
+var finishLineSegment = [{ x: 935, y: 1049 }, { x: 1190, y: 1231 }];
+var checkpoint1Segment = [{ x: 0, y: 168 }, { x: 490, y: 520 }];
+var checkpoint2Segment = finishLineSegment;
+var checkpoint3Segment = [{ x: 1593, y: 1587 }, { x: 1914, y: 1900 }];
 function preload() {
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
@@ -371,7 +374,6 @@ function preload() {
     lodCervena = loadImage("images/lodcervena.png");
     lodZelena = loadImage("images/lodzelena.png");
     ostrov = loadImage("images/ostrov1.bmp");
-    alphaOstrov = loadImage("images/alpha1.png");
     menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.png");
     soundFormats('wav');
@@ -417,7 +419,6 @@ function setup() {
     topLeftIsland.load(topLeftIslandStrings);
     bottomRightIsland = new Island();
     bottomRightIsland.load(bottomRightIslandStrings);
-    alphaOstrov.loadPixels();
 }
 function draw() {
     background(0);
@@ -729,6 +730,10 @@ var GameScene = (function (_super) {
             if (debug) {
                 topLeftIsland.draw(camleft1, camup1);
                 bottomRightIsland.draw(camleft1, camup1);
+                drawSegment(checkpoint1Segment, camleft1, camup1);
+                drawSegment(checkpoint2Segment, camleft1, camup1);
+                drawSegment(checkpoint3Segment, camleft1, camup1);
+                drawSegment(finishLineSegment, camleft1, camup1);
             }
         }
         this.drawTimerPanels();

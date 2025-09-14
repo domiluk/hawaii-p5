@@ -74,6 +74,10 @@ class GameScene extends Scene {
             if (debug) {
                 topLeftIsland.draw(camleft1, camup1)
                 bottomRightIsland.draw(camleft1, camup1)
+                drawSegment(checkpoint1Segment, camleft1, camup1)
+                drawSegment(checkpoint2Segment, camleft1, camup1)
+                drawSegment(checkpoint3Segment, camleft1, camup1)
+                drawSegment(finishLineSegment, camleft1, camup1)
             }
         }
 

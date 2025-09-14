@@ -1,4 +1,3 @@
-// TODO: - better collision detection
 // TODO: - nastavenia ukladat do local storage
 // TODO: - camera object?
 
@@ -38,7 +37,6 @@ let leftBuffer: p5.Graphics
 let rightBuffer: p5.Graphics
 
 let ostrov: p5.Image
-let alphaOstrov: p5.Image
 let panel: p5.Image
 let lodCervena: p5.Image
 let lodZelena: p5.Image
@@ -78,6 +76,11 @@ let topLeftIsland: Island
 let bottomRightIslandStrings: string[]
 let bottomRightIsland: Island
 
+const finishLineSegment: Segment = [{ x: 935, y: 1049 }, { x: 1190, y: 1231 }]
+const checkpoint1Segment: Segment = [{ x: 0, y: 168 }, { x: 490, y: 520 }]
+const checkpoint2Segment: Segment = finishLineSegment
+const checkpoint3Segment: Segment = [{ x: 1593, y: 1587 }, { x: 1914, y: 1900 }]
+
 function preload() {
   airstream = loadFont("fonts/airstream.ttf")
   symbols = loadFont("fonts/symbols.ttf")
@@ -89,7 +92,6 @@ function preload() {
   lodZelena = loadImage("images/lodzelena.png")
 
   ostrov = loadImage("images/ostrov1.bmp")
-  alphaOstrov = loadImage("images/alpha1.png")
   menu = loadImage("images/menu.png")
   panel = loadImage("images/panel.png")
 
@@ -152,8 +154,6 @@ function setup() {
 
   bottomRightIsland = new Island()
   bottomRightIsland.load(bottomRightIslandStrings)
-
-  alphaOstrov.loadPixels()
 }
 
 function draw() {

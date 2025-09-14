@@ -42,9 +42,6 @@ class Boat {
     }
 
     update(): void {
-        const gx: number = 0
-        const gy: number = 0
-
         // input
         const accel = ACCEL * deltaTime / 1000
         const slowdown = SLOWDOWN * deltaTime / 1000
@@ -86,31 +83,43 @@ class Boat {
             this.y = constrain(this.y, r, ostrov.height - r - 1)
         }
 
-        const px = getpixel(alphaOstrov, this.x + gx, this.y + gy)
-        const redValue = red(px)
-
-        // checkni naraz do checkpointov
-        if (redValue == 64) {
-            this.checkpoint1 = true
-        }
-        else if (redValue == 128) {
-            this.checkpoint2 = true
-        }
-        else if (redValue == 32) {
-            this.checkpoint3 = true
-        }
-
-        // checkni naraz do finishlinu
-        else if (redValue == 192 && this.checkpoint1 && this.checkpoint2 && this.checkpoint3) {
-            this.checkpoint1 = false
-            this.checkpoint2 = false
-            this.checkpoint3 = false
-            if (this.lapTime < this.bestLapTime) {
-                this.bestLapTime = this.lapTime
+        // check collision with checkpoints and the finishline
+        const pos = createVector(this.x, this.y)
+        if (!this.checkpoint1) {
+            const Q = closestPointOnSegment(checkpoint1Segment, pos)
+            const d = p5.Vector.sub(pos, Q).mag()
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint1 = true
             }
-            this.lapTime = 0
-            this.round++
-            dray.play()
+        }
+        else if (!this.checkpoint2) {
+            const Q = closestPointOnSegment(checkpoint2Segment, pos)
+            const d = p5.Vector.sub(pos, Q).mag()
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint2 = true
+            }
+        }
+        else if (!this.checkpoint3) {
+            const Q = closestPointOnSegment(checkpoint3Segment, pos)
+            const d = p5.Vector.sub(pos, Q).mag()
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint3 = true
+            }
+        }
+        else {
+            const Q = closestPointOnSegment(finishLineSegment, pos)
+            const d = p5.Vector.sub(pos, Q).mag()
+            if (d < BOAT_COLLISION_RADIUS) {
+                this.checkpoint1 = false
+                this.checkpoint2 = false
+                this.checkpoint3 = false
+                if (this.lapTime < this.bestLapTime) {
+                    this.bestLapTime = this.lapTime
+                }
+                this.lapTime = 0
+                this.round++
+                dray.play()
+            }
         }
 
         // move the boat

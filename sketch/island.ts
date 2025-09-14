@@ -19,9 +19,7 @@ class Island {
 
     draw(camleft: number, camup: number): void {
         for (let segment of this.segments) {
-            const [p1, p2] = segment
-            stroke(0)
-            line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup)
+            drawSegment(segment, camleft, camup)
         }
         for (let point of this.points) {
             noStroke()
@@ -43,6 +41,12 @@ class Island {
             }
         }
     }
+}
+
+function drawSegment(segment: Segment, camleft: number, camup: number): void {
+    const [p1, p2] = segment
+    stroke(0)
+    line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup)
 }
 
 function clamp01(value: number): number {
