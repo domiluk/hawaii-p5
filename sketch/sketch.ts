@@ -1,16 +1,13 @@
 // TODO: - refactor
 // TODO: - debug
 
+// TODO: - if debug
 // TODO: - better collision detection
 // TODO: - nastavenia ukladat do local storage
 
 // TODO: - natrenovat AI
 // TODO: - dat prec debug rects a mouse vypis
 // TODO: - nastavit nastavenia na rozumne starting hodnoty
-
-const DT_HISTORY_LENGTH = 400
-const dtHistory: number[] = []
-let dtHistoryIndex = 0
 
 type SAMPLE = p5.SoundFile
 
@@ -171,8 +168,10 @@ function draw() {
   sceneManager.update()
   sceneManager.draw()
 
-  drawMouseDebugInfo()
-  drawDeltaTimeHistoryBar()
+  if (debug) {
+    drawMouseDebugInfo()
+    drawDeltaTimeHistoryBar()
+  }
 
   dl_mouseIsPressed = false
 }
@@ -206,6 +205,10 @@ function keyPressed(): void {
 
   if (key == "m") {
     toggleMute()
+  }
+
+  if (key == "b") {
+    toggleDebug()
   }
 }
 

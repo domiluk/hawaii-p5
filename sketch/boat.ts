@@ -31,9 +31,13 @@ class Boat {
         g.translate(this.x - camleft, this.y - camup)
         g.rotate(this.rot + 90)
         g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2)
-        g.stroke(0)
-        g.noFill()
-        g.circle(0, 0, BOAT_COLLISION_RADIUS * 2)
+
+        if (debug) {
+            g.stroke(0)
+            g.noFill()
+            g.circle(0, 0, BOAT_COLLISION_RADIUS * 2)
+        }
+
         g.pop()
     }
 

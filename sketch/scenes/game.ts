@@ -39,20 +39,6 @@ class GameScene extends Scene {
     }
 
     override draw(): void {
-        this.drawGameCameras()
-        this.drawTimerPanels()
-
-        if (isPaused) {
-            this.drawPauseMenu()
-        }
-    }
-
-    override enter(): void {
-        resetBoats()
-        raceTime = 0
-    }
-
-    drawGameCameras(): void {
         if (gameMode == Mode.MULTIPLAYER) {
             // lava polka
             camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512)
@@ -85,9 +71,22 @@ class GameScene extends Scene {
             boat1.draw(null, camleft1, camup1)
             boat2.draw(null, camleft1, camup1)
 
-            topLeftIsland.draw(camleft1, camup1)
-            bottomRightIsland.draw(camleft1, camup1)
+            if (debug) {
+                topLeftIsland.draw(camleft1, camup1)
+                bottomRightIsland.draw(camleft1, camup1)
+            }
         }
+
+        this.drawTimerPanels()
+
+        if (isPaused) {
+            this.drawPauseMenu()
+        }
+    }
+
+    override enter(): void {
+        resetBoats()
+        raceTime = 0
     }
 
     drawTimerPanels(): void {

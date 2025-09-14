@@ -30,7 +30,7 @@ function textLabel(label: TextLabel, x: number, y: number, fillColor = color(0),
     }
 }
 
-function textButton(label: TextLabel, x: number, y: number, w: number, h: number, debug = true): boolean {
+function textButton(label: TextLabel, x: number, y: number, w: number, h: number): boolean {
     let mouseIsPressedInsideButton = false
     let fillColor = 0
 

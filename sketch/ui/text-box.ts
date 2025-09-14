@@ -38,9 +38,11 @@ class TextBox extends UIElement {
         this.height = 0.9 * 30
 
         // debug textbox
-        stroke(150)
-        noFill()
-        rect(this.x - this.width / 2, this.y, this.width, this.height)
+        if (debug) {
+            stroke(150)
+            noFill()
+            rect(this.x - this.width / 2, this.y, this.width, this.height)
+        }
 
         // Text
         textAlign(CENTER, TOP)

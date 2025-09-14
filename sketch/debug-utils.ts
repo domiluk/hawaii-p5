@@ -1,3 +1,13 @@
+let debug = false
+
+const DT_HISTORY_LENGTH = 400
+const dtHistory: number[] = []
+let dtHistoryIndex = 0
+
+function toggleDebug(): void {
+    debug = !debug
+}
+
 function drawMouseDebugInfo(): void {
     textSize(16)
     textAlign(LEFT, TOP)

@@ -24,6 +24,8 @@ class Island {
             line(p1.x - camleft, p1.y - camup, p2.x - camleft, p2.y - camup)
         }
         for (let point of this.points) {
+            noStroke()
+            fill(0)
             ellipse(point.x - camleft, point.y - camup, 5, 5)
         }
     }

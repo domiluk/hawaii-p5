@@ -30,9 +30,11 @@ var Boat = (function () {
         g.translate(this.x - camleft, this.y - camup);
         g.rotate(this.rot + 90);
         g.image(this.bmp, -this.bmp.width / 2, -this.bmp.height / 2);
-        g.stroke(0);
-        g.noFill();
-        g.circle(0, 0, BOAT_COLLISION_RADIUS * 2);
+        if (debug) {
+            g.stroke(0);
+            g.noFill();
+            g.circle(0, 0, BOAT_COLLISION_RADIUS * 2);
+        }
         g.pop();
     };
     Boat.prototype.update = function () {
@@ -162,6 +164,13 @@ function resetBoats() {
         right: 68
     };
 }
+var debug = false;
+var DT_HISTORY_LENGTH = 400;
+var dtHistory = [];
+var dtHistoryIndex = 0;
+function toggleDebug() {
+    debug = !debug;
+}
 function drawMouseDebugInfo() {
     textSize(16);
     textAlign(LEFT, TOP);
@@ -218,6 +227,8 @@ var Island = (function () {
         }
         for (var _b = 0, _c = this.points; _b < _c.length; _b++) {
             var point_1 = _c[_b];
+            noStroke();
+            fill(0);
             ellipse(point_1.x - camleft, point_1.y - camup, 5, 5);
         }
     };
@@ -297,9 +308,6 @@ function getLeaderboard() {
         return [];
     return JSON.parse(stored);
 }
-var DT_HISTORY_LENGTH = 400;
-var dtHistory = [];
-var dtHistoryIndex = 0;
 var Mode;
 (function (Mode) {
     Mode[Mode["SINGLEPLAYER"] = 0] = "SINGLEPLAYER";
@@ -415,8 +423,10 @@ function draw() {
     background(0);
     sceneManager.update();
     sceneManager.draw();
-    drawMouseDebugInfo();
-    drawDeltaTimeHistoryBar();
+    if (debug) {
+        drawMouseDebugInfo();
+        drawDeltaTimeHistoryBar();
+    }
     dl_mouseIsPressed = false;
 }
 var isFirstClick = true;
@@ -440,6 +450,9 @@ function keyPressed() {
     uiManager.keyPressed();
     if (key == "m") {
         toggleMute();
+    }
+    if (key == "b") {
+        toggleDebug();
     }
 }
 function keyTyped() {
@@ -469,8 +482,7 @@ function textLabel(label, x, y, fillColor, horizAlign, vertAlign) {
         pop();
     }
 }
-function textButton(label, x, y, w, h, debug) {
-    if (debug === void 0) { debug = true; }
+function textButton(label, x, y, w, h) {
     var mouseIsPressedInsideButton = false;
     var fillColor = 0;
     if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
@@ -781,17 +793,6 @@ var GameScene = (function (_super) {
         }
     };
     GameScene.prototype.draw = function () {
-        this.drawGameCameras();
-        this.drawTimerPanels();
-        if (isPaused) {
-            this.drawPauseMenu();
-        }
-    };
-    GameScene.prototype.enter = function () {
-        resetBoats();
-        raceTime = 0;
-    };
-    GameScene.prototype.drawGameCameras = function () {
         if (gameMode == Mode.MULTIPLAYER) {
             camleft1 = constrain(boat1.x - 256, 0, ostrov.width - 1024 + 512);
             camup1 = constrain(boat1.y - 384, 0, ostrov.height - 768);
@@ -814,9 +815,19 @@ var GameScene = (function (_super) {
             image(ostrov, -camleft1, -camup1);
             boat1.draw(null, camleft1, camup1);
             boat2.draw(null, camleft1, camup1);
-            topLeftIsland.draw(camleft1, camup1);
-            bottomRightIsland.draw(camleft1, camup1);
+            if (debug) {
+                topLeftIsland.draw(camleft1, camup1);
+                bottomRightIsland.draw(camleft1, camup1);
+            }
         }
+        this.drawTimerPanels();
+        if (isPaused) {
+            this.drawPauseMenu();
+        }
+    };
+    GameScene.prototype.enter = function () {
+        resetBoats();
+        raceTime = 0;
     };
     GameScene.prototype.drawTimerPanels = function () {
         var opacity = 255;
@@ -1181,9 +1192,11 @@ var TextBox = (function (_super) {
         textSize(0.9 * 30);
         this.width = textWidth(this.label + " " + this.input);
         this.height = 0.9 * 30;
-        stroke(150);
-        noFill();
-        rect(this.x - this.width / 2, this.y, this.width, this.height);
+        if (debug) {
+            stroke(150);
+            noFill();
+            rect(this.x - this.width / 2, this.y, this.width, this.height);
+        }
         textAlign(CENTER, TOP);
         noStroke();
         fill(this.highlighted || this.focused ? 255 : 0);
