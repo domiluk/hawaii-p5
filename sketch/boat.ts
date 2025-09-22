@@ -10,20 +10,24 @@ class Boat {
     speed: number
     rot: number
     round: number
-    checkpoint1: boolean
-    checkpoint2: boolean
-    checkpoint3: boolean
+    checkpoint: number
     lapTime: number
     bestLapTime: number
     bmp: p5.Image
     controls: {
-        up: number,
-        down: number,
-        left: number,
-        right: number,
+        up: number
+        down: number
+        left: number
+        right: number
     }
 
-    draw(g: p5.Graphics | (Window & typeof globalThis) | null, camleft: number, camup: number): void {
+    constructor(public net: MLP | null) {}
+
+    draw(
+        g: p5.Graphics | (Window & typeof globalThis) | null,
+        camleft: number,
+        camup: number
+    ): void {
         if (g == null) {
             g = window
         }
@@ -43,26 +47,63 @@ class Boat {
 
     update(): void {
         // input
-        const accel = ACCEL * deltaTime / 1000
-        const slowdown = SLOWDOWN * deltaTime / 1000
-        const rotate_by = ROTATE_BY * deltaTime / 1000
+        const accel = (ACCEL * deltaTime) / 1000
+        const slowdown = (SLOWDOWN * deltaTime) / 1000
+        const rotate_by = (ROTATE_BY * deltaTime) / 1000
 
-        if (keyIsDown(this.controls.up)) {
+        const pos = createVector(this.x, this.y)
+
+        const QC = []
+        const dC = []
+
+        for (let i = 0; i < 4; i++) {
+            QC[i] = closestPointOnSegment(checkpointSegments[i], pos)
+            dC[i] = p5.Vector.sub(pos, QC[i]).mag()
+        }
+
+        if (gameMode === Mode.SINGLEPLAYER && this.net) {
+            const inputs: Matrix = [[]]
+
+            inputs[0][0] = map(this.x, 0, 2100, -1, 1)
+            inputs[0][1] = map(this.y, 0, 2100, -1, 1)
+
+            inputs[0][2] = sin(this.rot)
+            inputs[0][3] = cos(this.rot)
+
+            inputs[0][4] = map(QC[this.checkpoint].x, 0, 2100, -1, 1)
+            inputs[0][5] = map(QC[this.checkpoint].y, 0, 2100, -1, 1)
+
+            inputs[0][6] = this.checkpoint < 2 ? 1 : 0
+            inputs[0][7] = this.checkpoint >= 2 ? 1 : 0
+
+            const move = this.net.predict01(inputs)
+
+            // move the boat
             this.speed += accel
+            if (move[0]) {
+                this.rot -= rotate_by
+            }
+            if (move[1]) {
+                this.rot += rotate_by
+            }
         } else {
-            this.speed -= slowdown
-        }
+            if (keyIsDown(this.controls.up)) {
+                this.speed += accel
+            } else {
+                this.speed -= slowdown
+            }
 
-        if (keyIsDown(this.controls.down)) {
-            this.speed -= slowdown
-        }
+            if (keyIsDown(this.controls.down)) {
+                this.speed -= slowdown
+            }
 
-        if (keyIsDown(this.controls.left)) {
-            this.rot -= rotate_by
-        }
+            if (keyIsDown(this.controls.left)) {
+                this.rot -= rotate_by
+            }
 
-        if (keyIsDown(this.controls.right)) {
-            this.rot += rotate_by
+            if (keyIsDown(this.controls.right)) {
+                this.rot += rotate_by
+            }
         }
 
         // limit speed
@@ -84,35 +125,13 @@ class Boat {
         }
 
         // check collision with checkpoints and the finishline
-        const pos = createVector(this.x, this.y)
-        if (!this.checkpoint1) {
-            const Q = closestPointOnSegment(checkpoint1Segment, pos)
-            const d = p5.Vector.sub(pos, Q).mag()
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint1 = true
+        if (this.checkpoint < 3) {
+            if (dC[this.checkpoint] < BOAT_COLLISION_RADIUS) {
+                this.checkpoint++
             }
-        }
-        else if (!this.checkpoint2) {
-            const Q = closestPointOnSegment(checkpoint2Segment, pos)
-            const d = p5.Vector.sub(pos, Q).mag()
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint2 = true
-            }
-        }
-        else if (!this.checkpoint3) {
-            const Q = closestPointOnSegment(checkpoint3Segment, pos)
-            const d = p5.Vector.sub(pos, Q).mag()
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint3 = true
-            }
-        }
-        else {
-            const Q = closestPointOnSegment(finishLineSegment, pos)
-            const d = p5.Vector.sub(pos, Q).mag()
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint1 = false
-                this.checkpoint2 = false
-                this.checkpoint3 = false
+        } else if (this.checkpoint == 3) {
+            if (dC[this.checkpoint] < BOAT_COLLISION_RADIUS) {
+                this.checkpoint = 0
                 if (this.lapTime < this.bestLapTime) {
                     this.bestLapTime = this.lapTime
                 }
@@ -123,8 +142,8 @@ class Boat {
         }
 
         // move the boat
-        this.x += this.speed * cos(this.rot) * deltaTime / 1000
-        this.y += this.speed * sin(this.rot) * deltaTime / 1000
+        this.x += (this.speed * cos(this.rot) * deltaTime) / 1000
+        this.y += (this.speed * sin(this.rot) * deltaTime) / 1000
 
         // move timer
         this.lapTime += deltaTime / 1000
@@ -133,7 +152,10 @@ class Boat {
     collideWith(other: Boat) {
         const distance = dist(this.x, this.y, other.x, other.y)
         if (distance <= BOAT_COLLISION_RADIUS * 2) {
-            const impact = p5.Vector.sub(createVector(other.x, other.y), createVector(this.x, this.y))
+            const impact = p5.Vector.sub(
+                createVector(other.x, other.y),
+                createVector(this.x, this.y)
+            )
 
             // Push the boats out so they don't overlap
             const overlap = BOAT_COLLISION_RADIUS * 2 - distance
@@ -176,9 +198,7 @@ function resetBoats(): void {
     boat1.x = 960
     boat1.y = 1130
     boat1.round = 0
-    boat1.checkpoint1 = false
-    boat1.checkpoint2 = false
-    boat1.checkpoint3 = false
+    boat1.checkpoint = 0
     boat1.speed = 0
     boat1.rot = -54
     boat1.lapTime = 0
@@ -187,15 +207,13 @@ function resetBoats(): void {
         up: UP_ARROW,
         down: DOWN_ARROW,
         left: LEFT_ARROW,
-        right: RIGHT_ARROW
+        right: RIGHT_ARROW,
     }
 
     boat2.x = 1060
     boat2.y = 1200
     boat2.round = 0
-    boat2.checkpoint1 = false
-    boat2.checkpoint2 = false
-    boat2.checkpoint3 = false
+    boat2.checkpoint = 0
     boat2.speed = 0
     boat2.rot = -54
     boat2.lapTime = 0
@@ -204,6 +222,6 @@ function resetBoats(): void {
         up: 87,
         down: 83,
         left: 65,
-        right: 68
+        right: 68,
     }
 }

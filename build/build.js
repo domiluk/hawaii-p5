@@ -4,7 +4,8 @@ var MAX_SPEED = 6.5 * 60;
 var ACCEL = 0.05 * 3600;
 var SLOWDOWN = 0.08 * 3600;
 var Boat = (function () {
-    function Boat() {
+    function Boat(net) {
+        this.net = net;
     }
     Boat.prototype.draw = function (g, camleft, camup) {
         if (g == null) {
@@ -22,23 +23,51 @@ var Boat = (function () {
         g.pop();
     };
     Boat.prototype.update = function () {
-        var accel = ACCEL * deltaTime / 1000;
-        var slowdown = SLOWDOWN * deltaTime / 1000;
-        var rotate_by = ROTATE_BY * deltaTime / 1000;
-        if (keyIsDown(this.controls.up)) {
+        var accel = (ACCEL * deltaTime) / 1000;
+        var slowdown = (SLOWDOWN * deltaTime) / 1000;
+        var rotate_by = (ROTATE_BY * deltaTime) / 1000;
+        var pos = createVector(this.x, this.y);
+        var QC = [];
+        var dC = [];
+        for (var i = 0; i < 4; i++) {
+            QC[i] = closestPointOnSegment(checkpointSegments[i], pos);
+            dC[i] = p5.Vector.sub(pos, QC[i]).mag();
+        }
+        if (gameMode === Mode.SINGLEPLAYER && this.net) {
+            var inputs = [[]];
+            inputs[0][0] = map(this.x, 0, 2100, -1, 1);
+            inputs[0][1] = map(this.y, 0, 2100, -1, 1);
+            inputs[0][2] = sin(this.rot);
+            inputs[0][3] = cos(this.rot);
+            inputs[0][4] = map(QC[this.checkpoint].x, 0, 2100, -1, 1);
+            inputs[0][5] = map(QC[this.checkpoint].y, 0, 2100, -1, 1);
+            inputs[0][6] = this.checkpoint < 2 ? 1 : 0;
+            inputs[0][7] = this.checkpoint >= 2 ? 1 : 0;
+            var move = this.net.predict01(inputs);
             this.speed += accel;
+            if (move[0]) {
+                this.rot -= rotate_by;
+            }
+            if (move[1]) {
+                this.rot += rotate_by;
+            }
         }
         else {
-            this.speed -= slowdown;
-        }
-        if (keyIsDown(this.controls.down)) {
-            this.speed -= slowdown;
-        }
-        if (keyIsDown(this.controls.left)) {
-            this.rot -= rotate_by;
-        }
-        if (keyIsDown(this.controls.right)) {
-            this.rot += rotate_by;
+            if (keyIsDown(this.controls.up)) {
+                this.speed += accel;
+            }
+            else {
+                this.speed -= slowdown;
+            }
+            if (keyIsDown(this.controls.down)) {
+                this.speed -= slowdown;
+            }
+            if (keyIsDown(this.controls.left)) {
+                this.rot -= rotate_by;
+            }
+            if (keyIsDown(this.controls.right)) {
+                this.rot += rotate_by;
+            }
         }
         this.speed = constrain(this.speed, 0, MAX_SPEED);
         var r = BOAT_COLLISION_RADIUS;
@@ -54,35 +83,14 @@ var Boat = (function () {
             this.rot = atan2(-vy, vx);
             this.y = constrain(this.y, r, ostrov.height - r - 1);
         }
-        var pos = createVector(this.x, this.y);
-        if (!this.checkpoint1) {
-            var Q = closestPointOnSegment(checkpoint1Segment, pos);
-            var d = p5.Vector.sub(pos, Q).mag();
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint1 = true;
+        if (this.checkpoint < 3) {
+            if (dC[this.checkpoint] < BOAT_COLLISION_RADIUS) {
+                this.checkpoint++;
             }
         }
-        else if (!this.checkpoint2) {
-            var Q = closestPointOnSegment(checkpoint2Segment, pos);
-            var d = p5.Vector.sub(pos, Q).mag();
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint2 = true;
-            }
-        }
-        else if (!this.checkpoint3) {
-            var Q = closestPointOnSegment(checkpoint3Segment, pos);
-            var d = p5.Vector.sub(pos, Q).mag();
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint3 = true;
-            }
-        }
-        else {
-            var Q = closestPointOnSegment(finishLineSegment, pos);
-            var d = p5.Vector.sub(pos, Q).mag();
-            if (d < BOAT_COLLISION_RADIUS) {
-                this.checkpoint1 = false;
-                this.checkpoint2 = false;
-                this.checkpoint3 = false;
+        else if (this.checkpoint == 3) {
+            if (dC[this.checkpoint] < BOAT_COLLISION_RADIUS) {
+                this.checkpoint = 0;
                 if (this.lapTime < this.bestLapTime) {
                     this.bestLapTime = this.lapTime;
                 }
@@ -91,8 +99,8 @@ var Boat = (function () {
                 dray.play();
             }
         }
-        this.x += this.speed * cos(this.rot) * deltaTime / 1000;
-        this.y += this.speed * sin(this.rot) * deltaTime / 1000;
+        this.x += (this.speed * cos(this.rot) * deltaTime) / 1000;
+        this.y += (this.speed * sin(this.rot) * deltaTime) / 1000;
         this.lapTime += deltaTime / 1000;
     };
     Boat.prototype.collideWith = function (other) {
@@ -131,9 +139,7 @@ function resetBoats() {
     boat1.x = 960;
     boat1.y = 1130;
     boat1.round = 0;
-    boat1.checkpoint1 = false;
-    boat1.checkpoint2 = false;
-    boat1.checkpoint3 = false;
+    boat1.checkpoint = 0;
     boat1.speed = 0;
     boat1.rot = -54;
     boat1.lapTime = 0;
@@ -142,14 +148,12 @@ function resetBoats() {
         up: UP_ARROW,
         down: DOWN_ARROW,
         left: LEFT_ARROW,
-        right: RIGHT_ARROW
+        right: RIGHT_ARROW,
     };
     boat2.x = 1060;
     boat2.y = 1200;
     boat2.round = 0;
-    boat2.checkpoint1 = false;
-    boat2.checkpoint2 = false;
-    boat2.checkpoint3 = false;
+    boat2.checkpoint = 0;
     boat2.speed = 0;
     boat2.rot = -54;
     boat2.lapTime = 0;
@@ -158,7 +162,7 @@ function resetBoats() {
         up: 87,
         down: 83,
         left: 65,
-        right: 68
+        right: 68,
     };
 }
 var debug = false;
@@ -324,6 +328,133 @@ function isLeaderboardEntry(obj) {
         typeof obj.name === 'string' &&
         typeof obj.lapTime === 'number';
 }
+var MLP = (function () {
+    function MLP(nIn, nHidden, nOut) {
+        this.nIn = nIn;
+        this.nHidden = nHidden;
+        this.nOut = nOut;
+        this.W1 = randn(nIn, nHidden, Math.sqrt(2 / nIn));
+        this.b1 = randn(1, nHidden, Math.sqrt(2 / nIn));
+        this.W2 = randn(nHidden, nOut, Math.sqrt(2 / nHidden));
+        this.b2 = randn(1, nOut, Math.sqrt(2 / nHidden));
+    }
+    MLP.prototype.forward = function (x1xN) {
+        var z1 = add(matmul(x1xN, this.W1), this.b1);
+        var h = relu(z1);
+        var z2 = add(matmul(h, this.W2), this.b2);
+        var o = sigmoid(z2);
+        return { z1: z1, h: h, z2: z2, o: o };
+    };
+    MLP.prototype.predict01 = function (x1xN, thr) {
+        if (thr === void 0) { thr = 0.5; }
+        var o = this.forward(x1xN).o;
+        return o[0].map(function (v) { return (v > thr ? 1 : 0); });
+    };
+    MLP.prototype.predictProb = function (x1xN) {
+        var o = this.forward(x1xN).o;
+        return o[0].slice();
+    };
+    MLP.prototype.loadJSON = function (json) {
+        this.W1 = json.W1;
+        this.b1 = json.b1;
+        this.W2 = json.W2;
+        this.b2 = json.b2;
+    };
+    return MLP;
+}());
+function zeros(r, c) {
+    var a = new Array(r);
+    for (var i = 0; i < r; i++) {
+        a[i] = new Array(c).fill(0);
+    }
+    return a;
+}
+function randn(r, c, std) {
+    if (std === void 0) { std = 1; }
+    var a = new Array(r);
+    for (var i = 0; i < r; i++) {
+        a[i] = new Array(c);
+        for (var j = 0; j < c; j++) {
+            a[i][j] = std * gaussRand();
+        }
+    }
+    return a;
+}
+function gaussRand() {
+    var u = 1 - Math.random();
+    var v = 1 - Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function matmul(A, B) {
+    var r = A.length, k = A[0].length, c = B[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++) {
+        for (var j = 0; j < c; j++) {
+            var s = 0;
+            for (var t = 0; t < k; t++)
+                s += A[i][t] * B[t][j];
+            out[i][j] = s;
+        }
+    }
+    return out;
+}
+function add(A, B) {
+    var r = A.length, c = A[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++) {
+        for (var j = 0; j < c; j++)
+            out[i][j] = A[i][j] + B[Math.min(i, B.length - 1)][j];
+    }
+    return out;
+}
+function scal(A, s) {
+    var r = A.length, c = A[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[i][j] = A[i][j] * s;
+    return out;
+}
+function transpose(A) {
+    var r = A.length, c = A[0].length;
+    var out = zeros(c, r);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[j][i] = A[i][j];
+    return out;
+}
+function mul(A, B) {
+    var r = A.length, c = A[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[i][j] = A[i][j] * B[i][j];
+    return out;
+}
+function relu(Z) {
+    var r = Z.length, c = Z[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[i][j] = Math.max(0, Z[i][j]);
+    return out;
+}
+function reluPrime(Z) {
+    var r = Z.length, c = Z[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[i][j] = Z[i][j] > 0 ? 1 : 0;
+    return out;
+}
+function sigmoid(Z) {
+    var r = Z.length, c = Z[0].length;
+    var out = zeros(r, c);
+    for (var i = 0; i < r; i++)
+        for (var j = 0; j < c; j++)
+            out[i][j] = 1 / (1 + Math.exp(-Z[i][j]));
+    return out;
+}
 var OPTIONS_KEY = "hawaii-options-v1";
 function saveOptions() {
     var options = {
@@ -404,10 +535,25 @@ var topLeftIslandStrings;
 var topLeftIsland;
 var bottomRightIslandStrings;
 var bottomRightIsland;
-var finishLineSegment = [{ x: 935, y: 1049 }, { x: 1190, y: 1231 }];
-var checkpoint1Segment = [{ x: 0, y: 168 }, { x: 490, y: 520 }];
-var checkpoint2Segment = finishLineSegment;
-var checkpoint3Segment = [{ x: 1593, y: 1587 }, { x: 1914, y: 1900 }];
+var netJson;
+var checkpointSegments = [
+    [
+        { x: 0, y: 168 },
+        { x: 490, y: 520 },
+    ],
+    [
+        { x: 935, y: 1049 },
+        { x: 1190, y: 1231 },
+    ],
+    [
+        { x: 1593, y: 1587 },
+        { x: 1914, y: 1900 },
+    ],
+    [
+        { x: 935, y: 1049 },
+        { x: 1190, y: 1231 },
+    ],
+];
 function preload() {
     airstream = loadFont("fonts/airstream.ttf");
     symbols = loadFont("fonts/symbols.ttf");
@@ -418,12 +564,13 @@ function preload() {
     ostrov = loadImage("images/ostrov1.bmp");
     menu = loadImage("images/menu.png");
     panel = loadImage("images/panel.png");
-    soundFormats('wav');
+    soundFormats("wav");
     dray = loadSound("sounds/dray.wav");
     spring = loadSound("sounds/spring.wav");
     mainSample = loadSound("sounds/main.wav");
     topLeftIslandStrings = loadStrings("islands/topleft.txt");
     bottomRightIslandStrings = loadStrings("islands/bottomright.txt");
+    netJson = loadJSON("/neuralnets/net1-600.json");
 }
 function setup() {
     var _a;
@@ -447,8 +594,11 @@ function setup() {
     leftBuffer.angleMode(DEGREES);
     rightBuffer.angleMode(DEGREES);
     textFont(airstream);
-    boat1 = new Boat();
-    boat2 = new Boat();
+    var net = new MLP(8, 16, 2);
+    net.loadJSON(netJson);
+    console.log(net);
+    boat1 = new Boat(null);
+    boat2 = new Boat(net);
     boat1.bmp = lodCervena;
     boat2.bmp = lodZelena;
     resetBoats();
@@ -784,10 +934,10 @@ var GameScene = (function (_super) {
             if (debug) {
                 topLeftIsland.draw(camleft1, camup1);
                 bottomRightIsland.draw(camleft1, camup1);
-                drawSegment(checkpoint1Segment, camleft1, camup1);
-                drawSegment(checkpoint2Segment, camleft1, camup1);
-                drawSegment(checkpoint3Segment, camleft1, camup1);
-                drawSegment(finishLineSegment, camleft1, camup1);
+                drawSegment(checkpointSegments[0], camleft1, camup1);
+                drawSegment(checkpointSegments[1], camleft1, camup1);
+                drawSegment(checkpointSegments[2], camleft1, camup1);
+                drawSegment(checkpointSegments[3], camleft1, camup1);
             }
         }
         this.drawTimerPanels();
