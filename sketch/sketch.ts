@@ -117,7 +117,7 @@ function preload() {
     topLeftIslandStrings = loadStrings("islands/topleft.txt")
     bottomRightIslandStrings = loadStrings("islands/bottomright.txt")
 
-    netJson = loadJSON("/neuralnets/net1-600.json") as NetworkJSON
+    netJson = loadJSON("/neuralnets/net-50.json") as NetworkJSON
 }
 
 function setup() {
@@ -151,7 +151,7 @@ function setup() {
     textFont(airstream)
 
     // Set up boats
-    const net = new MLP(8, 16, 2)
+    const net = new MLP(3, 16, 2)
     net.loadJSON(netJson)
     console.log(net)
     boat1 = new Boat(null)

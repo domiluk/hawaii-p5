@@ -35,14 +35,10 @@ var Boat = (function () {
         }
         if (gameMode === Mode.SINGLEPLAYER && this.net) {
             var inputs = [[]];
-            inputs[0][0] = map(this.x, 0, 2100, -1, 1);
-            inputs[0][1] = map(this.y, 0, 2100, -1, 1);
-            inputs[0][2] = sin(this.rot);
-            inputs[0][3] = cos(this.rot);
-            inputs[0][4] = map(QC[this.checkpoint].x, 0, 2100, -1, 1);
-            inputs[0][5] = map(QC[this.checkpoint].y, 0, 2100, -1, 1);
-            inputs[0][6] = this.checkpoint < 2 ? 1 : 0;
-            inputs[0][7] = this.checkpoint >= 2 ? 1 : 0;
+            var alpha_1 = atan2(QC[this.checkpoint].y - this.y, QC[this.checkpoint].x - this.x) - this.rot;
+            inputs[0][0] = sin(alpha_1);
+            inputs[0][1] = cos(alpha_1);
+            inputs[0][2] = map(dC[this.checkpoint], 0, 2832, 0, 1);
             var move = this.net.predict01(inputs);
             this.speed += accel;
             if (move[0]) {
@@ -570,7 +566,7 @@ function preload() {
     mainSample = loadSound("sounds/main.wav");
     topLeftIslandStrings = loadStrings("islands/topleft.txt");
     bottomRightIslandStrings = loadStrings("islands/bottomright.txt");
-    netJson = loadJSON("/neuralnets/net1-600.json");
+    netJson = loadJSON("/neuralnets/net-50.json");
 }
 function setup() {
     var _a;
@@ -594,7 +590,7 @@ function setup() {
     leftBuffer.angleMode(DEGREES);
     rightBuffer.angleMode(DEGREES);
     textFont(airstream);
-    var net = new MLP(8, 16, 2);
+    var net = new MLP(3, 16, 2);
     net.loadJSON(netJson);
     console.log(net);
     boat1 = new Boat(null);
