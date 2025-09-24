@@ -78,9 +78,9 @@ class Boat {
             const alpha =
                 atan2(QC[this.checkpoint]!.y - this.y, QC[this.checkpoint]!.x - this.x) - this.rot
 
-            inputs[0]![0] = sin(alpha)
-            inputs[0]![1] = cos(alpha)
-            inputs[0]![2] = map(dC[this.checkpoint]!, 0, 2832, 0, 1)
+            inputs[0][0] = sin(alpha)
+            inputs[0][1] = cos(alpha)
+            inputs[0][2] = map(dC[this.checkpoint]!, 0, 2832, 0, 1)
 
             const move = this.net.predict01(inputs)
 
